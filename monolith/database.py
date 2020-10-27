@@ -39,6 +39,8 @@ class User(db.Model):
     def get_id(self):
         return self.id
 
+    def __str__(self) -> str:
+        return f'{self.firstname} {self.lastname}--mail:{self.email}--born:{self.dateofbirth.strftime("%B %d %Y")}'
 
 class Restaurant(db.Model):
     __tablename__ = 'restaurant'
@@ -75,3 +77,20 @@ class Notification(db.Model):
 
     restaurant_id = db.Column(db.Integer, db.ForeignKey('restaurant.id'))
     notification_checked = db.Column(db.Boolean, default=False)
+
+class Reservation(db.Model):
+    __tablename__ = 'reservation'
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), primary_key=True)
+    restaurant_id = db.Column(db.Integer, db.ForeignKey('restaurant.id'))
+    reservation_time = db.Column(db.DateTime, primary_key=True, default=datetime.now())
+    table_no = db.Column(db.Integer, db.ForeignKey('restaurant_table.table_id'), primary_key=True)
+
+    seats = db.Column(db.Integer, default=False)
+    entrance_time = db.Column(db.Integer, nullable=True)
+
+class RestaurantTable(db.Model):
+    __tablename__ = 'restaurant_table'
+    table_id = db.Column(db.Integer, primary_key=True)
+    restaurant_id = db.Column(db.Integer, db.ForeignKey('restaurant.id'))
+    seats = db.Column(db.Integer, default=False)
+
