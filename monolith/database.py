@@ -1,3 +1,4 @@
+from datetime import datetime
 from werkzeug.security import generate_password_hash, check_password_hash
 import enum
 from sqlalchemy.orm import relationship
@@ -63,3 +64,14 @@ class Like(db.Model):
     restaurant = relationship('Restaurant', foreign_keys='Like.restaurant_id')
 
     marked = db.Column(db.Boolean, default = False) # True iff it has been counted in Restaurant.likes 
+
+
+class Notification(db.Model):
+    __tablename__ = 'notifications'
+
+    positive_user_id = db.Column(db.Integer, db.ForeignKey('user.id'), primary_key=True)
+    date = db.Column(db.DateTime, primary_key=True, default=datetime.now())
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), primary_key=True)
+
+    restaurant_id = db.Column(db.Integer, db.ForeignKey('restaurant.id'))
+    notification_checked = db.Column(db.Boolean, default=False)
