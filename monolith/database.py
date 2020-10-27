@@ -19,6 +19,7 @@ class User(db.Model):
     is_active = db.Column(db.Boolean, default=True)
     is_admin = db.Column(db.Boolean, default=False)
     is_anonymous = False
+    restaurant_id = db.Column(db.ForeignKey('restaurant.id'), nullable=True)
 
     def __init__(self, *args, **kw):
         super(User, self).__init__(*args, **kw)
@@ -45,15 +46,14 @@ class User(db.Model):
 class Restaurant(db.Model):
     __tablename__ = 'restaurant'
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
-
     name = db.Column(db.Text(100)) 
-    
     likes = db.Column(db.Integer) # will store the number of likes, periodically updated in background
-
     lat = db.Column(db.Float) # restaurant latitude
     lon = db.Column(db.Float) # restaurant longitude
-
     phone = db.Column(db.Integer)
+    extra_info = db.Column(db.Text(300)) # restaurant infos (menu, ecc.)
+
+    operator_id = relationship(User, backref="operator")
 
 
 class Like(db.Model):

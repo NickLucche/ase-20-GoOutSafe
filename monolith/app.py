@@ -46,7 +46,6 @@ def create_app():
             example.lon = 10.408347
             db.session.add(example)
             db.session.commit()
-
     return app
 
 

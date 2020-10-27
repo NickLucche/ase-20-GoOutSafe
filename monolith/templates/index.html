@@ -1,9 +1,10 @@
 <h1>GoOutSafe</h1>
 
 {% if current_user.is_authenticated %}
-  Hi {{ current_user.firstname }}! <a href="/logout">Logout</a>
-
-  
+  Hi {{ current_user.firstname }}! <a href="/logout">Logout</a><br>
+  {% if current_user.restaurant_id %}
+    click <a href="/restaurant/edit/{{ current_user.restaurant_id }}">here</a> to edit the restaurant profile!
+  {% else %}
     <h2>Your Restaurants</h2>
     {% for restaurant in restaurants%}
       <div>
@@ -14,6 +15,8 @@
     {% endfor %}
 
 
+{% endif %}
 {% else %}
-  Hi Anonymous, <a href="/login">Log in</a>
+  Hi Anonymous, <a href="/login">Log in</a> or <a href="/create_user">Sign up</a>!<br>
+  Do you have a restaurant? <a href="/create_operator">Register it</a>, is free!
 {% endif %}
