@@ -12,10 +12,6 @@ def check_visited_places(user: User, day_range: int, app: Flask):
     range.replace(hour=0, minute=0, second=0, microsecond=0)
     with app.app_context():
         reservations = Reservation.query.filter_by(user_id=user.id).\
-        filter(entrance_time != None).filter_by(entrance_time >= range)
+        filter(Reservation.entrance_time != None).filter(Reservation.entrance_time >= range).all()
         print(reservations)
-
-
-class Notifications:
-    def __init__(self) -> None:
-        pass
+    return reservations
