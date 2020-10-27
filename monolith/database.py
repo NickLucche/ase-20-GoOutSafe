@@ -50,6 +50,7 @@ class Restaurant(db.Model):
     lat = db.Column(db.Float) # restaurant latitude
     lon = db.Column(db.Float) # restaurant longitude
     phone = db.Column(db.Integer)
+    extra_info = db.Column(db.Text(300)) # restaurant infos (menu, ecc.)
 
     operator_id = relationship(User, backref="operator")
 
