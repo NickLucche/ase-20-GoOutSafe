@@ -2,7 +2,6 @@ import functools
 from flask_login import current_user, LoginManager
 from monolith.database import User
 
-
 login_manager = LoginManager()
 
 
@@ -13,7 +12,20 @@ def admin_required(func):
         if not admin:
             return login_manager.unauthorized()
         return func(*args, **kw)
+
     return _admin_required
+
+
+def operator_required(func):
+    @functools.wraps(func)
+    def _operator_required(*args, **kw):
+        if not current_user.is_authenticated:
+            return login_manager.unauthorized()
+        if current_user.restaurant is None:
+            return login_manager.unauthorized()
+        return func(*args, **kw)
+
+    return _operator_required
 
 
 @login_manager.user_loader
