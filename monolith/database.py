@@ -17,6 +17,7 @@ class User(db.Model):
     dateofbirth = db.Column(db.DateTime)
     is_active = db.Column(db.Boolean, default=True)
     is_admin = db.Column(db.Boolean, default=False)
+    is_markedPositive = db.Column(db.Boolean, default=False)
     is_anonymous = False
 
     def __init__(self, *args, **kw):
@@ -62,4 +63,19 @@ class Like(db.Model):
     restaurant_id = db.Column(db.Integer, db.ForeignKey('restaurant.id'), primary_key=True)
     restaurant = relationship('Restaurant', foreign_keys='Like.restaurant_id')
 
-    marked = db.Column(db.Boolean, default = False) # True iff it has been counted in Restaurant.likes 
+    marked = db.Column(db.Boolean, default = False) # True iff it has been counted in Restaurant.likes
+
+"""
+class Entrance(db.Model):
+    __tablename__ = 'entrance'
+
+    entrance_id = db.Column(db.Integer, primary_key=True, autoincrement=True);
+
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
+    user = relationship('User', foreign_keys='Entrance.user_id')
+
+    restaurant_id = db.Column(db.Integer, db.ForeignKey('restaurant.id'))
+    restaurant = relationship('Restaurant', foreign_keys='Entrance.restaurant_id')
+
+    entrance_time = db.Column(db.DateTime)
+    """
