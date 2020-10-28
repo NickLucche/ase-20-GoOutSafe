@@ -3,7 +3,11 @@ from celery.schedules import crontab
 from monolith.database import db, User, Restaurant
 
 BACKEND = BROKER = 'redis://localhost:6379'
-celery = Celery(__name__, backend=BACKEND, broker=BROKER)
+celery = Celery(__name__,
+                backend=BACKEND,
+                broker=BROKER,
+                include=['monolith.classes.notifications',
+                         'monolith.background'])  # include list of modules to import when worker tarts
 
 _APP = None
 

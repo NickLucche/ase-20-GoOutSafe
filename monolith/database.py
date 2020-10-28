@@ -1,14 +1,16 @@
+from datetime import datetime
 from werkzeug.security import generate_password_hash, check_password_hash
 import enum
 from sqlalchemy.orm import relationship
 import datetime as dt
 from flask_sqlalchemy import SQLAlchemy
 
-
 db = SQLAlchemy()
+
 
 class User(db.Model):
     __tablename__ = 'user'
+    
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     email = db.Column(db.Unicode(128), nullable=False)
     firstname = db.Column(db.Unicode(128))
@@ -19,6 +21,8 @@ class User(db.Model):
     is_admin = db.Column(db.Boolean, default=False)
     is_markedPositive = db.Column(db.Boolean, default=False)
     is_anonymous = False
+    restaurant_id = db.Column(db.Integer, db.ForeignKey('restaurant.id'), nullable=True)
+    restaurant = db.relationship("Restaurant", backref=db.backref("restaurant"))
 
     def __init__(self, *args, **kw):
         super(User, self).__init__(*args, **kw)
@@ -39,43 +43,67 @@ class User(db.Model):
     def get_id(self):
         return self.id
 
+    def __str__(self) -> str:
+        return f'{self.firstname} {self.lastname}--mail:{self.email}--born:{self.dateofbirth.strftime("%B %d %Y")}'
+
 
 class Restaurant(db.Model):
     __tablename__ = 'restaurant'
+
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
-
     name = db.Column(db.Text(100)) 
-    
     likes = db.Column(db.Integer) # will store the number of likes, periodically updated in background
-
     lat = db.Column(db.Float) # restaurant latitude
     lon = db.Column(db.Float) # restaurant longitude
-
     phone = db.Column(db.Integer)
+    extra_info = db.Column(db.Text(300)) # restaurant infos (menu, ecc.)
+
+    operator_id = relationship(User, backref="operator")
 
 
 class Like(db.Model):
     __tablename__ = 'like'
-    
+
     liker_id = db.Column(db.Integer, db.ForeignKey('user.id'), primary_key=True)
     liker = relationship('User', foreign_keys='Like.liker_id')
 
     restaurant_id = db.Column(db.Integer, db.ForeignKey('restaurant.id'), primary_key=True)
     restaurant = relationship('Restaurant', foreign_keys='Like.restaurant_id')
 
-    marked = db.Column(db.Boolean, default = False) # True iff it has been counted in Restaurant.likes
+    marked = db.Column(db.Boolean, default=False)  # True iff it has been counted in Restaurant.likes
 
-"""
-class Entrance(db.Model):
-    __tablename__ = 'entrance'
 
-    entrance_id = db.Column(db.Integer, primary_key=True, autoincrement=True);
+class Notification(db.Model):
+    __tablename__ = 'notifications'
 
-    user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
-    user = relationship('User', foreign_keys='Entrance.user_id')
+    positive_user_id = db.Column(db.Integer, db.ForeignKey('user.id'), primary_key=True)
+    date = db.Column(db.DateTime, primary_key=True, default=datetime.now())
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), primary_key=True)
 
     restaurant_id = db.Column(db.Integer, db.ForeignKey('restaurant.id'))
-    restaurant = relationship('Restaurant', foreign_keys='Entrance.restaurant_id')
+    notification_checked = db.Column(db.Boolean, default=False)
 
-    entrance_time = db.Column(db.DateTime)
-    """
+
+class Reservation(db.Model):
+    __tablename__ = 'reservation'
+
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), primary_key=True)
+
+    restaurant_id = db.Column(db.Integer, db.ForeignKey('restaurant.id'))
+    restaurant = db.relationship("Restaurant", backref=db.backref("restaurant_r"))
+    
+    reservation_time = db.Column(db.DateTime, primary_key=True, default=datetime.now())
+    table_no = db.Column(db.Integer, db.ForeignKey('restaurant_table.table_id'), primary_key=True)
+    table = db.relationship("RestaurantTable", backref=db.backref("restaurant_table_r"))
+
+    seats = db.Column(db.Integer, default=False)
+    entrance_time = db.Column(db.Integer, nullable=True)
+
+
+class RestaurantTable(db.Model):
+    __tablename__ = 'restaurant_table'
+
+    table_id = db.Column(db.Integer, primary_key=True)
+    restaurant_id = db.Column(db.Integer, db.ForeignKey('restaurant.id'))
+    restaurant = db.relationship("Restaurant", backref=db.backref("restaurant_t"))
+    seats = db.Column(db.Integer, default=False)

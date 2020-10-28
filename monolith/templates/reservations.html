@@ -1,0 +1,17 @@
+<html>
+  <body>
+    <h1>Reservations</h1>
+      {% for reservation in reservations: %}
+      <section>
+        <div>
+          <h2>Reservation for {{reservation.reservation_time}}</h2>
+          <ul>
+            <li>Table: {{reservation.table_no}}</li>
+            <li>Seats: {{reservation.seats}}</li>
+          </ul>
+        </div>
+      </section>
+      {% endfor %}
+    </ul>
+  </body>
+</html>

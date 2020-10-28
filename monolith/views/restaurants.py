@@ -31,3 +31,8 @@ def _like(restaurant_id):
     else:
         message = 'You\'ve already liked this place!'
     return _restaurants(message)
+
+@restaurants.route('/restaurants/edit/<restaurant_id>')
+@login_required
+def edit(restaurant_id):
+    pass

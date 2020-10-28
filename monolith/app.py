@@ -1,6 +1,6 @@
 import os
 from flask import Flask
-from monolith.database import db, User, Restaurant
+from monolith.database import db, User, Restaurant, Reservation, RestaurantTable
 from monolith.views import blueprints
 from monolith.auth import login_manager
 import datetime
@@ -11,6 +11,7 @@ def create_app():
     app.config['SECRET_KEY'] = 'ANOTHER ONE'
     app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///gooutsafe.db'
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+    app.config['SQLALCHEMY_ECHO'] = True
 
     for bp in blueprints:
         app.register_blueprint(bp)
@@ -53,14 +54,38 @@ def create_app():
         q = db.session.query(Restaurant).filter(Restaurant.id == 1)
         restaurant = q.first()
         if restaurant is None:
-            example = Restaurant()
-            example.name = 'Trial Restaurant'
-            example.likes = 42
-            example.phone = 555123456
-            example.lat = 43.720586
-            example.lon = 10.408347
+            restaurant = Restaurant()
+            restaurant.name = 'Trial Restaurant'
+            restaurant.likes = 42
+            restaurant.phone = 555123456
+            restaurant.lat = 43.720586
+            restaurant.lon = 10.408347
             db.session.add(example)
             db.session.commit()
+        
+        q = db.session.query(User).filter(User.restaurant_id != None)
+        operator = q.first()
+        if operator is None:
+            operator = User(firstname="Operator", lastname="Operator", email="operator@example.com", restaurant=restaurant)
+            #operator.restaurant_id = restaurant.id
+            operator.set_password("operator")
+            db.session.add(operator)
+            db.session.commit()
+
+        q = db.session.query(RestaurantTable).filter(RestaurantTable.restaurant == restaurant)
+        restaurant_table = q.first()
+        if restaurant_table is None:
+            restaurant_table = RestaurantTable(restaurant=restaurant, seats=4)
+            db.session.add(restaurant_table)
+            db.session.commit()
+
+        q = db.session.query(Reservation).filter(Reservation.restaurant == restaurant);
+        reservation = q.first()
+        if reservation is None:
+            reservation = Reservation(table=restaurant_table, restaurant=restaurant, user_id=1, seats=3)
+            db.session.add(reservation)
+            db.session.commit()
+
 
     return app
 
