@@ -33,7 +33,7 @@ def create_app():
             example.dateofbirth = datetime.datetime(2020, 10, 5)
             example.is_admin = True
             example.set_password('authority')
-            example.is_markedPositive = False
+            example.is_positive = False
             db.session.add(example)
             db.session.commit()
 
@@ -47,7 +47,7 @@ def create_app():
             example.dateofbirth = datetime.datetime(2020, 10, 5)
             example.is_admin = True
             example.set_password('admin')
-            example.is_markedPositive = False
+            example.is_positive = False
             db.session.add(example)
             db.session.commit()
 

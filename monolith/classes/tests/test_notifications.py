@@ -8,8 +8,6 @@ from monolith.classes.tests.utils import add_random_users, delete_random_users, 
 
 app = create_app()
 INCUBATION_PERIOD_COVID= 10
-class Notifications(unittest.TestCase):
-
 
 class Notifications(unittest.TestCase):
     def test_lha_positive_marking(self):

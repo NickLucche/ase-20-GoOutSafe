@@ -19,7 +19,8 @@ class User(db.Model):
     dateofbirth = db.Column(db.DateTime)
     is_active = db.Column(db.Boolean, default=True)
     is_admin = db.Column(db.Boolean, default=False)
-    is_markedPositive = db.Column(db.Boolean, default=False)
+    is_positive = db.Column(db.Boolean, default=False)
+    reported_positive_date = db.Column(db.DateTime, nullable=True)
     is_anonymous = False
     restaurant_id = db.Column(db.Integer, db.ForeignKey('restaurant.id'), nullable=True)
     restaurant = db.relationship("Restaurant", backref=db.backref("restaurant"))
