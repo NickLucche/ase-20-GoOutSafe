@@ -2,9 +2,10 @@ import unittest
 from monolith.database import Reservation, db, User
 import random
 from datetime import datetime, timedelta
-from monolith.classes.notifications import check_visited_places
+from monolith.classes.notifications import check_visited_places, create_notifications, contact_tracing
 from monolith.app import create_app
-from monolith.classes.tests.utils import add_random_users, delete_random_users, random_datetime_in_range
+from monolith.classes.tests.utils import add_random_users, add_random_visits_to_place, delete_random_users, mark_random_guy_as_positive, random_datetime_in_range, visit_random_places
+from celery import chain
 
 app = create_app()
 INCUBATION_PERIOD_COVID= 10
@@ -55,7 +56,7 @@ class Notifications(unittest.TestCase):
                     risky_places += 1
             db.session.add_all(visits)
             db.session.commit()
-            reservations = check_visited_places(positive_guy.id, 10)
+            reservations = check_visited_places(positive_guy.id, INCUBATION_PERIOD_COVID)
             # delete all reservations
             db.session.query(Reservation).delete()
             db.session.commit()
@@ -92,7 +93,8 @@ class Notifications(unittest.TestCase):
             db.session.add_all(visits)
             db.session.commit()
             # this forces a wait
-            reservations = check_visited_places.delay(positive_guy.id, 10).get()
+            reservations = check_visited_places.delay(positive_guy.id, INCUBATION_PERIOD_COVID).get()
+            print(reservations)
             # delete all reservations
             db.session.query(Reservation).delete()
             db.session.commit()
@@ -100,20 +102,65 @@ class Notifications(unittest.TestCase):
         delete_random_users(app)
         self.assertEqual(len(reservations), risky_places)
 
-    # def test_positive_visited_my_restaurant(self):
-    #     # as operator, I want to be notified if a positive customer visited my restaurant
-    #     # within the last X days
-    #     add_random_users(10, app)
+    def test_contact_tracing(self):
+        add_random_users(10, app)
+        now = datetime.now()
+        # LHA marks a User as positive (admin excluded)
+        with app.app_context():
+            positive_guy = mark_random_guy_as_positive(app, now)
+            # make positive guy visit some random places
+            n_places = random.randrange(0, 10)
+            nrisky_places, visits = visit_random_places(app, positive_guy['id'], now, INCUBATION_PERIOD_COVID, n_places)
+            # have a random num of users visit the same place as the positive guy
+            print("PLACES VISITED BY POSITIVE:", visits)
+            nrisky_visits = 0
+            for v in visits:
+                nrisky_visits += add_random_visits_to_place(app, v['restaurant_id'],
+                 now-timedelta(days=INCUBATION_PERIOD_COVID), now, v['entrance_time'])
+                    
+            # check if positive guy visited any restaurant in the last `INCUBATION_PERIOD_COVID` days
+            reservations = check_visited_places(positive_guy['id'], INCUBATION_PERIOD_COVID)
+            # notify customers that have been to the same restaurants at the same time as the pos guy
+            notified_users = contact_tracing(reservations, positive_guy['id'])
+            print("Notified users", notified_users)
+            # delete all reservations
+            db.session.query(Reservation).delete()
+            db.session.commit()
 
-    #     # LHA marks a User as positive (admin excluded)
-    #     rand_row = random.randrange(1, db.session.query(User).count())
-    #     positive_guy = db.session.query(User)[rand_row]
-    #     print(f"Marking user {positive_guy} as positive to COVID-19")
-    #     positive_guy.is_positive = True
-    #     positive_guy.confirmed_positive_date = datetime.now()
-    #     db.session.commit()
+        delete_random_users(app)
+        self.assertEqual(len(notified_users), nrisky_visits)
 
-    #     # Shortcut to send a task message
-    #     # check_visited_places.delay(positive_guy)
+    def test_contact_tracing_async(self):
+        add_random_users(10, app)
+        now = datetime.now()
+        # LHA marks a User as positive (admin excluded)
+        with app.app_context():
+            positive_guy = mark_random_guy_as_positive(app, now)
+            # make positive guy visit some random places
+            n_places = random.randrange(0, 10)
+            nrisky_places, visits = visit_random_places(app, positive_guy['id'], now, INCUBATION_PERIOD_COVID, n_places)
+            # have a random num of users visit the same place as the positive guy
+            print("PLACES VISITED BY POSITIVE:", visits)
+            nrisky_visits = 0
+            for v in visits:
+                nrisky_visits += add_random_visits_to_place(app, v['restaurant_id'],
+                 now-timedelta(days=INCUBATION_PERIOD_COVID), now, v['entrance_time'])
+                    
+            # run async task enforcing chain execution using signatures
+            pos_id = positive_guy['id']
+            exec_chain = (check_visited_places.s(pos_id, INCUBATION_PERIOD_COVID) | contact_tracing.s(pos_id))()
+            
+            to_be_notified_users = exec_chain.get()
+            print("Notified users", to_be_notified_users)
+            # delete all reservations
+            db.session.query(Reservation).delete()
+            db.session.commit()
 
-    #     delete_random_users(app)
+        delete_random_users(app)
+        self.assertEqual(len(to_be_notified_users), nrisky_visits)
+
+    def test_rest_owner_notifications(self):
+        pass
+
+    def test_user_notifications(self):
+        pass
