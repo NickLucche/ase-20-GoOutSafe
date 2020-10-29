@@ -1,5 +1,6 @@
 from flask import Blueprint, redirect, render_template, request
 from sqlalchemy import func
+from monolith.classes.authority import mark_user
 from monolith.database import db, User
 from monolith.auth import admin_required
 from monolith.forms import SearchUserForm
@@ -42,18 +43,10 @@ def _search_user():
 @authority.route('/authority/mark/<marked_user_id>')
 @admin_required
 def _mark(marked_user_id):
-    user = User.query.filter_by(id=marked_user_id).first()
-    if user == None:
-        message = 'Error! Unable to mark the user. User not found'
-    elif user.is_positive == False:
-        user.is_positive = True
-        db.session.commit()
-        message = ''
-        register_positive(marked_user_id)
-    else:
-        message = 'You\'ve already marked this user as positive!'
 
-    if message != '':
-        return render_template("error.html", error_message=message)
+    error_message = mark_user(marked_user_id)
+
+    if error_message != '':
+        return render_template("error.html", error_message=error_message)
     else:
         return redirect('/authority/users')
