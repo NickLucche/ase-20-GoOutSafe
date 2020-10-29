@@ -2,7 +2,6 @@ from datetime import datetime, timedelta
 from monolith.background import celery
 from monolith.database import Restaurant, User, Reservation, Notification
 from flask import Flask
-from monolith.app import create_app
 from monolith.database import db
 
 # tasks are written so that pipeline|chain async execution is easily implemented
@@ -50,7 +49,7 @@ def create_notifications(reservation_at_riks, positive_id: int):
         
         # create notification
         notification = Notification(positive_user_id=positive_id, restaurant_id=rest_id,
-        date=et, user_id = reservation['user_id'])
+        date=et, user_id = customer_id)
         notifications.append(notification)
     # store in database
     db.session.add_all(notifications)
@@ -84,3 +83,9 @@ def contact_tracing(past_reservations, user_id: int):
         print(user_reservation)
         reservation_at_risk += user_reservation
     return [u.to_dict() for u in reservation_at_risk]
+
+def fetch_user_notifications(user_id: str):
+    pass
+
+def fetch_operator_notifications(user_id: str):
+    pass

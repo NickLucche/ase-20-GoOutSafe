@@ -102,24 +102,6 @@ class Notifications(unittest.TestCase):
         delete_random_users(app)
         self.assertEqual(len(reservations), risky_places)
 
-    # def test_positive_visited_my_restaurant(self):
-    #     # as operator, I want to be notified if a positive customer visited my restaurant
-    #     # within the last X days  
-    #     add_random_users(10, app)
-
-    #     # LHA marks a User as positive (admin excluded)
-    #     rand_row = random.randrange(1, db.session.query(User).count()) 
-    #     positive_guy = db.session.query(User)[rand_row]
-    #     print(f"Marking user {positive_guy} as positive to COVID-19")
-    #     positive_guy.is_positive = True
-    #     positive_guy.confirmed_positive_date = datetime.now()
-    #     db.session.commit()
-
-    #     # Shortcut to send a task message
-    #     # check_visited_places.delay(positive_guy)
-
-    #     delete_random_users(app)
-    
     def test_contact_tracing(self):
         add_random_users(10, app)
         now = datetime.now()
@@ -176,3 +158,9 @@ class Notifications(unittest.TestCase):
 
         delete_random_users(app)
         self.assertEqual(len(to_be_notified_users), nrisky_visits)
+
+    def test_rest_owner_notifications(self):
+        pass
+
+    def test_user_notifications(self):
+        pass

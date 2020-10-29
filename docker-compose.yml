@@ -1,0 +1,16 @@
+version: '3'
+services:
+  monolith:
+    build: .
+    container_name: monolith-gooutsafe
+    ports:
+      - "5000:5000"
+    # environment:
+      # - AWS_ACCESS_KEY_ID
+      # - AWS_SECRET_ACCESS_KEY
+      # - AWS_DEFAULT_REGION
+  redis:
+    image: "redis"
+    container_name: redis
+    ports:
+      - "6379:6379"
