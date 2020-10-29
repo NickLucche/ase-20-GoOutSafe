@@ -43,6 +43,9 @@ class User(db.Model):
     def __str__(self) -> str:
         return f'{self.firstname} {self.lastname}--mail:{self.email}--born:{self.dateofbirth.strftime("%B %d %Y")}'
 
+    def to_dict(self):
+        return {column.name:getattr(self, column.name) for column in self.__table__.columns}
+
 class Restaurant(db.Model):
     __tablename__ = 'restaurant'
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
@@ -84,9 +87,13 @@ class Reservation(db.Model):
     restaurant_id = db.Column(db.Integer, db.ForeignKey('restaurant.id'))
     reservation_time = db.Column(db.DateTime, primary_key=True, default=datetime.now())
     table_no = db.Column(db.Integer, db.ForeignKey('restaurant_table.table_id'), primary_key=True)
+    turn = db.Column(db.Boolean)
 
     seats = db.Column(db.Integer, default=False)
-    entrance_time = db.Column(db.Integer, nullable=True)
+    entrance_time = db.Column(db.DateTime, nullable=True)
+
+    def to_dict(self):
+        return {column.name:getattr(self, column.name) for column in self.__table__.columns}
 
 class RestaurantTable(db.Model):
     __tablename__ = 'restaurant_table'
