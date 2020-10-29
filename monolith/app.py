@@ -11,7 +11,7 @@ def create_app():
     app.config['SECRET_KEY'] = 'ANOTHER ONE'
     app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///gooutsafe.db'
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-    app.config['SQLALCHEMY_ECHO'] = True
+    app.config['SQLALCHEMY_ECHO'] = False
 
     for bp in blueprints:
         app.register_blueprint(bp)

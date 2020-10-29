@@ -13,6 +13,16 @@ celery = Celery(__name__,
 
 _APP = None
 
+
+celery.conf.beat_schedule = {
+    # Executes every minute
+    'add-every-monday-morning': {
+        'task': 'tasks.unmark_positive',
+        'schedule': crontab(minute='*/1'),
+        'args': (1),
+    },
+}
+
 @celery.task
 def do_task():
     global _APP
@@ -20,6 +30,7 @@ def do_task():
     if _APP is None:
         from monolith.app import create_app
         app = create_app()
+        
         db.init_app(app)
     else:
         app = _APP
@@ -30,7 +41,7 @@ def do_task():
 # TODO XXX: TBT
 def register_positive(user_id: int):
     print("Celery call...")
-    celery.add_periodic_task(15.0, unmark_positive.s(user_id), name='14 days delay')
+    celery.add_periodic_task(10.0, unmark_positive.s(user_id), name='14 days delay')
     print("Celery registered")
 
 
@@ -38,7 +49,6 @@ def register_positive(user_id: int):
 @celery.task
 def unmark_positive(user_id):
     global _APP
-    app = _APP
     # lazy init
     if _APP is None:
         from monolith.app import create_app
@@ -59,7 +69,6 @@ def unmark_positive(user_id):
 @celery.task
 def unmark_AllPositives():
     global _APP
-    app = _APP
     # lazy init
     if _APP is None:
         from monolith.app import create_app
@@ -73,7 +82,7 @@ def unmark_AllPositives():
     with app.app_context():
         users = User.query.filter_by(is_positive=True).\
             filter(User.reported_positive_date >= time_limit).all()
-        for user in Users:
+        for user in users:
             if user != None and user.is_positive == True:
                 user.is_positive = False
         db.session.commit()

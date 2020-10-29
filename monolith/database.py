@@ -24,7 +24,7 @@ class User(db.Model):
     is_anonymous = False
     restaurant_id = db.Column(db.Integer, db.ForeignKey('restaurant.id'), nullable=True)
     restaurant = db.relationship("Restaurant", backref=db.backref("restaurant"))
-
+    
     def __init__(self, *args, **kw):
         super(User, self).__init__(*args, **kw)
         self._authenticated = False
