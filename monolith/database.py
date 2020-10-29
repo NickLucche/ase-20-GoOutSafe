@@ -3,6 +3,7 @@ import enum
 from sqlalchemy.orm import relationship
 import datetime as dt
 from flask_sqlalchemy import SQLAlchemy
+from datetime import datetime
 
 
 db = SQLAlchemy()
@@ -63,3 +64,35 @@ class Like(db.Model):
     restaurant = relationship('Restaurant', foreign_keys='Like.restaurant_id')
 
     marked = db.Column(db.Boolean, default = False) # True iff it has been counted in Restaurant.likes 
+
+class Notification(db.Model):
+    __tablename__ = 'notifications'
+
+    positive_user_id = db.Column(db.Integer, db.ForeignKey('user.id'), primary_key=True)
+    date = db.Column(db.DateTime, primary_key=True, default=datetime.now())
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), primary_key=True)
+
+    restaurant_id = db.Column(db.Integer, db.ForeignKey('restaurant.id'))
+    notification_checked = db.Column(db.Boolean, default=False)
+
+class Reservation(db.Model):
+    __tablename__ = 'reservation'
+
+    reservation_id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
+    restaurant_id = db.Column(db.Integer, db.ForeignKey('restaurant.id'))
+    
+    reservation_date = db.Column(db.Date, default=datetime.now().date())
+    reservation_time = db.Column(db.Time, default=datetime.now().time())
+    table_no = db.Column(db.Integer, db.ForeignKey('restaurant_table.table_id'))
+
+    seats = db.Column(db.Integer, default=False)
+    entrance_time = db.Column(db.Integer, nullable=True)
+
+class RestaurantTable(db.Model):
+    __tablename__ = 'restaurant_table'
+
+    table_id = db.Column(db.Integer, primary_key=True, autoincrement= True)
+    restaurant_id = db.Column(db.Integer, db.ForeignKey('restaurant.id'))
+    restaurant = relationship('Restaurant', foreign_keys='RestaurantTable.restaurant_id')
+    seats = db.Column(db.Integer, default=False)
