@@ -3,7 +3,7 @@
 {% if current_user.is_authenticated %}
   Hi {{ current_user.firstname }}! <a href="/logout">Logout</a><br>
   {% if current_user.restaurant_id %}
-    click <a href="/restaurant/edit/{{ current_user.restaurant_id }}">here</a> to edit the restaurant profile!
+    click <a href="/restaurants/edit/{{ current_user.restaurant_id }}">here</a> to edit the restaurant <a href="/restaurants/{{ current_user.restaurant_id }}">profile</a>!
   {% else %}
     <h2>Your Restaurants</h2>
     {% for restaurant in restaurants%}

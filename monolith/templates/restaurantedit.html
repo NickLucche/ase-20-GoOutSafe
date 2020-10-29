@@ -1,0 +1,78 @@
+<html>
+ <body>
+   <script>
+    var nTables = 0;
+    function changeTablesText(n) {
+      if(n < 0) {
+        n = 0;
+        return;
+      }
+      if(n == 0) {
+        document.getElementById("removeTableButton").style.display = "none";
+      }
+      else if(n == 1) {
+        document.getElementById("removeTableButton").style.display = "block";
+      }
+      var x = document.getElementById("message");
+      x.innerHTML= "You have " + n + " tables";
+
+    } 
+    function addTablePressed(value) {
+      nTables++;
+      changeTablesText(nTables);
+      var div = document.getElementById("tableList");
+      var str = "<div id = '" + nTables + "'><dt><label>Table " + nTables + ", seats: </dt><dd>" +
+        "<input required type='number' min=2 value=" + value + " name='table_" + nTables + "'></dd></div>";
+      div.insertAdjacentHTML('beforeend', str)
+      /* div.innerHTML += "<div id = '" + nTables + "'><dt><label>Table " + nTables + ", seats: </dt><dd>" +
+        "<input required type='number' min=2 value=4></dd></div>"; */
+      /*var label = document.createElement('label');
+      var dt = document.createElement('dt');
+      var dd = document.createElement('dt');
+      label.innerText = 'Table ' + nTables + ", seats: "; 
+      dt.append(label);
+      div.append(dt);
+      var form = document.createElement('dd');
+      var input = document.createElement('input');
+      input.type = "number";
+      input.defaultValue = "4"
+      dd.append(input);
+      div.append(dd);*/
+    }
+    function removeTablePressed() {
+      nTables--;
+      changeTablesText(nTables);
+      document.getElementById(nTables + 1).remove();
+    }
+</script>
+  
+  <form action="" method="POST">
+    {{ form.hidden_tag() }}
+    <dl>
+     {% for field in form.display %}
+     <dt>{{ form[field].label }}</dt>
+     <dd>{{ form[field]() }}</dd>
+       {% if form[field].errors %}
+          {% for e in form[field].errors %}
+           <p class="help-block">{{ e }}</p>
+          {% endfor %}
+       {% endif %}
+     {% endfor %}
+    </dl>
+    <p>
+  <p id="message">
+    You don't have any tables!
+  </p>
+  <button type="button" id="addTableButton" onclick="addTablePressed(4)">Add a table</button>
+  <button type="button" id="removeTableButton" onclick="removeTablePressed()" style="display:none">Remove last table</button>
+  <div id=tablesList>
+    <dl id="tableList">
+    </dl>
+  </div>
+  {% for t in tables %}
+  <script>addTablePressed('{{ t.seats }}')</script> 
+  {% endfor %}
+  <input type=submit value="Save and update">
+</form>
+ </body>
+</html>

@@ -17,7 +17,8 @@ def create_user():
     form = UserForm()
     if request.method == 'POST':
         if form.validate_on_submit():
-            if User.query.filter_by(email = form.email) != None:
+            u = User.query.filter_by(email=form.email.data).scalar()
+            if u != None:
                 # user with same email already exists
                 return render_template("error.html", error_message="An user with the same email already exists!")
             new_user = User()
@@ -36,7 +37,8 @@ def create_operator():
     form = OperatorForm()
     if request.method == 'POST':
         if form.validate_on_submit():
-            if User.query.filter_by(email = form.email) != None:
+            u = User.query.filter_by(email=form.email.data).scalar()
+            if u != None:
                 # user with same email already exists
                 return render_template("error.html", error_message="An user with the same email already exists!")
             new_user = User()

@@ -33,3 +33,11 @@ class OperatorForm(FlaskForm):
     extra_info = f.TextAreaField('Extra infos [optional]')
     display = ['l1', 'email', 'firstname', 'lastname', 'password', 'dateofbirth', 'l2',
      'name', 'lat', 'lon', 'phone', 'extra_info']
+
+class RestaurantProfileEditForm(FlaskForm):
+    name = f.StringField('Name', validators=[DataRequired()])
+    lat = f.FloatField('Latitude', validators=[DataRequired()])
+    lon = f.FloatField('Longitude', validators=[DataRequired()])
+    phone = f.IntegerField('Phone number', validators=[DataRequired()])
+    extra_info = f.TextAreaField('Extra info')
+    display = ['name', 'lat', 'lon', 'phone', 'extra_info']
