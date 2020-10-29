@@ -10,7 +10,7 @@ db = SQLAlchemy()
 
 class User(db.Model):
     __tablename__ = 'user'
-    
+
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     email = db.Column(db.Unicode(128), nullable=False)
     firstname = db.Column(db.Unicode(128))
@@ -48,14 +48,13 @@ class User(db.Model):
 
 class Restaurant(db.Model):
     __tablename__ = 'restaurant'
-
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
-    name = db.Column(db.Text(100)) 
-    likes = db.Column(db.Integer) # will store the number of likes, periodically updated in background
-    lat = db.Column(db.Float) # restaurant latitude
-    lon = db.Column(db.Float) # restaurant longitude
+    name = db.Column(db.Text(100))
+    likes = db.Column(db.Integer)  # will store the number of likes, periodically updated in background
+    lat = db.Column(db.Float)  # restaurant latitude
+    lon = db.Column(db.Float)  # restaurant longitude
     phone = db.Column(db.Integer)
-    extra_info = db.Column(db.Text(300)) # restaurant infos (menu, ecc.)
+    extra_info = db.Column(db.Text(300))  # restaurant infos (menu, ecc.)
 
     operator_id = relationship(User, backref="operator")
 
@@ -90,7 +89,7 @@ class Reservation(db.Model):
 
     restaurant_id = db.Column(db.Integer, db.ForeignKey('restaurant.id'))
     restaurant = db.relationship("Restaurant", backref=db.backref("restaurant_r"))
-    
+
     reservation_time = db.Column(db.DateTime, primary_key=True, default=datetime.now())
     table_no = db.Column(db.Integer, db.ForeignKey('restaurant_table.table_id'), primary_key=True)
     table = db.relationship("RestaurantTable", backref=db.backref("restaurant_table_r"))

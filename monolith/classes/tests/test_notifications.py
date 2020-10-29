@@ -8,8 +8,6 @@ from monolith.classes.tests.utils import add_random_users, delete_random_users, 
 
 app = create_app()
 INCUBATION_PERIOD_COVID= 10
-class Notifications(unittest.TestCase):
-
 
 class Notifications(unittest.TestCase):
     def test_lha_positive_marking(self):
@@ -64,7 +62,7 @@ class Notifications(unittest.TestCase):
 
         delete_random_users(app)
         self.assertEqual(len(reservations), risky_places)
-
+        
 
     # def test_user_visited_places_celery(self):
     #     add_random_users(10, app)

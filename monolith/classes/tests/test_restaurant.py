@@ -5,7 +5,7 @@ from monolith.classes.restaurant import Restaurant
 class TestRestaurant(unittest.TestCase):
 
     def test_rest_init(self):
-        rest = Restaurant('rest0.txt')
+        rest = Restaurant('monolith/classes/tests/rest0.txt')
         name = rest.name
         tables = rest.tables
 

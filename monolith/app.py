@@ -45,13 +45,13 @@ def create_app():
             restaurant.phone = 555123456
             restaurant.lat = 43.720586
             restaurant.lon = 10.408347
-            db.session.add(example)
+            db.session.add(restaurant)
             db.session.commit()
         
         q = db.session.query(User).filter(User.restaurant_id != None)
         operator = q.first()
         if operator is None:
-            operator = User(firstname="Operator", lastname="Operator", email="operator@example.com", restaurant=restaurant)
+            operator = User(firstname="Operator", lastname="Operator", email="operator@example.com", restaurant=restaurant, dateofbirth=datetime.datetime(2020, 10, 29))
             #operator.restaurant_id = restaurant.id
             operator.set_password("operator")
             db.session.add(operator)
