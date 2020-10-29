@@ -22,9 +22,8 @@ class User(db.Model):
     is_positive = db.Column(db.Boolean, default=False)
     reported_positive_date = db.Column(db.DateTime, nullable=True)
     is_anonymous = False
-    restaurant_id = db.Column(db.Integer, db.ForeignKey('restaurant.id'), nullable=True)
-    restaurant = db.relationship("Restaurant", backref=db.backref("restaurant"))
-    
+    restaurant_id = db.Column(db.ForeignKey('restaurant.id'), nullable=True)
+
     def __init__(self, *args, **kw):
         super(User, self).__init__(*args, **kw)
         self._authenticated = False
@@ -50,7 +49,6 @@ class User(db.Model):
 
 class Restaurant(db.Model):
     __tablename__ = 'restaurant'
-
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     name = db.Column(db.Text(100)) 
     likes = db.Column(db.Integer) # will store the number of likes, periodically updated in background
