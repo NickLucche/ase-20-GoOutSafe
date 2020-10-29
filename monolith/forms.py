@@ -17,6 +17,12 @@ class UserForm(FlaskForm):
     dateofbirth = f.DateField('Date of Birth', format='%d/%m/%Y')
     display = ['email', 'firstname', 'lastname', 'password', 'dateofbirth']
 
+class SearchUserForm(FlaskForm):
+    email = f.StringField('email')
+    firstname = f.StringField('firstname')
+    lastname = f.StringField('lastname')
+    display = ['email', 'firstname', 'lastname']
+
 class OperatorForm(FlaskForm):
     l1 = f.Label('Owner infos', 'Owner infos')
     email = f.StringField('e-mail', validators=[DataRequired()])

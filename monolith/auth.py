@@ -19,10 +19,9 @@ def admin_required(func):
 def operator_required(func):
     @functools.wraps(func)
     def _operator_required(*args, **kw):
-        if not current_user.is_authenticated:
+        if not current_user.is_authenticated or not hasattr(current_user, "restaurant_id") or current_user.restaurant_id is None:
             return login_manager.unauthorized()
-        if current_user.restaurant is None:
-            return login_manager.unauthorized()
+
         return func(*args, **kw)
 
     return _operator_required

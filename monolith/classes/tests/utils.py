@@ -32,3 +32,31 @@ def random_datetime_in_range(start, end):
     int_delta = (delta.days * 24 * 60 * 60) + delta.seconds
     random_second = random.randrange(int_delta)
     return start + timedelta(seconds=random_second)
+
+
+def add_random_restaurant(n_restaurants: int, app: Flask):
+    with app.app_context():
+        for i in range(n_restaurants):
+            restaurant = Restaurant(name=f'test_{i}',
+                        likes=0,
+                        lat=0,
+                        lon=0,
+                        phone=-1,
+                        extra_info='')
+            print(f"Adding restaurant {restaurant}")
+            db.session.add(restaurant)
+            db.session.commit()
+
+def add_random_reservation(user):
+    with app.app_context():
+        for i in range(n_users):
+            user = User(email='test',
+                        firstname=f'test_{i}',
+                        lastname=f'test_{i}',
+                        password='test',
+                        dateofbirth=datetime.now(),
+                        is_active=bool(random.randrange(0, 2)),
+                        is_admin=False)
+            print(f"Adding user {user}")
+            db.session.add(user)
+            db.session.commit()

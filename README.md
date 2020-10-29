@@ -38,6 +38,3 @@ CREATE TABLE IF NOT EXISTS "like" (
 );
 ```
 
-# DB diagram
-
-![DB diagram](./db-diagram.svg)
