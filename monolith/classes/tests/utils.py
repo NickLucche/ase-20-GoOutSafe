@@ -1,7 +1,39 @@
 from monolith.database import db, User
-from datetime import datetime, timedelta
+from monolith.views import blueprints
+from monolith.auth import login_manager
+import datetime
+from datetime import timedelta
 import random
 from flask import Flask
+
+user_data = {'email':'prova@prova.com', 
+        'firstname':'Mario', 
+        'lastname':'Rossi', 
+        'dateofbirth': datetime.datetime(1960, 12, 3)}
+
+clear_password = 'pass'
+
+restaurant_data = {'name': 'Mensa martiri', 
+                    'lat': '4.12345',
+                    'lon': '5.67890',
+                    'phone': '3333333333',
+                    'extra_info': 'Rigatoni dorati h24, cucina povera'}
+
+def test_setup():
+    app = Flask(__name__)
+    app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///:memory:'
+    app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+    app.config['WTF_CSRF_SECRET_KEY'] = 'A SECRET KEY'
+    app.config['SECRET_KEY'] = 'ANOTHER ONE'
+
+    for bp in blueprints:
+        app.register_blueprint(bp)
+        bp.app = app
+
+    db.init_app(app)
+    login_manager.init_app(app)
+    db.create_all(app=app)
+    return app
 
 def add_random_users(n_users: int, app: Flask):
     with app.app_context():

@@ -1,4 +1,6 @@
 from logging import error
+from monolith.classes.exceptions import GoOutSafeError
+from monolith.classes.restaurant import edit_tables
 from flask import Blueprint, redirect, render_template, request, flash
 from monolith.database import db, Restaurant, Like, RestaurantTable
 from monolith.auth import admin_required, current_user
@@ -44,23 +46,16 @@ def _edit(restaurant_id):
     if (not current_user.restaurant_id) or current_user.restaurant_id != int(restaurant_id):
         return render_template("error.html", error_message="You haven't the permissions to access this page")
     r = Restaurant.query.get(restaurant_id)
-    tables = RestaurantTable.query.filter_by(restaurant_id = restaurant_id).order_by(RestaurantTable.table_id.asc())
     form = RestaurantProfileEditForm(obj=r)
     
     if request.method == 'POST':
-        if form.validate_on_submit():
-            flash("Infos saved successfully")
-            for t in tables:
-                RestaurantTable.query.filter_by(restaurant_id = t.restaurant_id, table_id = t.table_id).delete()
-            db.session.commit()
-            i = 1
-            while request.form.get('table_' + str(i)) != None:
-                new_table = RestaurantTable()
-                new_table.restaurant_id = restaurant_id
-                new_table.table_id = i
-                new_table.seats = request.form.get('table_' + str(i))
-                db.session.add(new_table)
-                i += 1
-            db.session.commit()
+        try:
+            edit_tables(form, request.form, restaurant_id)
+            flash("Infos saved successfully")            
             return redirect('/restaurants/edit/' + restaurant_id)
+        except GoOutSafeError as e:
+            return render_template("error.html", error_message=str(e))
+
+
+    tables = RestaurantTable.query.filter_by(restaurant_id = restaurant_id).order_by(RestaurantTable.table_id.asc())
     return render_template("restaurantedit.html", restaurant=r, form=form, tables=tables)
