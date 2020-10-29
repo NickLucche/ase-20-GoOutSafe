@@ -9,7 +9,7 @@ from monolith.classes.restaurant import edit_tables
 class TestRestaurant(unittest.TestCase):
     
     def test_edit(self):
-        app = test_setup()
+        app = setup_for_test()
 
         data = {**user_data, **restaurant_data}
         request = {'table_1' : 4,

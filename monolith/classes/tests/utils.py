@@ -19,7 +19,7 @@ restaurant_data = {'name': 'Mensa martiri',
                     'phone': '3333333333',
                     'extra_info': 'Rigatoni dorati h24, cucina povera'}
 
-def test_setup():
+def setup_for_test():
     app = Flask(__name__)
     app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///:memory:'
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False

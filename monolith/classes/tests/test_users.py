@@ -1,4 +1,4 @@
-from monolith.classes.tests.utils import test_setup, user_data, clear_password, restaurant_data
+from monolith.classes.tests.utils import setup_for_test, user_data, clear_password, restaurant_data
 from monolith.classes.exceptions import DatabaseError, FormValidationError
 from monolith.classes.user import new_operator, new_user, users_view
 
@@ -17,14 +17,14 @@ from monolith.database import Restaurant, User, db
 class TestUsers(unittest.TestCase):
 
     def test_usersview(self):
-        app = test_setup()
+        app = setup_for_test()
         with app.app_context():
             if not users_view():
                 return False
             return True
 
     def test_createuser(self):
-        app = test_setup()
+        app = setup_for_test()
 
         with app.test_request_context():
             form = UserForm(**user_data)
@@ -40,7 +40,7 @@ class TestUsers(unittest.TestCase):
                     return True
 
     def test_createoperator(self):
-        app = test_setup()
+        app = setup_for_test()
 
         data = {**user_data, **restaurant_data}
 
