@@ -48,3 +48,17 @@ def _mark(marked_user_id):
         return render_template("error.html", error_message=message)
     else:
         return redirect('/authority/users')
+
+#XXX TBT
+@authority.route('/authority/trace_contacts/<user_id>')
+@admin_required
+def _get_contact_list(user_id):
+    pass
+    # This can be done better
+    from monolith.classes.notifications import contact_tracing, check_visited_places
+
+    # TODO XXX Magic number
+    users_at_risk = contact_tracing(check_visited_places(user_id, 14), user_id)
+    
+    return render_template("users_for_authority.html", users=users_at_risk)
+    

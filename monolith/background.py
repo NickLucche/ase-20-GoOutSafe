@@ -1,3 +1,4 @@
+from datetime import datetime, timedelta
 from monolith.app import create_app
 from celery import Celery
 from monolith.database import db, User, Restaurant
@@ -7,7 +8,7 @@ def make_celery(app):
     # create celery object from single flask app configuration
     celery = Celery(__name__, backend=app.config['CELERY_RESULT_BACKEND'], 
     broker=app.config['CELERY_BROKER_URL'], 
-    include=['monolith.classes.notifications', 'monolith.background']) # include list of modules to import when worker tarts
+    include=['monolith.classes.notifications', 'monolith.classes.authority_backend', 'monolith.background']) # include list of modules to import when worker tarts
 
     celery.conf.update(app.config)
     # subclass celery task so that each task execution is wrapped in an app context
@@ -20,6 +21,7 @@ def make_celery(app):
     return celery
 
 celery = make_celery(create_app())
+
 
 # _APP = None
 
