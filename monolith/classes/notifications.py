@@ -38,19 +38,32 @@ def create_notifications(reservation_at_riks, positive_id: int):
         positive_id (str): [description]
         reservation_at_riks ([type]): [description]
     """
-    # create multiple notification even if the user visited the same restaurant in multiple occasions (can group'em later)
+    # create multiple notification even if the user visited the same restaurant in multiple occasions
     notifications = []
+    # hence one operator notification per positive user reservation/visit
+    pos_user_reservations = []
     for reservation in reservation_at_riks:
         rest_id = reservation['restaurant_id']
         customer_id = reservation['user_id']
+        pos_res = reservation['positive_user_reservation']
+
         # when function is called without celery, there's no need to serialize to JSON
         et = reservation['entrance_time']
+        # entrance time of user receiving notification, not positive guy one
         if isinstance(et, str):
             et = datetime.strptime(reservation['entrance_time'], '%Y-%m-%dT%H:%M:%S.%f')
         
-        # create notification
+        # create notification for the user
         notification = Notification(positive_user_id=positive_id, restaurant_id=rest_id,
-        date=et, user_id = customer_id)
+        date=et, user_id = customer_id, positive_user_reservation=pos_res, user_notification=True)
+        # create notification for the operator
+        if not pos_res in pos_user_reservations:
+            # operator_id = User.query.filter_by(restaurant_id=rest_id).first()
+            operator_notification = Notification(positive_user_id=positive_id, restaurant_id=rest_id,
+            date=et, positive_user_reservation=pos_res, user_notification=False)
+            pos_user_reservations.append(pos_res)
+            notifications.append(operator_notification)
+
         notifications.append(notification)
     # store in database
     db.session.add_all(notifications)
@@ -64,9 +77,9 @@ def contact_tracing(past_reservations, user_id: int):
         returns a list of reservation made by users which were allegedly in contact with him/her.
 
     Args:
-        user_id (int): Positive customer id.
         past_reservations: List of dictionaries, each representing a reservation the positive 
         user made.
+        user_id (int): Positive customer id.
     """
     # check which users were at the restaurant at the same time as the positive guy (by checking the turn)
     print("INPUT", past_reservations, user_id)
@@ -81,19 +94,39 @@ def contact_tracing(past_reservations, user_id: int):
         user_reservation = Reservation.query.filter(Reservation.user_id != user_id).\
             filter_by(restaurant_id=reservation['restaurant_id'], turn=reservation['turn']).\
                 filter(Reservation.entrance_time.between(start_of_day, end_of_day)).all()
-        print(user_reservation)
-        reservation_at_risk += user_reservation
-    return [u.to_dict() for u in reservation_at_risk]
+        # print(user_reservation)
+        # preserve positive user reservation we're referring to, as to notify operator 
+        for u in user_reservation:
+            u = u.to_dict()
+            u['positive_user_reservation'] = reservation['id']
+            reservation_at_risk.append(u)
+    return reservation_at_risk
 
 def fetch_user_notifications(app: Flask, user_id: int, unread_only=False):
+    """Retrieve 'positive case contact' notifications of user identified by `user_id`.
+    Args:
+        app (Flask): flask app.
+        user_id (int): identifier of user requesting notifications.
+        unread_only (bool, optional): Whether to retrieve unread notifications only. Defaults to False.
+    """
     with app.app_context():
-        pass
+        query = Notification.query.filter_by(user_id=user_id)
+        if unread_only:
+            query = query.filter_by(notification_checked=False)
+        query = query.order_by(desc(Notification.date))
+        
+        return query.all()
 
 def fetch_operator_notifications(app:Flask, rest_id: int, unread_only=False):
     # get notifications belonging to a certain restaurant
     with app.app_context():
-        query = db.session.query().filter_by(restaurant_id=rest_id)
+        # query = Reservation.query.join(Notification)\
+        query = Notification.query.filter_by(restaurant_id=rest_id, user_notification=False)
+            
         if unread_only:
             query = query.filter_by(notification_checked=False)
 
+        # query = query.with_entities(Reservation, Notification)
         query = query.order_by(desc(Notification.date))
+
+        return [q.to_dict() for q in query.all()]

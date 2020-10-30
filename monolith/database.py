@@ -73,20 +73,27 @@ class Like(db.Model):
 
 class Notification(db.Model):
     __tablename__ = 'notifications'
+    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    positive_user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
+    date = db.Column(db.DateTime)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=True)
 
-    positive_user_id = db.Column(db.Integer, db.ForeignKey('user.id'), primary_key=True)
-    date = db.Column(db.DateTime, primary_key=True, default=datetime.now())
-    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), primary_key=True)
-
+    positive_user_reservation = db.Column(db.Integer, db.ForeignKey('reservation.id'))
     restaurant_id = db.Column(db.Integer, db.ForeignKey('restaurant.id'))
     notification_checked = db.Column(db.Boolean, default=False)
 
+    user_notification = db.Column(db.Boolean) # belongs to a user or operator
+
+    def to_dict(self):
+        return {column.name:getattr(self, column.name) for column in self.__table__.columns}
+
 class Reservation(db.Model):
     __tablename__ = 'reservation'
-    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), primary_key=True)
+    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
     restaurant_id = db.Column(db.Integer, db.ForeignKey('restaurant.id'))
-    reservation_time = db.Column(db.DateTime, primary_key=True, default=datetime.now())
-    table_no = db.Column(db.Integer, db.ForeignKey('restaurant_table.table_id'), primary_key=True)
+    reservation_time = db.Column(db.DateTime, default=datetime.now())
+    table_no = db.Column(db.Integer, db.ForeignKey('restaurant_table.table_id'))
     turn = db.Column(db.Boolean)
 
     seats = db.Column(db.Integer, default=False)

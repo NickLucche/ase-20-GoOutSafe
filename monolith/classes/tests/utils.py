@@ -10,7 +10,7 @@ def add_random_users(n_users: int, app: Flask):
             user = User(email='test', firstname=f'test_{i}', lastname=f'test_{i}', 
             password='test', dateofbirth=datetime.now(), is_active=bool(random.randrange(0, 2)),
             is_admin=False)
-            print(f"Adding user {user}")
+            # print(f"Adding user {user}")
             db.session.add(user)
             db.session.commit()
 
@@ -23,6 +23,8 @@ def delete_random_users(app: Flask):
 
 def random_datetime_in_range(start, end):
     # from https://stackoverflow.com/questions/553303/generate-a-random-date-between-two-other-dates#answer-553448
+    if start == end:
+        return start
     delta = end - start
     int_delta = (delta.days * 24 * 60 * 60) + delta.seconds
     random_second = random.randrange(int_delta)
@@ -38,7 +40,8 @@ def mark_random_guy_as_positive(app: Flask, positive_date: datetime):
         db.session.commit()
         return positive_guy.to_dict()
 
-def visit_random_places(app: Flask, pos_id:int, positive_date: datetime, time_span: int, n_places: int):
+def visit_random_places(app: Flask, pos_id:int, positive_date: datetime, time_span: int, n_places: int, time_span_offset:int=5):
+    # return visits to places within time_span days
     visits = []
     visited_places = []
     risky_places = 0
@@ -53,20 +56,20 @@ def visit_random_places(app: Flask, pos_id:int, positive_date: datetime, time_sp
                 rid = random.randint(0, n_places*10)
             visited_places.append(rid)
             
-            visit_date = random_datetime_in_range(positive_date-timedelta(days=time_span+5), positive_date)
+            visit_date = random_datetime_in_range(positive_date-timedelta(days=time_span+time_span_offset), positive_date)
             visit = Reservation(user_id=pos_id, 
             restaurant_id=rid, reservation_time=visit_date, 
             table_no=0, turn=0, seats=1, entrance_time=visit_date)
-            visits.append(visit)
             if visit_date >= risky_date:
+                visits.append(visit)
                 risky_places += 1
         db.session.add_all(visits)
         db.session.commit()
         return risky_places, [v.to_dict() for v in visits]
 
-def add_random_visits_to_place(app: Flask, restaurant_id:int, start_date: datetime, end_date: datetime, pos_date:datetime):
+def add_random_visits_to_place(app: Flask, restaurant_id:int, start_date: datetime, end_date: datetime, pos_date:datetime, min_visits:int=0, max_visits:int=5):
     visits = []
-    n_visits = random.randint(0, 5)
+    n_visits = random.randint(min_visits, max_visits)
     risky_visits = 0
     with app.app_context():
         # make a bunch of reservations
@@ -75,7 +78,7 @@ def add_random_visits_to_place(app: Flask, restaurant_id:int, start_date: dateti
             rand_user = random.randint(1000, 2000)
             visit_date = random_datetime_in_range(start_date, end_date)
             if visit_date.date() == pos_date.date():
-                print("RISKY VISIT:", visit_date, pos_date)
+                print("RISKY VISIT:", visit_date, pos_date, rand_user, restaurant_id)
                 risky_visits += 1
             visit = Reservation(user_id=rand_user, 
             restaurant_id=restaurant_id, reservation_time=visit_date, 
