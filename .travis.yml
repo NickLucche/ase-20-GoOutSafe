@@ -6,9 +6,10 @@ services:
 #   - DOCKER_COMPOSE_VERSION=1.27.4
 before_install:
   - docker-compose up -d
-  - bash start_celery.sh
 install:
   - pip install -r requirements.txt
+before_script:
+  - bash start_celery.sh
 script:
   - python -m pytest --cov-report term-missing --cov=monolith monolith/ 
 after_script:
