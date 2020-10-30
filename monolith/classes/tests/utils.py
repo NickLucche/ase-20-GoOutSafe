@@ -4,28 +4,22 @@ from datetime import datetime, timedelta
 import random
 from flask import Flask
 
-
 def add_random_users(n_users: int, app: Flask):
     with app.app_context():
         for i in range(n_users):
-            user = User(email='test',
-                        firstname=f'test_{i}',
-                        lastname=f'test_{i}',
-                        password='test',
-                        dateofbirth=datetime.now(),
-                        is_active=bool(random.randrange(0, 2)),
-                        is_admin=False)
+            user = User(email='test', firstname=f'test_{i}', lastname=f'test_{i}', 
+            password='test', dateofbirth=datetime.now(), is_active=bool(random.randrange(0, 2)),
+            is_admin=False, is_positive=False)
             print(f"Adding user {user}")
             db.session.add(user)
             db.session.commit()
-
 
 def delete_random_users(app: Flask):
     with app.app_context():
         delete_query = User.__table__.delete().where(User.email == 'test')
         db.session.execute(delete_query)
         db.session.commit()
-
+    
 
 def random_datetime_in_range(start, end):
     # from https://stackoverflow.com/questions/553303/generate-a-random-date-between-two-other-dates#answer-553448
@@ -34,33 +28,6 @@ def random_datetime_in_range(start, end):
     random_second = random.randrange(int_delta)
     return start + timedelta(seconds=random_second)
 
-
-def add_random_restaurant(n_restaurants: int, app: Flask):
-    with app.app_context():
-        for i in range(n_restaurants):
-            restaurant = Restaurant(name=f'test_{i}',
-                        likes=0,
-                        lat=0,
-                        lon=0,
-                        phone=-1,
-                        extra_info='')
-            print(f"Adding restaurant {restaurant}")
-            db.session.add(restaurant)
-            db.session.commit()
-
-def add_random_reservation(user):
-    with app.app_context():
-        for i in range(n_users):
-            user = User(email='test',
-                        firstname=f'test_{i}',
-                        lastname=f'test_{i}',
-                        password='test',
-                        dateofbirth=datetime.now(),
-                        is_active=bool(random.randrange(0, 2)),
-                        is_admin=False)
-            print(f"Adding user {user}")
-            db.session.add(user)
-            db.session.commit()
 def mark_random_guy_as_positive(app: Flask, positive_date: datetime):
     with app.app_context():
         rand_row = random.randrange(2, db.session.query(User).count()) 
@@ -117,3 +84,30 @@ def add_random_visits_to_place(app: Flask, restaurant_id:int, start_date: dateti
         db.session.add_all(visits)
         db.session.commit()
         return risky_visits
+
+def add_random_restaurant(n_restaurants: int, app: Flask):
+    with app.app_context():
+        for i in range(n_restaurants):
+            restaurant = Restaurant(name=f'test_{i}',
+                        likes=0,
+                        lat=0,
+                        lon=0,
+                        phone=-1,
+                        extra_info='')
+            print(f"Adding restaurant {restaurant}")
+            db.session.add(restaurant)
+            db.session.commit()
+
+def add_random_reservation(user):
+    with app.app_context():
+        for i in range(n_users):
+            user = User(email='test',
+                        firstname=f'test_{i}',
+                        lastname=f'test_{i}',
+                        password='test',
+                        dateofbirth=datetime.now(),
+                        is_active=bool(random.randrange(0, 2)),
+                        is_admin=False)
+            print(f"Adding user {user}")
+            db.session.add(user)
+            db.session.commit()

@@ -9,14 +9,14 @@ from celery import chain
 
 app = create_app()
 INCUBATION_PERIOD_COVID= 10
-
 class Notifications(unittest.TestCase):
+
     def test_lha_positive_marking(self):
         add_random_users(10, app)
         now = datetime.now()
         # LHA marks a User as positive (admin excluded)
         with app.app_context():
-            rand_row = random.randrange(1, db.session.query(User).count())
+            rand_row = random.randrange(1, db.session.query(User).count()) 
             positive_guy = db.session.query(User)[rand_row]
             print(f"Marking user {positive_guy} as positive to COVID-19")
             positive_guy.is_positive = True

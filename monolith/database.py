@@ -5,12 +5,11 @@ from sqlalchemy.orm import relationship
 import datetime as dt
 from flask_sqlalchemy import SQLAlchemy
 
-db = SQLAlchemy()
 
+db = SQLAlchemy()
 
 class User(db.Model):
     __tablename__ = 'user'
-    
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     email = db.Column(db.Unicode(128), nullable=False)
     firstname = db.Column(db.Unicode(128))
@@ -22,7 +21,8 @@ class User(db.Model):
     is_positive = db.Column(db.Boolean, default=False)
     reported_positive_date = db.Column(db.DateTime, nullable=True)
     is_anonymous = False
-    restaurant_id = db.Column(db.ForeignKey('restaurant.id'), nullable=True)
+    restaurant_id = db.Column(db.Integer, db.ForeignKey('restaurant.id'), nullable=True)
+    restaurant = db.relationship("Restaurant", backref=db.backref("restaurant"))
 
     def __init__(self, *args, **kw):
         super(User, self).__init__(*args, **kw)
@@ -84,17 +84,15 @@ class Notification(db.Model):
     restaurant_id = db.Column(db.Integer, db.ForeignKey('restaurant.id'))
     notification_checked = db.Column(db.Boolean, default=False)
 
-
 class Reservation(db.Model):
     __tablename__ = 'reservation'
-
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), primary_key=True)
-
     restaurant_id = db.Column(db.Integer, db.ForeignKey('restaurant.id'))
     restaurant = db.relationship("Restaurant", backref=db.backref("restaurant_r"))
     
     reservation_time = db.Column(db.DateTime, primary_key=True, default=datetime.now())
     table_no = db.Column(db.Integer, db.ForeignKey('restaurant_table.table_id'), primary_key=True)
+    table = db.relationship("RestaurantTable", backref=db.backref("restaurant_table_r"))
     turn = db.Column(db.Boolean)
 
     seats = db.Column(db.Integer, default=False)
@@ -103,10 +101,8 @@ class Reservation(db.Model):
     def to_dict(self):
         return {column.name:getattr(self, column.name) for column in self.__table__.columns}
 
-
 class RestaurantTable(db.Model):
     __tablename__ = 'restaurant_table'
-
     table_id = db.Column(db.Integer, primary_key=True)
     restaurant_id = db.Column(db.Integer, db.ForeignKey('restaurant.id'))
     restaurant = db.relationship("Restaurant", backref=db.backref("restaurant_t"))
