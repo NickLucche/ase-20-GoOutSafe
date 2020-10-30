@@ -1,5 +1,5 @@
 import unittest
-from monolith.database import Reservation, db, User
+from monolith.database import Notification, Reservation, db, User
 import random
 from datetime import datetime, timedelta
 from monolith.classes.notifications import check_visited_places, create_notifications, contact_tracing
@@ -159,8 +159,40 @@ class Notifications(unittest.TestCase):
         delete_random_users(app)
         self.assertEqual(len(to_be_notified_users), nrisky_visits)
 
-    def test_rest_owner_notifications(self):
-        pass
+    def test_operator_notifications(self):
+        add_random_users(10, app)
+        now = datetime.now()
+        # LHA marks a User as positive (admin excluded)
+        with app.app_context():
+            positive_guy = mark_random_guy_as_positive(app, now)
+            # make positive guy visit some random places
+            n_places = random.randrange(0, 10)
+            nrisky_places, visits = visit_random_places(app, positive_guy['id'], now, INCUBATION_PERIOD_COVID, n_places)
+            # have a random num of users visit the same place as the positive guy
+            # print("PLACES VISITED BY POSITIVE:", visits)
+            nrisky_visits = 0
+            for v in visits:
+                nrisky_visits += add_random_visits_to_place(app, v['restaurant_id'],
+                 now-timedelta(days=INCUBATION_PERIOD_COVID), now, v['entrance_time'])
+                    
+            # run async tasks: check visited places -> check customers in danger -> write notifications
+            pos_id = positive_guy['id']
+            exec_chain = (check_visited_places.s(pos_id, INCUBATION_PERIOD_COVID) |
+             contact_tracing.s(pos_id) | create_notifications.s(pos_id))()
+            
+            notifs = exec_chain.get()
+            db_notifications = [n.to_dict() for n in Notification.query.all()]
+            print("Notifications in db:", db_notifications)
+            # delete all reservations
+            db.session.query(Reservation).delete()
+            # and notifications
+            db.session.query(Notification).delete()
+            db.session.commit()
+
+        delete_random_users(app)
+        self.assertEqual(len(notifs), len(db_notifications))
+        self.assertEqual(len(notifs), nrisky_visits)
+
 
     def test_user_notifications(self):
         pass

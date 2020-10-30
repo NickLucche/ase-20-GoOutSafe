@@ -3,6 +3,7 @@ from monolith.background import celery
 from monolith.database import Restaurant, User, Reservation, Notification
 from flask import Flask
 from monolith.database import db
+from sqlalchemy import desc, distinct
 
 # tasks are written so that pipeline|chain async execution is easily implemented
 
@@ -76,7 +77,7 @@ def contact_tracing(past_reservations, user_id: int):
             et = datetime.strptime(reservation['entrance_time'], '%Y-%m-%dT%H:%M:%S.%f')
         start_of_day = datetime(et.year, et.month, et.day)
         end_of_day = datetime(et.year, et.month, et.day, 23, 59, 59, 59)
-        # TODO: add distinct
+        # TODO: add distinct?
         user_reservation = Reservation.query.filter(Reservation.user_id != user_id).\
             filter_by(restaurant_id=reservation['restaurant_id'], turn=reservation['turn']).\
                 filter(Reservation.entrance_time.between(start_of_day, end_of_day)).all()
@@ -84,8 +85,15 @@ def contact_tracing(past_reservations, user_id: int):
         reservation_at_risk += user_reservation
     return [u.to_dict() for u in reservation_at_risk]
 
-def fetch_user_notifications(user_id: str):
-    pass
+def fetch_user_notifications(app: Flask, user_id: int, unread_only=False):
+    with app.app_context():
+        pass
 
-def fetch_operator_notifications(user_id: str):
-    pass
+def fetch_operator_notifications(app:Flask, rest_id: int, unread_only=False):
+    # get notifications belonging to a certain restaurant
+    with app.app_context():
+        query = db.session.query().filter_by(restaurant_id=rest_id)
+        if unread_only:
+            query = query.filter_by(notification_checked=False)
+
+        query = query.order_by(desc(Notification.date))
