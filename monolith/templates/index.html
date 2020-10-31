@@ -1,9 +1,24 @@
+
+<html>
+<head>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css"
+integrity="sha512-xodZBNTC5n17Xt2atTPuE1HxjVMSvLVW9ocqUKLsCC5CXdbqCmblAshOMAS6/keqq/sMZMZ19scR4PsZChSR7A=="
+crossorigin=""/>
+<script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"
+integrity="sha512-XQoYMqMTK8LvdxXYG3nZ448hOEQiglfqkJs1NOQV44cWnUrBc8PkAOcXy20w0vlaXaVUearIOBhiXZ5V3ynxwA=="
+crossorigin=""></script>
+</head>
+<body>
+
 <h1>GoOutSafe</h1>
 
 {% if current_user.is_authenticated %}
-  Hi {{ current_user.firstname }}! <a href="/logout">Logout</a>
-
-  
+  Hi {{ current_user.firstname }}! <a href="/logout">Logout</a><br>
+  {% if current_user.restaurant_id %}
+    <p>click <a href="/restaurant/edit/{{ current_user.restaurant_id }}">here</a> to edit the restaurant profile!</p>
+    <p>click <a href="{{url_for('reservations.home')}}">here</a> to check your reservations</p>
+    <p>click <a href="/restaurants/edit/{{ current_user.restaurant_id }}">here</a> to edit the restaurant <a href="/restaurants/{{ current_user.restaurant_id }}">profile</a>!</p>
+  {% else %}
     <h2>Your Restaurants</h2>
     {% for restaurant in restaurants%}
       <div>
@@ -12,8 +27,40 @@
         </li>
       </div>
     {% endfor %}
+    <br>
+    <div id="mapid" style="width: 600px; height: 400px;"></div>
+<script>
 
+	var map = L.map('mapid').setView([51.505, -0.09], 2);
+
+	L.tileLayer('https://api.mapbox.com/styles/v1/{id}/tiles/{z}/{x}/{y}?access_token=pk.eyJ1IjoibWFwYm94IiwiYSI6ImNpejY4NXVycTA2emYycXBndHRqcmZ3N3gifQ.rJcFIG214AriISLbB6B5aw', {
+		maxZoom: 18,
+		attribution: 'Map data &copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a> contributors, ' +
+			'<a href="https://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, ' +
+			'Imagery © <a href="https://www.mapbox.com/">Mapbox</a>',
+		id: 'mapbox/streets-v11',
+		tileSize: 512,
+		zoomOffset: -1
+	}).addTo(map);
+  var arr = []
+  '{% for r in restaurants %}'  
+	var mark = L.marker(['{{ r.lat }}', '{{ r.lon }}']).addTo(map)
+    .bindPopup("<a href=/restaurants/{{ r.id }}><b>{{ r.name }}</b></a><br><center>{{ r.phone }}</center>");
+    mark.on('click', function(e){
+      map.setView(e.latlng, 13);
+  });
+  arr.push(L.latLng('{{ r.lat }}', '{{ r.lon }}'))
+  '{% endfor %}'
+
+  var bounds = new L.LatLngBounds(arr);
+  map.fitBounds(bounds);
+
+</script>
+{% endif %}
 
 {% else %}
-  Hi Anonymous, <a href="/login">Log in</a>
+  Hi Anonymous, <a href="/login">Log in</a> or <a href="/create_user">Sign up</a>!<br>
+  Do you have a restaurant? <a href="/create_operator">Register it</a>, is free!
 {% endif %}
+
+</body>

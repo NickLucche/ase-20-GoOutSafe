@@ -10,9 +10,40 @@ class LoginForm(FlaskForm):
 
 
 class UserForm(FlaskForm):
-    email = f.StringField('email', validators=[DataRequired()])
-    firstname = f.StringField('firstname', validators=[DataRequired()])
-    lastname = f.StringField('lastname', validators=[DataRequired()])
-    password = f.PasswordField('password', validators=[DataRequired()])
-    dateofbirth = f.DateField('dateofbirth', format='%d/%m/%Y')
+    email = f.StringField('e-mail', validators=[DataRequired()])
+    firstname = f.StringField('Name', validators=[DataRequired()])
+    lastname = f.StringField('Last name', validators=[DataRequired()])
+    password = f.PasswordField('Password', validators=[DataRequired()])
+    dateofbirth = f.DateField('Date of Birth', format='%d/%m/%Y')
     display = ['email', 'firstname', 'lastname', 'password', 'dateofbirth']
+
+class SearchUserForm(FlaskForm):
+    email = f.StringField('email')
+    firstname = f.StringField('firstname')
+    lastname = f.StringField('lastname')
+    display = ['email', 'firstname', 'lastname']
+
+class OperatorForm(FlaskForm):
+    l1 = f.Label('Owner infos', 'Owner infos')
+    email = f.StringField('e-mail', validators=[DataRequired()])
+    firstname = f.StringField('Name', validators=[DataRequired()])
+    lastname = f.StringField('Last name', validators=[DataRequired()])
+    password = f.PasswordField('Password', validators=[DataRequired()])
+    dateofbirth = f.DateField('Date of birth', format='%d/%m/%Y')
+    h1 = f.HiddenField()
+    l2 = f.Label('', 'Restaurant info')
+    name = f.StringField('Name', validators=[DataRequired()])
+    lat = f.FloatField('Latitude', validators=[DataRequired()])
+    lon = f.FloatField('Longitude', validators=[DataRequired()])
+    phone = f.IntegerField('Phone number', validators=[DataRequired()])
+    extra_info = f.TextAreaField('Extra infos [optional]')
+    display = ['l1', 'email', 'firstname', 'lastname', 'password', 'dateofbirth', 'l2',
+     'name', 'lat', 'lon', 'phone', 'extra_info']
+
+class RestaurantProfileEditForm(FlaskForm):
+    name = f.StringField('Name', validators=[DataRequired()])
+    lat = f.FloatField('Latitude', validators=[DataRequired()])
+    lon = f.FloatField('Longitude', validators=[DataRequired()])
+    phone = f.IntegerField('Phone number', validators=[DataRequired()])
+    extra_info = f.TextAreaField('Extra info')
+    display = ['name', 'lat', 'lon', 'phone', 'extra_info']

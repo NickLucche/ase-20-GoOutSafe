@@ -1,0 +1,23 @@
+<html>
+  <body>
+    <h1>Reservations</h1>
+      {% for reservation in reservations: %}
+      <section>
+        <div style="display: inline-block">
+          <h2>Reservation for {{reservation[0].reservation_time|prettytime}}</h2>
+          <ul>
+            <p>Booked by {{reservation[1].firstname}} {{reservation[1].lastname}}</p>
+            <li>Table: {{reservation[0].table_no}}</li>
+            <li>Seats: {{reservation[0].seats}}</li>
+          </ul>
+          <div style="display: flex; flex-direction: row-reverse;">
+            <form action="/reservations/{{reservation[0].id}}/decline" method="POST">
+              <button style="margin-right: 16px">Decline reservation</button>
+            </form>
+          </div>
+        </div>
+      </section>
+      {% endfor %}
+    </ul>
+  </body>
+</html>
