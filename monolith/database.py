@@ -24,6 +24,7 @@ class User(db.Model):
     is_anonymous = False
     restaurant_id = db.Column(db.Integer, db.ForeignKey('restaurant.id'), nullable=True)
     restaurant = db.relationship("Restaurant", backref=db.backref("restaurant"))
+    confirmed_positive_date = db.Column(db.Date, nullable=True)
 
     def __init__(self, *args, **kw):
         super(User, self).__init__(*args, **kw)
@@ -53,12 +54,13 @@ class User(db.Model):
 class Restaurant(db.Model):
     __tablename__ = 'restaurant'
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
-    name = db.Column(db.Text(100))
-    likes = db.Column(db.Integer)  # will store the number of likes, periodically updated in background
-    lat = db.Column(db.Float)  # restaurant latitude
-    lon = db.Column(db.Float)  # restaurant longitude
-    phone = db.Column(db.Integer)
-    extra_info = db.Column(db.Text(300))  # restaurant infos (menu, ecc.)
+    name = db.Column(db.Text(100)) 
+    likes = db.Column(db.Integer) # will store the number of likes, periodically updated in background
+    lat = db.Column(db.Float) # restaurant latitude
+    lon = db.Column(db.Float) # restaurant longitude
+    phone = db.Column(db.Text)
+    extra_info = db.Column(db.Text(300)) # restaurant infos (menu, ecc.)
+    avg_stay_time = db.Column(db.Time)
 
     operator_id = relationship(User, backref="operator")
 
@@ -77,24 +79,31 @@ class Like(db.Model):
 
 class Notification(db.Model):
     __tablename__ = 'notifications'
+    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    positive_user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
+    date = db.Column(db.DateTime)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=True)
 
-    positive_user_id = db.Column(db.Integer, db.ForeignKey('user.id'), primary_key=True)
-    date = db.Column(db.DateTime, primary_key=True, default=datetime.now())
-    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), primary_key=True)
-
+    positive_user_reservation = db.Column(db.Integer, db.ForeignKey('reservation.id'))
     restaurant_id = db.Column(db.Integer, db.ForeignKey('restaurant.id'))
     notification_checked = db.Column(db.Boolean, default=False)
 
+    user_notification = db.Column(db.Boolean) # belongs to a user or operator
+
+    def to_dict(self):
+        return {column.name:getattr(self, column.name) for column in self.__table__.columns}
+
 class Reservation(db.Model):
     __tablename__ = 'reservation'
-    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), primary_key=True)
+    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
     restaurant_id = db.Column(db.Integer, db.ForeignKey('restaurant.id'))
     restaurant = db.relationship("Restaurant", backref=db.backref("restaurant_r"))
 
-    reservation_time = db.Column(db.DateTime, primary_key=True, default=datetime.now())
-    table_no = db.Column(db.Integer, db.ForeignKey('restaurant_table.table_id'), primary_key=True)
+    reservation_time = db.Column(db.DateTime, default=datetime.now())
+    table_no = db.Column(db.Integer, db.ForeignKey('restaurant_table.table_id'))
     table = db.relationship("RestaurantTable", backref=db.backref("restaurant_table_r"))
-    turn = db.Column(db.Boolean)
+    #turn = db.Column(db.Boolean)
 
     seats = db.Column(db.Integer, default=False)
     entrance_time = db.Column(db.DateTime, nullable=True)

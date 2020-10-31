@@ -1,11 +1,12 @@
 import unittest
 from monolith.classes.restaurant import Restaurant
-
+import os
 
 class TestRestaurant(unittest.TestCase):
 
     def test_rest_init(self):
-        rest = Restaurant('monolith/classes/tests/rest0.txt')
+        test_dir = os.path.dirname(os.path.realpath(__file__))
+        rest = Restaurant(os.path.join(test_dir, 'rest0.txt'))
         name = rest.name
         tables = rest.tables
 
