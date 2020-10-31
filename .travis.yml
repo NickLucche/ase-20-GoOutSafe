@@ -9,7 +9,7 @@ before_install:
 install:
   - pip install -r requirements.txt
 before_script:
-  - bash start_celery.sh
+  - bash start_celery.sh > celery_logs.txt 2>&1 &
 script:
   - python -m pytest --cov-report term-missing --cov=monolith monolith/ 
 after_script:
