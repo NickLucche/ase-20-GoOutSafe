@@ -1,81 +1,41 @@
-from celery import Celery
-from celery.schedules import crontab
-from monolith.database import db, User, Restaurant
 from datetime import datetime, timedelta
+from monolith.app import create_app
+from celery import Celery
+from monolith.database import db, User, Restaurant
 
-BACKEND = BROKER = 'redis://localhost:6379'
-UNMARK_DAYS = 14
-celery = Celery(__name__,
-                backend=BACKEND,
-                broker=BROKER,
-                include=['monolith.classes.notifications',
-                         'monolith.background'])  # include list of modules to import when worker tarts
+# BACKEND = BROKER = 'redis://localhost:6379'
+def make_celery(app):
+    # create celery object from single flask app configuration
+    celery = Celery(__name__, backend=app.config['CELERY_RESULT_BACKEND'], 
+    broker=app.config['CELERY_BROKER_URL'], 
+    include=['monolith.classes.notifications', 'monolith.classes.authority_backend', 'monolith.background']) # include list of modules to import when worker tarts
 
-_APP = None
+    celery.conf.update(app.config)
+    # subclass celery task so that each task execution is wrapped in an app context
+    class ContextTask(celery.Task):
+        def __call__(self, *args, **kwargs):
+            with app.app_context():
+                return self.run(*args, **kwargs)
 
-@celery.task
-def do_task():
-    global _APP
-    # lazy init
-    if _APP is None:
-        from monolith.app import create_app
-        app = create_app()
-        db.init_app(app)
-    else:
-        app = _APP
+    celery.Task = ContextTask
+    return celery
 
-    return []
-
-
-# TODO XXX: TBT
-def register_positive(user_id: int):
-    print("Celery call...")
-    celery.add_periodic_task(15.0, unmark_positive.s(user_id), name='14 days delay')
-    print("Celery registered")
+celery = make_celery(create_app())
 
 
-# TODO XXX: TBT
-@celery.task
-def unmark_positive(user_id):
-    global _APP
-    app = _APP
-    # lazy init
-    if _APP is None:
-        from monolith.app import create_app
-        app = create_app()
-        db.init_app(app)
-    else:
-        app = _APP
+# _APP = None
 
-    with app.app_context():
-        user = User.query.filter_by(id=user_id).first()
-        if user != None and user.is_positive == True:
-            user.is_positive = False
-            db.session.commit()
 
-    return []
+# @celery.task
+# def do_task():
+#     global _APP
+#     # lazy init
+#     if _APP is None:
+#         from monolith.app import create_app
+#         app = create_app()
+#         db.init_app(app)
+#     else:
+#         app = _APP
 
-# TODO XXX: TBT
-@celery.task
-def unmark_AllPositives():
-    global _APP
-    app = _APP
-    # lazy init
-    if _APP is None:
-        from monolith.app import create_app
-        app = create_app()
-        db.init_app(app)
-    else:
-        app = _APP
+#     return []
 
-    now = datetime.now()
-    time_limit = now - timedelta(days=UNMARK_DAYS)
-    with app.app_context():
-        users = User.query.filter_by(is_positive=True).\
-            filter(User.reported_positive_date >= time_limit).all()
-        for user in Users:
-            if user != None and user.is_positive == True:
-                user.is_positive = False
-        db.session.commit()
-
-    return []

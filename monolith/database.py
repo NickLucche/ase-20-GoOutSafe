@@ -5,8 +5,8 @@ from sqlalchemy.orm import relationship
 import datetime as dt
 from flask_sqlalchemy import SQLAlchemy
 
-db = SQLAlchemy()
 
+db = SQLAlchemy()
 
 class User(db.Model):
     __tablename__ = 'user'
@@ -47,6 +47,8 @@ class User(db.Model):
     def __str__(self) -> str:
         return f'{self.firstname} {self.lastname}--mail:{self.email}--born:{self.dateofbirth.strftime("%B %d %Y")}'
 
+    def to_dict(self):
+        return {column.name:getattr(self, column.name) for column in self.__table__.columns}
 
 class Restaurant(db.Model):
     __tablename__ = 'restaurant'
@@ -83,26 +85,25 @@ class Notification(db.Model):
     restaurant_id = db.Column(db.Integer, db.ForeignKey('restaurant.id'))
     notification_checked = db.Column(db.Boolean, default=False)
 
-
 class Reservation(db.Model):
     __tablename__ = 'reservation'
-
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), primary_key=True)
-
     restaurant_id = db.Column(db.Integer, db.ForeignKey('restaurant.id'))
     restaurant = db.relationship("Restaurant", backref=db.backref("restaurant_r"))
 
     reservation_time = db.Column(db.DateTime, primary_key=True, default=datetime.now())
     table_no = db.Column(db.Integer, db.ForeignKey('restaurant_table.table_id'), primary_key=True)
     table = db.relationship("RestaurantTable", backref=db.backref("restaurant_table_r"))
+    turn = db.Column(db.Boolean)
 
     seats = db.Column(db.Integer, default=False)
-    entrance_time = db.Column(db.Integer, nullable=True)
+    entrance_time = db.Column(db.DateTime, nullable=True)
 
+    def to_dict(self):
+        return {column.name:getattr(self, column.name) for column in self.__table__.columns}
 
 class RestaurantTable(db.Model):
     __tablename__ = 'restaurant_table'
-
     table_id = db.Column(db.Integer, primary_key=True)
     restaurant_id = db.Column(db.Integer, db.ForeignKey('restaurant.id'))
     restaurant = db.relationship("Restaurant", backref=db.backref("restaurant_t"))

@@ -1,0 +1,33 @@
+<html>
+  <body>
+    <h1>User List</h1>
+    <table>
+      <b><tr>
+        <td><b>Firstname</b></td>
+        <td><b>Lastname</b></td>
+        <td><b>Email address</b></td>
+        <td><b>Covid positive</b></td>
+        <td><b></b></td>
+      </tr></b>
+      {% for user in users: %}
+      <tr>
+        <td>{{user.firstname}}</td>
+        <td>{{user.lastname}}</td>
+        <td>{{user.email}}</td>
+        <td>
+          {% if user.is_positive %}
+          <b><i>positive</i></b>
+          {% else %}
+          <a href="{{base_url}}/authority/mark/{{user.id}}">Mark as positive</a>
+          {% endif %}
+        </td>
+        <td>
+          {% if user.is_positive %}
+          <a href="{{base_url}}/authority/trace_contacts/{{user.id}}">Trace contacts</a>
+          {% endif %}
+        </td>
+      </tr>
+      {% endfor %}
+    </table>
+  </body>
+</html>
