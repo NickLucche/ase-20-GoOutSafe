@@ -5,6 +5,7 @@ from flask_login import (current_user, login_user, logout_user, login_required)
 from monolith.forms import UserForm, ReservationForm
 from sqlalchemy import func
 import monolith.classes.customer_reservations as cr
+from datetime import datetime
 
 restaurants = Blueprint('restaurants', __name__)
 
@@ -39,12 +40,12 @@ def _reserve(restaurant_id):
 
     if (request.method == 'POST'):
         if ReservationForm(request.form).validate_on_submit():
+            reservation_date = datetime.combine(
+                ReservationForm(request.form).data['reservation_date'],
+                ReservationForm(request.form).data['reservation_time'])
             overlapping_tables = cr.get_overlapping_tables(
                 restaurant_id=record.id,
-                reservation_date=ReservationForm(
-                    request.form).data['reservation_date'],
-                reservation_time=ReservationForm(
-                    request.form).data['reservation_time'],
+                reservation_date=reservation_date,
                 reservation_seats=ReservationForm(request.form).data['seats'],
                 avg_stay_time=record.avg_stay_time)
             if (cr.is_overbooked(restaurant_id=record.id,
@@ -61,18 +62,12 @@ def _reserve(restaurant_id):
                     restaurant_id=record.id,
                     reservation_seats=ReservationForm(
                         request.form).data['seats'])
-                reservation = Reservation(
-                    user_id=current_user.id,
-                    restaurant_id=record.id,
-                    reservation_date=ReservationForm(
-                        request.form).data['reservation_date'],
-                    reservation_time=ReservationForm(
-                        request.form).data['reservation_time'],
-                    seats=ReservationForm(request.form).data['seats'],
-                    expected_leave_time=cr.sum_time(
-                        ReservationForm(request.form).data['reservation_time'],
-                        record.avg_stay_time),
-                    table_no=assigned_table.table_id)
+                reservation = Reservation(user_id=current_user.id,
+                                          restaurant_id=record.id,
+                                          reservation_date=reservation_date,
+                                          seats=ReservationForm(
+                                              request.form).data['seats'],
+                                          table_no=assigned_table.table_id)
                 cr.add_reservation(reservation)
                 return _restaurants(message='Booking confirmed')
 

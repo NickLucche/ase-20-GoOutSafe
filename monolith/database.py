@@ -83,9 +83,8 @@ class Reservation(db.Model):
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
     restaurant_id = db.Column(db.Integer, db.ForeignKey('restaurant.id'))
     
-    reservation_date = db.Column(db.Date, default=datetime.now().date())
-    reservation_time = db.Column(db.Time, default=datetime.now().time())
-    expected_leave_time = db.Column(db.Time, default=datetime.now().time())
+    reservation_date = db.Column(db.DateTime, default=datetime.now())
+
     table_no = db.Column(db.Integer, db.ForeignKey('restaurant_table.table_id'))
 
     seats = db.Column(db.Integer, default=False)
