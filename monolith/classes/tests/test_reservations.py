@@ -79,4 +79,5 @@ class TestReservations(unittest.TestCase):
                 rsv = reservations.get_reservations(restaurant)
                 for reservation in rsv:
                     #print("{} {}".format(reservation.restaurant_id, restaurant.id))
-                    self.assertEqual(reservation.restaurant_id, restaurant.id)
+                    self.assertEqual(reservation[0].restaurant_id, restaurant.id)
+                    self.assertIsNotNone(reservation[1])
