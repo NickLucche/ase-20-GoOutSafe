@@ -4,6 +4,7 @@ import enum
 from sqlalchemy.orm import relationship
 import datetime as dt
 from flask_sqlalchemy import SQLAlchemy
+from datetime import datetime
 
 
 db = SQLAlchemy()
@@ -115,5 +116,5 @@ class RestaurantTable(db.Model):
     __tablename__ = 'restaurant_table'
     table_id = db.Column(db.Integer, primary_key=True)
     restaurant_id = db.Column(db.Integer, db.ForeignKey('restaurant.id'))
-    restaurant = db.relationship("Restaurant", backref=db.backref("restaurant_t"))
+    restaurant = db.relationship('Restaurant', foreign_keys='RestaurantTable.restaurant_id')
     seats = db.Column(db.Integer, default=False)

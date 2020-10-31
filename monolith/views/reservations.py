@@ -20,10 +20,10 @@ def home():
     return render_template("reservations.html", reservations=reservations)
 
 
-@reservations.route('/<reservation_id>/decline', methods=('POST', ))
+@reservations.route('/<id>/decline', methods=('POST', ))
 @operator_required
-def decline(reservation_id):
-    if decline_reservation(current_user, Reservation.query.filter(Reservation.id == reservation_id).first()):
+def decline(id):
+    if decline_reservation(current_user, Reservation.query.filter(Reservation.id == id).first()):
         return redirect(url_for("reservations.home"))
     
     return "You are not allowed to do that", 401

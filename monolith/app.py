@@ -5,11 +5,11 @@ from monolith.views import blueprints
 from monolith.auth import login_manager
 import datetime
 
-def create_app():
+def create_app(dbfile='sqlite:///gooutsafe.db'):
     app = Flask(__name__)
     app.config['WTF_CSRF_SECRET_KEY'] = 'A SECRET KEY'
     app.config['SECRET_KEY'] = 'ANOTHER ONE'
-    app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///gooutsafe.db'
+    app.config['SQLALCHEMY_DATABASE_URI'] = dbfile
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
     # celery config
     app.config['CELERY_BROKER_URL'] = 'redis://localhost:6379'
@@ -21,6 +21,7 @@ def create_app():
 
     db.init_app(app)
     login_manager.init_app(app)
+    #db.drop_all(app=app)
     db.create_all(app=app)
 
     # create a first admin user
@@ -62,6 +63,7 @@ def create_app():
             restaurant.phone = 555123456
             restaurant.lat = 43.720586
             restaurant.lon = 10.408347
+            restaurant.avg_stay_time = datetime.time(1, 30)
             db.session.add(restaurant)
             db.session.commit()
         
