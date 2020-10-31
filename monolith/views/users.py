@@ -1,4 +1,6 @@
-from flask import Blueprint, redirect, render_template, request
+from monolith.classes.exceptions import DatabaseError, GoOutSafeError
+from monolith.classes.user import new_operator, new_user, users_view
+from flask import Blueprint, redirect, render_template, flash, request
 from flask_login import login_user
 from monolith.database import Restaurant, db, User
 from monolith.auth import admin_required
@@ -8,7 +10,7 @@ users = Blueprint('users', __name__)
 
 @users.route('/users')
 def _users():
-    users = db.session.query(User)
+    users = users_view()
     return render_template("users.html", users=users)
 
 
@@ -16,18 +18,14 @@ def _users():
 def create_user():
     form = UserForm()
     if request.method == 'POST':
-        if form.validate_on_submit():
-            if User.query.filter_by(email = form.email) != None:
-                # user with same email already exists
-                return render_template("error.html", error_message="An user with the same email already exists!")
-            new_user = User()
-            form.populate_obj(new_user)
-            new_user.set_password(form.password.data) #pw should be hashed with some salt
-            db.session.add(new_user)
-            db.session.commit()
-            login_user(new_user)
+        try:
+            u = new_user(form)
+            flash("User successfully created! Logging in.")
+            login_user(u)
             return redirect('/')
-
+        except GoOutSafeError as e:
+            return render_template("error.html", error_message=str(e))
+            
     return render_template('create_user.html', form=form)
 
 
@@ -35,23 +33,12 @@ def create_user():
 def create_operator():
     form = OperatorForm()
     if request.method == 'POST':
-        if form.validate_on_submit():
-            if User.query.filter_by(email = form.email) != None:
-                # user with same email already exists
-                return render_template("error.html", error_message="An user with the same email already exists!")
-            new_user = User()
-            new_restaurant = Restaurant()
-            form.populate_obj(new_user)
-            form.populate_obj(new_restaurant)
-            new_user.set_password(form.password.data) #pw should be hashed with some salt
-            new_user.is_operator = True
-            db.session.add(new_restaurant)
-            db.session.flush()
-            new_user.restaurant_id = new_restaurant.id
-            db.session.add(new_user)
-            
-            db.session.commit()
-            login_user(new_user)
+        try:
+            u = new_operator(form)
+            flash("User successfully created! Logging in.")
+            login_user(u)
             return redirect('/')
+        except GoOutSafeError as e:
+            return render_template("error.html", error_message=str(e))
 
     return render_template('create_user.html', form=form)
