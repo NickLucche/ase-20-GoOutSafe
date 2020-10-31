@@ -16,7 +16,7 @@ def check_visited_places(userid: int, day_range: int):
         userid (int): Id of the customer
         day_range (int): Number of days in which we're checking the customer activities.
     Returns:
-        [type]: A list of restaurants or an empty list in case the customer didn't visit
+        [type]: A list of restaurants reservations or an empty list in case the customer didn't visit
         any restaurant.
     """
     print(f"Checking visited places by user {userid} in the last {day_range} days")
@@ -32,11 +32,12 @@ def check_visited_places(userid: int, day_range: int):
 
 @celery.task
 def create_notifications(reservation_at_riks, positive_id: int):
-    """[summary]
-
+    """
+        Writes positive contact notifications to database, both for other customers as well as operator.
     Args:
-        positive_id (str): [description]
-        reservation_at_riks ([type]): [description]
+        reservation_at_riks ([type]): List of dictionaries, each containing a reservation made by a user which was
+        possibly in contact with a positive customer.
+        positive_id (str): identifier of the positive customer.
     """
     # create multiple notification even if the user visited the same restaurant in multiple occasions
     notifications = []
@@ -74,26 +75,28 @@ def create_notifications(reservation_at_riks, positive_id: int):
 @celery.task
 def contact_tracing(past_reservations, user_id: int):
     """Given a positive user id and a list of past reservation he/she made in the last 14 days,
-        returns a list of reservation made by users which were allegedly in contact with him/her.
+        returns a list of reservation made by other users which were allegedly in contact with him/her.
 
     Args:
         past_reservations: List of dictionaries, each representing a reservation the positive 
         user made.
         user_id (int): Positive customer id.
     """
-    # check which users were at the restaurant at the same time as the positive guy (by checking the turn)
-    print("INPUT", past_reservations, user_id)
+    # check which users were at the restaurant at the same time as the positive guy
     reservation_at_risk = []
     for reservation in past_reservations:
         et = reservation['entrance_time']
         if isinstance(et, str):
             et = datetime.strptime(reservation['entrance_time'], '%Y-%m-%dT%H:%M:%S.%f')
-        start_of_day = datetime(et.year, et.month, et.day)
-        end_of_day = datetime(et.year, et.month, et.day, 23, 59, 59, 59)
-        # TODO: add distinct?
+        # get average staying time of the restaurant and compute 'danger period'
+        avg_stay_time = Restaurant.query.filter_by(id=reservation['restaurant_id']).first().avg_stay_time
+        staying_interval = timedelta(hours=avg_stay_time.hour, minutes=avg_stay_time.minute, seconds=avg_stay_time.second)
+        start_time = et - staying_interval
+        end_time = et + staying_interval
+
         user_reservation = Reservation.query.filter(Reservation.user_id != user_id).\
-            filter_by(restaurant_id=reservation['restaurant_id'], turn=reservation['turn']).\
-                filter(Reservation.entrance_time.between(start_of_day, end_of_day)).all()
+            filter_by(restaurant_id=reservation['restaurant_id']).\
+                filter(Reservation.entrance_time.between(start_time, end_time)).all()
         # print(user_reservation)
         # preserve positive user reservation we're referring to, as to notify operator 
         for u in user_reservation:

@@ -1,6 +1,6 @@
 from monolith.classes import restaurant
-from monolith.database import db, User, Reservation
-from datetime import datetime, timedelta
+from monolith.database import Restaurant, db, User, Reservation
+from datetime import datetime, timedelta, time
 import random
 from flask import Flask
 
@@ -18,6 +18,17 @@ def delete_random_users(app: Flask):
     with app.app_context():
         delete_query = User.__table__.delete().where(User.email == 'test')
         db.session.execute(delete_query)
+        db.session.commit()
+
+def add_random_restaurants(n_places: int, app: Flask):
+    with app.app_context():
+        rests = []
+        for i in range(n_places):
+            stay_time = time(hour=1)
+            res = Restaurant(name=f'test_rest_{i}', likes = 10, lat = 42.111,lon = 11.111, phone = '343493490',
+             extra_info = '', avg_stay_time=stay_time)
+            rests.append(res)
+        db.session.add_all(rests)
         db.session.commit()
     
 
@@ -59,7 +70,7 @@ def visit_random_places(app: Flask, pos_id:int, positive_date: datetime, time_sp
             visit_date = random_datetime_in_range(positive_date-timedelta(days=time_span+time_span_offset), positive_date)
             visit = Reservation(user_id=pos_id, 
             restaurant_id=rid, reservation_time=visit_date, 
-            table_no=0, turn=0, seats=1, entrance_time=visit_date)
+            table_no=0, seats=1, entrance_time=visit_date)
             if visit_date >= risky_date:
                 visits.append(visit)
                 risky_places += 1
@@ -77,12 +88,15 @@ def add_random_visits_to_place(app: Flask, restaurant_id:int, start_date: dateti
             # some random id identifying a user
             rand_user = random.randint(1000, 2000)
             visit_date = random_datetime_in_range(start_date, end_date)
-            if visit_date.date() == pos_date.date():
+            # compute 'danger period' in which user might have been in contact with positive dude
+            stay_time = Restaurant.query.filter_by(id=restaurant_id).first().avg_stay_time
+            staying_interval = timedelta(hours=stay_time.hour, minutes=stay_time.minute, seconds=stay_time.second)
+            if visit_date <= (pos_date + staying_interval) and visit_date >= (pos_date - staying_interval) :
                 print("RISKY VISIT:", visit_date, pos_date, rand_user, restaurant_id)
                 risky_visits += 1
             visit = Reservation(user_id=rand_user, 
             restaurant_id=restaurant_id, reservation_time=visit_date, 
-            table_no=0, seats=1, entrance_time=visit_date, turn=0)
+            table_no=0, seats=1, entrance_time=visit_date)
             visits.append(visit)
         db.session.add_all(visits)
         db.session.commit()

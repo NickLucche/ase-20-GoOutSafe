@@ -19,6 +19,8 @@ class User(db.Model):
     is_active = db.Column(db.Boolean, default=True)
     is_admin = db.Column(db.Boolean, default=False)
     is_anonymous = False
+    is_positive = db.Column(db.Boolean)
+    confirmed_positive_date = db.Column(db.Date, nullable=True)
     restaurant_id = db.Column(db.ForeignKey('restaurant.id'), nullable=True)
 
     def __init__(self, *args, **kw):
@@ -53,8 +55,9 @@ class Restaurant(db.Model):
     likes = db.Column(db.Integer) # will store the number of likes, periodically updated in background
     lat = db.Column(db.Float) # restaurant latitude
     lon = db.Column(db.Float) # restaurant longitude
-    phone = db.Column(db.Integer)
+    phone = db.Column(db.Text)
     extra_info = db.Column(db.Text(300)) # restaurant infos (menu, ecc.)
+    avg_stay_time = db.Column(db.Time)
 
     operator_id = relationship(User, backref="operator")
 
@@ -94,7 +97,6 @@ class Reservation(db.Model):
     restaurant_id = db.Column(db.Integer, db.ForeignKey('restaurant.id'))
     reservation_time = db.Column(db.DateTime, default=datetime.now())
     table_no = db.Column(db.Integer, db.ForeignKey('restaurant_table.table_id'))
-    turn = db.Column(db.Boolean)
 
     seats = db.Column(db.Integer, default=False)
     entrance_time = db.Column(db.DateTime, nullable=True)
