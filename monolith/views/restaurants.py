@@ -39,15 +39,40 @@ def _reserve(restaurant_id):
 
     if (request.method == 'POST'):
         if ReservationForm(request.form).validate_on_submit():
-            overlapping_tables = cr.get_overlapping_tables(restaurant_id = record.id, reservation_date=ReservationForm(request.form).data['reservation_date'], reservation_time=ReservationForm(request.form).data['reservation_time'], reservation_seats=ReservationForm(request.form).data['seats'], avg_stay_time=record.avg_stay_time)
-            if (cr.is_overbooked(restaurant_id=record.id, reservation_seats = ReservationForm(request.form).data['seats'], overlapping_tables= overlapping_tables)):
+            overlapping_tables = cr.get_overlapping_tables(
+                restaurant_id=record.id,
+                reservation_date=ReservationForm(
+                    request.form).data['reservation_date'],
+                reservation_time=ReservationForm(
+                    request.form).data['reservation_time'],
+                reservation_seats=ReservationForm(request.form).data['seats'],
+                avg_stay_time=record.avg_stay_time)
+            if (cr.is_overbooked(restaurant_id=record.id,
+                                 reservation_seats=ReservationForm(
+                                     request.form).data['seats'],
+                                 overlapping_tables=overlapping_tables)):
                 return _restaurants(
                     message=
                     'Overbooking Notification: no tables with the wanted seats on the requested date and time. Please, try another one.'
                 )
             else:
-                assigned_table = cr.assign_table_to_reservation(overlapping_tables=overlapping_tables, restaurant_id = record.id, reservation_seats = ReservationForm(request.form).data['seats'])
-                reservation = Reservation(user_id = current_user.id, restaurant_id = record.id, reservation_date = ReservationForm(request.form).data['reservation_date'], reservation_time = ReservationForm(request.form).data['reservation_time'], seats = ReservationForm(request.form).data['seats'], expected_leave_time = cr.sum_time(ReservationForm(request.form).data['reservation_time'], record.avg_stay_time), table_no = assigned_table.table_id)
+                assigned_table = cr.assign_table_to_reservation(
+                    overlapping_tables=overlapping_tables,
+                    restaurant_id=record.id,
+                    reservation_seats=ReservationForm(
+                        request.form).data['seats'])
+                reservation = Reservation(
+                    user_id=current_user.id,
+                    restaurant_id=record.id,
+                    reservation_date=ReservationForm(
+                        request.form).data['reservation_date'],
+                    reservation_time=ReservationForm(
+                        request.form).data['reservation_time'],
+                    seats=ReservationForm(request.form).data['seats'],
+                    expected_leave_time=cr.sum_time(
+                        ReservationForm(request.form).data['reservation_time'],
+                        record.avg_stay_time),
+                    table_no=assigned_table.table_id)
                 cr.add_reservation(reservation)
                 return _restaurants(message='Booking confirmed')
 
