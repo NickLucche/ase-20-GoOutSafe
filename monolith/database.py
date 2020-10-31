@@ -47,11 +47,12 @@ class Restaurant(db.Model):
     name = db.Column(db.Text(100)) 
     
     likes = db.Column(db.Integer) # will store the number of likes, periodically updated in background
-
+    
     lat = db.Column(db.Float) # restaurant latitude
     lon = db.Column(db.Float) # restaurant longitude
 
     phone = db.Column(db.Integer)
+    avg_stay_time = db.Column(db.Time)
 
 
 class Like(db.Model):
@@ -84,6 +85,7 @@ class Reservation(db.Model):
     
     reservation_date = db.Column(db.Date, default=datetime.now().date())
     reservation_time = db.Column(db.Time, default=datetime.now().time())
+    expected_leave_time = db.Column(db.Time, default=datetime.now().time())
     table_no = db.Column(db.Integer, db.ForeignKey('restaurant_table.table_id'))
 
     seats = db.Column(db.Integer, default=False)

@@ -45,6 +45,7 @@ def create_app():
             example.phone = 555123456
             example.lat = 43.720586
             example.lon = 10.408347
+            example.avg_stay_time = datetime.time(1, 30)
             db.session.add(example)
             db.session.commit()
 
