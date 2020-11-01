@@ -1,21 +1,22 @@
+from monolith.app import create_app
 import unittest
 from monolith.database import Notification, Reservation, Restaurant, db, User
 import random
 from datetime import datetime, timedelta
 from monolith.classes.notifications import check_visited_places, create_notifications, contact_tracing, fetch_operator_notifications
-from monolith.app import create_app
-from monolith.classes.tests.utils import add_random_users, add_random_visits_to_place, delete_random_users, mark_random_guy_as_positive, random_datetime_in_range, visit_random_places, add_random_restaurants
-from celery import chain
+from monolith.classes.tests.utils import add_random_users, add_random_visits_to_place, delete_random_users, mark_random_guy_as_positive, random_datetime_in_range, visit_random_places, add_random_restaurants, setup_for_test
 
 app = create_app()
 INCUBATION_PERIOD_COVID= 14
+RESTAURANT_TEST_IDS = list(range(10, 100))
 class Notifications(unittest.TestCase):
 
     def setUp(self):
+        app = create_app()
         # executed before executing each test
         self.now = datetime.now()
-        add_random_users(10, app)
-        add_random_restaurants(10*10*10, app)
+        add_random_users(10*10, app)
+        add_random_restaurants(10*10, app)
         # LHA marks a User as positive (admin excluded)
         positive_guy = mark_random_guy_as_positive(app, self.now)
 
@@ -42,7 +43,7 @@ class Notifications(unittest.TestCase):
             
             # make it so that user visited a random number of places
             n_places = random.randrange(0, 10)
-            nrisky_places, visits = visit_random_places(app, positive_guy['id'], self.now, INCUBATION_PERIOD_COVID, n_places)
+            nrisky_places, visits = visit_random_places(app, positive_guy['id'], self.now, INCUBATION_PERIOD_COVID, n_places, RESTAURANT_TEST_IDS)
             # get restaurants visited by positive user in the last `INCUBATION_PERIOD_COVID` days
             reservations = check_visited_places(positive_guy['id'], INCUBATION_PERIOD_COVID)
         # check every positive user visit was correctly retrieved
@@ -56,7 +57,7 @@ class Notifications(unittest.TestCase):
             
             # make it so that user visited a random number of places
             n_places = random.randrange(0, 10)
-            nrisky_places, visits = visit_random_places(app, positive_guy['id'], self.now, INCUBATION_PERIOD_COVID, n_places)
+            nrisky_places, visits = visit_random_places(app, positive_guy['id'], self.now, INCUBATION_PERIOD_COVID, n_places, RESTAURANT_TEST_IDS)
             # get restaurants visited by positive user in the last `INCUBATION_PERIOD_COVID` days
             # this forces a wait
             reservations = check_visited_places.delay(positive_guy['id'], INCUBATION_PERIOD_COVID).get()
@@ -73,7 +74,7 @@ class Notifications(unittest.TestCase):
 
             # make positive guy visit some random places
             n_places = random.randrange(0, 10)
-            nrisky_places, visits = visit_random_places(app, positive_guy['id'], self.now, INCUBATION_PERIOD_COVID, n_places)
+            nrisky_places, visits = visit_random_places(app, positive_guy['id'], self.now, INCUBATION_PERIOD_COVID, n_places, RESTAURANT_TEST_IDS)
             # have a random num of users visit the same place as the positive guy
             print("PLACES VISITED BY POSITIVE:", visits)
             nrisky_visits = 0
@@ -95,7 +96,7 @@ class Notifications(unittest.TestCase):
 
             # make positive guy visit some random places
             n_places = random.randrange(0, 10)
-            nrisky_places, visits = visit_random_places(app, positive_guy['id'], self.now, INCUBATION_PERIOD_COVID, n_places)
+            nrisky_places, visits = visit_random_places(app, positive_guy['id'], self.now, INCUBATION_PERIOD_COVID, n_places, RESTAURANT_TEST_IDS)
             # have a random num of users visit the same place as the positive guy
             print("PLACES VISITED BY POSITIVE:", visits)
             nrisky_visits = 0
@@ -119,7 +120,7 @@ class Notifications(unittest.TestCase):
             # generate positive user visits to random restaurants in last 14 days
             n_places = random.randrange(1, 10)
             nrisky_places, risky_visits = visit_random_places(app, positive_guy['id'], self.now,\
-                 INCUBATION_PERIOD_COVID, n_places, time_span_offset=0)
+                 INCUBATION_PERIOD_COVID, n_places, RESTAURANT_TEST_IDS,time_span_offset=0)
             print(f"User {positive_guy['id']} visited {nrisky_places} restaurants")
             # generate other users visits to same restaurants in same days
             visits_per_rest = {}
@@ -155,7 +156,7 @@ class Notifications(unittest.TestCase):
             positive_guy = mark_random_guy_as_positive(app, self.now)
             # generate positive user visits to random restaurants in last 14 days
             n_places = random.randrange(1, 10)
-            nrisky_places, risky_visits = visit_random_places(app, positive_guy['id'], self.now, INCUBATION_PERIOD_COVID, n_places, time_span_offset=0)
+            nrisky_places, risky_visits = visit_random_places(app, positive_guy['id'], self.now, INCUBATION_PERIOD_COVID, n_places, RESTAURANT_TEST_IDS, time_span_offset=0)
             print(f"User {positive_guy['id']} visited {nrisky_places} restaurants")
             # generate other users visits to same restaurants in same days
             visits_per_rest = {}
