@@ -4,7 +4,7 @@ import enum
 from sqlalchemy.orm import relationship
 import datetime as dt
 from flask_sqlalchemy import SQLAlchemy
-from datetime import datetime
+from datetime import datetime, time
 
 
 db = SQLAlchemy()
@@ -67,7 +67,7 @@ class Restaurant(db.Model):
     lon = db.Column(db.Float) # restaurant longitude
     phone = db.Column(db.Text)
     extra_info = db.Column(db.Text(300)) # restaurant infos (menu, ecc.)
-    avg_stay_time = db.Column(db.Time)
+    avg_stay_time = db.Column(db.Time, default=time(hour=1))
 
     #One to one relationship
     operator = db.relationship("User", back_populates="restaurant", uselist=False)
