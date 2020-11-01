@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, time
 from werkzeug.security import generate_password_hash, check_password_hash
 import enum
 from sqlalchemy.orm import relationship
@@ -62,7 +62,7 @@ class Restaurant(db.Model):
     lon = db.Column(db.Float) # restaurant longitude
     phone = db.Column(db.Text)
     extra_info = db.Column(db.Text(300)) # restaurant infos (menu, ecc.)
-    avg_stay_time = db.Column(db.Time)
+    avg_stay_time = db.Column(db.Time, default=time(hour=1))
 
     operator_id = relationship(User, backref="operator")
 

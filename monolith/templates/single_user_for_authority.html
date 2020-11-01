@@ -28,7 +28,7 @@
             {% if user.is_positive %}
             <b><i>Positive</i></b>
             {% else %}
-            <i>Negative</i><a href="{{base_url}}/authority/mark/{{user.id}}">Mark as positive</a>
+            <i>Negative</i>
             {% endif %}
           </td>
           <tr>
@@ -36,6 +36,8 @@
             <td>
                 {% if user.is_positive %}
                 <a href="{{base_url}}/authority/trace_contacts/{{user.id}}">Trace contacts</a>
+                {% else %}
+                <a href="{{base_url}}/authority/mark/{{user.id}}">Mark as positive</a>
                 {% endif %}
             </td>
           </tr>

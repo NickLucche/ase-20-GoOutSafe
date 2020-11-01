@@ -37,12 +37,12 @@ def _search_user(message=''):
 @authority.route('/authority/mark/<marked_user_id>')
 @admin_required
 def _mark(marked_user_id):
-    message = mark_user(marked_user_id)
+    message, user = mark_user(marked_user_id)
 
     if message != '':
         return render_template("error.html", error_message=message)
     else:
-        return redirect('/authority')
+        return render_template("single_user_for_authority.html", user=user)
 
 #XXX TBT
 @authority.route('/authority/trace_contacts/<user_id>')

@@ -26,7 +26,7 @@ def mark_user(user_id: int):
     else:
         message = 'You\'ve already marked this user as positive!'
 
-    return message
+    return message, user
 
 def search_user(filter_user: User):
     if filter_user.email == '' and filter_user.ssn == '' and filter_user.phone_number == '':

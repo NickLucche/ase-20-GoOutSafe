@@ -99,6 +99,11 @@ class TestAuthority(unittest.TestCase):
             user, message = search_user(filter_absent_user)
             self.assertIsNone(user)
 
+            # Delete the user
+            delete_query = User.__table__.delete().where(User.ssn == 'TESTCF95M00A123A')
+            db.session.execute(delete_query)
+            db.session.commit()
+
     def clean(self):
         delete_random_users(self.app)
 
