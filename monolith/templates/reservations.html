@@ -4,20 +4,40 @@
       {% for reservation in reservations: %}
       <section>
         <div style="display: inline-block">
-          <h2>Reservation for {{reservation[0].reservation_time|prettytime}}</h2>
+          <h2>Reservation for {{reservation.reservation_time|prettytime}}</h2>
           <ul>
-            <p>Booked by {{reservation[1].firstname}} {{reservation[1].lastname}}</p>
-            <li>Table: {{reservation[0].table_no}}</li>
-            <li>Seats: {{reservation[0].seats}}</li>
+            <p>Booked by {{reservation.user.firstname}} {{reservation.user.lastname}}</p>
+            <p>Current status: {{ reservation.status }}</p>
+            <li>Table: {{reservation.table_no}}</li>
+            <li>Seats: {{reservation.seats}}</li>
           </ul>
+          {% if reservation is modifiable_reservation %}
           <div style="display: flex; flex-direction: row-reverse;">
-            <form action="/reservations/{{reservation[0].id}}/decline" method="POST">
+            {% if not reservation is declined_reservation %}
+            <form action="/reservations/{{reservation.id}}/decline" method="POST">
               <button style="margin-right: 16px">Decline reservation</button>
             </form>
+            {% endif %}
+            {% if not reservation is accepted_reservation %}
+            <form action="/reservations/{{reservation.id}}/accept" method="POST">
+              <button style="margin-right: 16px">Accept reservation</button>
+            </form>
+            {% endif %}
           </div>
+          {% endif %}
         </div>
       </section>
       {% endfor %}
     </ul>
+    <footer>
+      <nav>
+        {% if current_page > 1 %}
+        <a href="{{url_for('reservations.home', page=current_page - 1)}}">Previous page</a>
+        {% endif %}
+        {% if morepages %}
+        <a href="{{url_for('reservations.home', page=current_page + 1)}}">Next page</a>
+        {% endif %}
+      </nav>
+    </footer>
   </body>
 </html>
