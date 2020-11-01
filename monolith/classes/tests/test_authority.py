@@ -25,7 +25,7 @@ class TestAuthority(unittest.TestCase):
             self.assertIsNone(user.reported_positive_date)
 
             self.user_id = user.id
-            error_message = mark_user(user.id)
+            error_message, usr = mark_user(user.id)
             self.assertEqual(error_message, '')
 
             #Check he/she has been really marked as positive
