@@ -32,11 +32,8 @@ def declined_reservation(reservation: Reservation):
 @reservations.route('/page/<int:page>', methods=('GET', ))
 @operator_required
 def home(page: int):
-    reservations, more = get_reservations(current_user.restaurant, num_of_reservations=4, page=page)
-    return render_template("reservations.html",
-                           reservations=reservations,
-                           current_page=page,
-                           morepages=more)
+    reservations, more = get_reservations(current_user.restaurant, num_of_reservations=6, page=page)
+    return render_template("reservations.html", reservations=reservations, current_page=page, morepages=more)
 
 
 @reservations.route('/<id>/decline', methods=('POST', ))
@@ -56,3 +53,20 @@ def accept(id: int):
 
     return "You are not allowed to do that", 401
 
+
+counter = 1
+
+
+@reservations.route('/add')
+@operator_required
+def add():
+    global counter
+    db.session.add(
+        Reservation(user_id=current_user.id,
+                    restaurant_id=current_user.restaurant_id,
+                    reservation_time=datetime.datetime.now() + datetime.timedelta(hours=counter),
+                    table=current_user.restaurant.tables[0],
+                    seats=4))
+    db.session.commit()
+    counter += 1
+    return "Add", 200
