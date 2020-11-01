@@ -32,6 +32,8 @@ def create_app():
             example.firstname = 'Authority'
             example.lastname = 'Authority'
             example.email = 'authority@authority.com'
+            example.phone_number = '3334567890'
+            example.ssn = 'SURNAM95A32B123C'
             example.dateofbirth = datetime.datetime(2020, 10, 5)
             example.is_admin = True
             example.set_password('authority')
@@ -46,6 +48,8 @@ def create_app():
             example.firstname = 'Admin'
             example.lastname = 'Admin'
             example.email = 'example@example.com'
+            example.phone_number = '3334567891'
+            example.ssn = 'SURNAM95A32B123D'
             example.dateofbirth = datetime.datetime(2020, 10, 5)
             example.is_admin = True
             example.set_password('admin')

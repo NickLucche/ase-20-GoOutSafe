@@ -1,0 +1,45 @@
+<html>
+  <body>
+    <h1>User Info</h1>
+    <table>
+      <tr>
+        <td><b>Firstname</b></td>
+        <td>{{user.firstname}}</td>
+      </tr>
+      <tr>
+        <td><b>Lastname</b></td>
+        <td>{{user.lastname}}</td>
+      </tr>
+      <tr>
+        <td><b>SSN</b></td>
+        <td>{{user.ssn if user.ssn != None else ''}}</td>
+      </tr>
+      <tr>
+        <td><b>Phone number</b></td>
+        <td>{{user.phone_number if user.phone_number != None else ''}}</td>
+      </tr>
+      <tr>
+        <td><b>email</b></td>
+        <td>{{user.email if user.email != None else ''}}</td>
+      </tr>
+      <tr>
+        <td><b>Covid state</b></td>
+        <td>
+            {% if user.is_positive %}
+            <b><i>Positive</i></b>
+            {% else %}
+            <i>Negative</i><a href="{{base_url}}/authority/mark/{{user.id}}">Mark as positive</a>
+            {% endif %}
+          </td>
+          <tr>
+            <td></td>
+            <td>
+                {% if user.is_positive %}
+                <a href="{{base_url}}/authority/trace_contacts/{{user.id}}">Trace contacts</a>
+                {% endif %}
+            </td>
+          </tr>
+      </tr>
+    </table>
+  </body>
+</html>

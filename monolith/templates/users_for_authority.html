@@ -5,15 +5,20 @@
       <b><tr>
         <td><b>Firstname</b></td>
         <td><b>Lastname</b></td>
+        <td><b>SSN</b></td>
+        <td><b>Phone number</b></td>
         <td><b>Email address</b></td>
+        
         <td><b>Covid positive</b></td>
         <td><b></b></td>
       </tr></b>
       {% for user in users: %}
       <tr>
-        <td>{{user.firstname}}</td>
-        <td>{{user.lastname}}</td>
-        <td>{{user.email}}</td>
+        <td>{{user.firstname if user.firstname != None else ''}}</td>
+        <td>{{user.lastname  if user.lastname != None else ''}}</td>
+        <td>{{user.ssn if user.ssn != None else ''}}</td>
+        <td>{{user.phone_number if user.phone_number != None else ''}}</td>
+        <td>{{user.email if user.email != None else ''}}</td>
         <td>
           {% if user.is_positive %}
           <b><i>positive</i></b>

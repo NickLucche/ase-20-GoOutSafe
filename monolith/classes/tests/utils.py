@@ -97,17 +97,3 @@ def add_random_restaurant(n_restaurants: int, app: Flask):
             print(f"Adding restaurant {restaurant}")
             db.session.add(restaurant)
             db.session.commit()
-
-def add_random_reservation(user):
-    with app.app_context():
-        for i in range(n_users):
-            user = User(email='test',
-                        firstname=f'test_{i}',
-                        lastname=f'test_{i}',
-                        password='test',
-                        dateofbirth=datetime.now(),
-                        is_active=bool(random.randrange(0, 2)),
-                        is_admin=False)
-            print(f"Adding user {user}")
-            db.session.add(user)
-            db.session.commit()

@@ -16,6 +16,8 @@ class User(db.Model):
     lastname = db.Column(db.Unicode(128))
     password = db.Column(db.Unicode(128))
     dateofbirth = db.Column(db.DateTime)
+    phone_number = db.Column(db.Unicode(32))
+    ssn = db.Column(db.Unicode(16))
     is_active = db.Column(db.Boolean, default=True)
     is_admin = db.Column(db.Boolean, default=False)
     is_positive = db.Column(db.Boolean, default=False)

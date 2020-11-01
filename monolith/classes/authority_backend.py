@@ -3,25 +3,32 @@ from monolith.background import celery
 from monolith.database import User
 from flask import Flask
 from monolith.database import db
+from monolith.classes.authority_frontend import INCUBATION_PERIOD_COVID
+from monolith.classes.notifications import check_visited_places, contact_tracing, create_notifications
+
+def new_positive_case(user_id: int):
+    print(f'New case:{user_id}, starting background task')
+    exec_chain = (check_visited_places.s(user_id, INCUBATION_PERIOD_COVID) |
+             contact_tracing.s(user_id) | create_notifications.s(user_id))()
 
 # This task is useful for 14 days delayed task
-@celery.task
-def unmark_user(user_id : int):
-    """ Unmakr a single user.
-    Args:
-        userid (int): Id of the customer to be unmarked
-    Returns:
-        str: '' in case of success, a error message string in case of failure.
-    """
-    user = User.query.filter_by(id=user_id).first()
-    if user != None and user.is_positive == True:
-        user.is_positive = False
-        user.reported_positive_date = None
-        db.session.commit()
-    else:
-        message = 'Unable to unmark this user. The user doesn\'t exists or is already not unmarked'
-
-    return message
+#@celery.task
+#def unmark_user(user_id : int):
+#    """ Unmakr a single user.
+#    Args:
+#        userid (int): Id of the customer to be unmarked
+#    Returns:
+#        str: '' in case of success, a error message string in case of failure.
+#    """
+#    user = User.query.filter_by(id=user_id).first()
+#    if user != None and user.is_positive == True:
+#        user.is_positive = False
+#        user.reported_positive_date = None
+#        db.session.commit()
+#    else:
+#        message = 'Unable to unmark this user. The user doesn\'t exists or is already not unmarked'
+#
+#    return message
 
 # This task is useful for crontab temporary execution
 @celery.task
