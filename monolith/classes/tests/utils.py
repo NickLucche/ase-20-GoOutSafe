@@ -105,15 +105,14 @@ def visit_random_places(app: Flask, pos_id:int, positive_date: datetime, time_sp
         db.session.commit()
         return risky_places, [v.to_dict() for v in visits]
 
-def add_random_visits_to_place(app: Flask, restaurant_id:int, start_date: datetime, end_date: datetime, pos_date:datetime, min_visits:int=0, max_visits:int=5):
+def add_random_visits_to_place(app: Flask, restaurant_id:int, start_date: datetime, end_date: datetime, pos_date:datetime, n_visits:int, users_ids=None):
     visits = []
-    n_visits = random.randint(min_visits, max_visits)
     risky_visits = 0
     with app.app_context():
         # make a bunch of reservations
-        for _ in range(n_visits):
-            # some random id identifying a user
-            rand_user = random.randint(1000, 2000)
+        for i in range(n_visits):
+            # use provided user id if given, otherwise generate random
+            rand_user = random.randint(1000, 2000) if users_ids is None else users_ids[i]
             visit_date = random_datetime_in_range(start_date, end_date)
             # compute 'danger period' in which user might have been in contact with positive dude
             stay_time = Restaurant.query.filter_by(id=restaurant_id).first().avg_stay_time

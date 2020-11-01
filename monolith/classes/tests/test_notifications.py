@@ -3,7 +3,8 @@ import unittest
 from monolith.database import Notification, Reservation, Restaurant, db, User
 import random
 from datetime import datetime, timedelta
-from monolith.classes.notifications import check_visited_places, create_notifications, contact_tracing, fetch_operator_notifications
+from monolith.classes.notifications import check_visited_places, create_notifications, contact_tracing
+from monolith.classes.notification_retrieval import fetch_operator_notifications, fetch_user_notifications
 from monolith.classes.tests.utils import add_random_users, add_random_visits_to_place, delete_random_users, mark_random_guy_as_positive, random_datetime_in_range, visit_random_places, add_random_restaurants, setup_for_test
 
 app = create_app()
@@ -78,9 +79,10 @@ class Notifications(unittest.TestCase):
             # have a random num of users visit the same place as the positive guy
             print("PLACES VISITED BY POSITIVE:", visits)
             nrisky_visits = 0
+            n_visits = random.randint(0, 4)
             for v in visits:
                 nrisky_visits += add_random_visits_to_place(app, v['restaurant_id'],
-                 self.now-timedelta(days=INCUBATION_PERIOD_COVID), self.now, v['entrance_time'])
+                 self.now-timedelta(days=INCUBATION_PERIOD_COVID), self.now, v['entrance_time'], n_visits)
                     
             # check if positive guy visited any restaurant in the last `INCUBATION_PERIOD_COVID` days
             reservations = check_visited_places(positive_guy['id'], INCUBATION_PERIOD_COVID)
@@ -100,9 +102,10 @@ class Notifications(unittest.TestCase):
             # have a random num of users visit the same place as the positive guy
             print("PLACES VISITED BY POSITIVE:", visits)
             nrisky_visits = 0
+            n_visits = random.randint(0, 4)
             for v in visits:
                 nrisky_visits += add_random_visits_to_place(app, v['restaurant_id'],
-                 self.now-timedelta(days=INCUBATION_PERIOD_COVID), self.now, v['entrance_time'])
+                 self.now-timedelta(days=INCUBATION_PERIOD_COVID), self.now, v['entrance_time'], n_visits)
                     
             # run async task enforcing chain execution using signatures
             pos_id = positive_guy['id']
@@ -124,10 +127,11 @@ class Notifications(unittest.TestCase):
             print(f"User {positive_guy['id']} visited {nrisky_places} restaurants")
             # generate other users visits to same restaurants in same days
             visits_per_rest = {}
+            n_visits = random.randint(1, 3)
             for visit in risky_visits:
                 rid = visit['restaurant_id']
                 et = visit['entrance_time']
-                visits_per_rest[rid] = add_random_visits_to_place(app, rid, et, et, et, min_visits=1, max_visits=3)
+                visits_per_rest[rid] = add_random_visits_to_place(app, rid, et, et, et, n_visits)
                 print(f"Some other {visits_per_rest[rid]} users visited restaurant {rid}")
             # execute pipeline async to generate notifications
             # run async tasks: check visited places -> check customers in danger -> write notifications
@@ -160,10 +164,14 @@ class Notifications(unittest.TestCase):
             print(f"User {positive_guy['id']} visited {nrisky_places} restaurants")
             # generate other users visits to same restaurants in same days
             visits_per_rest = {}
+            n_visits = random.randint(1, 3)
+            other_users_visiting = list(range(1000, 1000+n_visits))
+            print("USERS", other_users_visiting, n_visits)
+            # each user makes a reservation to each restaurant visited by the positive guy
             for visit in risky_visits:
                 rid = visit['restaurant_id']
                 et = visit['entrance_time']
-                visits_per_rest[rid] = add_random_visits_to_place(app, rid, et, et, et, min_visits=1, max_visits=3)
+                visits_per_rest[rid] = add_random_visits_to_place(app, rid, et, et, et, n_visits, other_users_visiting)
                 print(f"Some other {visits_per_rest[rid]} users visited restaurant {rid}")
             # execute pipeline async to generate notifications
             # run async tasks: check visited places -> check customers in danger -> write notifications
@@ -174,7 +182,12 @@ class Notifications(unittest.TestCase):
             notifs = exec_chain.get()
             db_notifications = [n.to_dict() for n in Notification.query.filter_by(user_notification=True).all()]
             print("User Notifications in db:", db_notifications)
-            # print("Notifications written:", notifs)
+            # make sure every user got their notification
+            for user_id in other_users_visiting:
+                user_not = fetch_user_notifications(app, user_id)
+                print(f"[{user_id}] USER NOTIFICATION:", [u.to_dict() for u in user_not])
+                self.assertEqual(len(user_not), len(risky_visits))
+                
 
         # check that every user had their notifications generated
         self.assertEqual(len(db_notifications), sum(visits_per_rest.values()))

@@ -7,13 +7,28 @@ crossorigin=""/>
 <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"
 integrity="sha512-XQoYMqMTK8LvdxXYG3nZ448hOEQiglfqkJs1NOQV44cWnUrBc8PkAOcXy20w0vlaXaVUearIOBhiXZ5V3ynxwA=="
 crossorigin=""></script>
+
+<script type = "text/javascript" src = "{{ url_for('static', filename = 'script.js') }}" ></script>
+<link rel="stylesheet" type="text/css" href="/static/styles.css">
+<link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
+
 </head>
 <body>
 
 <h1>GoOutSafe</h1>
 
 {% if current_user.is_authenticated %}
-  Hi {{ current_user.firstname }}! <a href="/logout">Logout</a><br>
+  <div class="dropdown">
+    <a onclick="showUnreadNotifications()" class="dropbtn">Notifications</a>
+    <div id="notificationPanel" class="dropdown-content">
+      {% if notifications is defined %}
+      {% for notification in notifications %}
+        <a href="#">{{notification.date}}</a>
+      {% endfor %}
+      {% endif %}
+    </div>
+  </div> 
+  <p>Hi {{ current_user.firstname }}! <a href="/logout">Logout</a><br></p>
   {% if current_user.restaurant_id %}
     <p>click <a href="/restaurant/edit/{{ current_user.restaurant_id }}">here</a> to edit the restaurant profile!</p>
     <p>click <a href="{{url_for('reservations.home')}}">here</a> to check your reservations</p>

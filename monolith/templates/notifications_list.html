@@ -1,0 +1,14 @@
+<html>
+  <body>
+    <h1>Notification List</h1>
+    <h5>{{message}}</h5>
+    <ul>
+      {% for notification in notifications: %}
+      <li class='{{"new-notification" if notification.notification_checked else "old-notification"}}'>
+      "{{notification.date}}" at {{notification.restaurant_id}} 
+     
+      </li>
+      {% endfor %}
+    </ul>
+  </body>
+</html>

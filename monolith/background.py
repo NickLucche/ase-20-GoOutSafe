@@ -1,7 +1,6 @@
 from datetime import datetime, timedelta
 from monolith.app import create_app
 from celery import Celery
-from monolith.database import db, User, Restaurant
 
 # BACKEND = BROKER = 'redis://localhost:6379'
 def make_celery(app):
