@@ -20,12 +20,14 @@ class TestReservations(unittest.TestCase):
                  lastname="op1",
                  email="op1@op1.com",
                  password="op1",
-                 restaurant=self.data['restaurants'][0]),
+                 restaurant=self.data['restaurants'][0],
+                 dateofbirth=datetime.date(2020, 10, 31)),
             User(firstname="op2",
                  lastname="op2",
                  email="op2@op2.com",
                  password="op2",
-                 restaurant=self.data['restaurants'][1])
+                 restaurant=self.data['restaurants'][1],
+                 dateofbirth=datetime.date(2020, 10, 31))
         ]
 
         self.data['tables'] = [
@@ -76,8 +78,26 @@ class TestReservations(unittest.TestCase):
         with self.app.app_context():
             restaurants = Restaurant.query.all()
             for restaurant in restaurants:
-                rsv = reservations.get_reservations(restaurant)
+                rsv, _ = reservations.get_reservations(restaurant)
                 for reservation in rsv:
                     #print("{} {}".format(reservation.restaurant_id, restaurant.id))
-                    self.assertEqual(reservation[0].restaurant_id, restaurant.id)
-                    self.assertIsNotNone(reservation[1])
+                    self.assertEqual(reservation.restaurant_id, restaurant.id)
+                    self.assertIsNotNone(reservation.user)
+
+    def test_decline_accept_reservations(self):
+        with self.app.app_context():
+            reservations_list = Reservation.query.all()
+            users = User.query.all()
+            for reservation in reservations_list:
+                if reservation.user is users[0]:
+                    ok_user = users[0]
+                    failure_user = users[1]
+                else:
+                    ok_user = users[1]
+                    failure_user = users[0]
+
+                self.assertTrue(reservations.decline_reservation(ok_user, reservation))
+                self.assertFalse(reservations.decline_reservation(failure_user, reservation))
+
+                self.assertTrue(reservations.accept_reservation(ok_user, reservation))
+                self.assertFalse(reservations.accept_reservation(failure_user, reservation))
