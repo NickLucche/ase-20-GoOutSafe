@@ -88,8 +88,11 @@ def create_app():
         q = db.session.query(Reservation).filter(Reservation.restaurant == restaurant);
         reservation = q.first()
         if reservation is None:
-            reservation = Reservation(table=restaurant_table, restaurant=restaurant, user_id=1, seats=3)
-            db.session.add(reservation)
+            now = datetime.datetime.now()
+            reservation1 = Reservation(entrance_time = now - datetime.timedelta(days=1), table=restaurant_table, restaurant=restaurant, user_id=1, seats=3)
+            reservation2 = Reservation(entrance_time = now - datetime.timedelta(days=1), table=restaurant_table, restaurant=restaurant, user_id=2, seats=3)
+            db.session.add(reservation1)
+            db.session.add(reservation2)
             db.session.commit()
 
 

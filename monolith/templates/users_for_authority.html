@@ -14,11 +14,11 @@
       </tr></b>
       {% for user in users: %}
       <tr>
-        <td>{{user.firstname if user.firstname != None else ''}}</td>
-        <td>{{user.lastname  if user.lastname != None else ''}}</td>
-        <td>{{user.ssn if user.ssn != None else ''}}</td>
-        <td>{{user.phone_number if user.phone_number != None else ''}}</td>
-        <td>{{user.email if user.email != None else ''}}</td>
+        <td>{{user.get("firstname") if user.get("firstname") != None else '_'}}</td>
+        <td>{{user.get("lastname")  if user.get("lastname") != None else '_'}}</td>
+        <td>{{user.get("ssn") if user.get("ssn") != None else '_'}}</td>
+        <td>{{user.get("phone_number") if user.get("phone_number") != None else '_'}}</td>
+        <td>{{user.get("email") if user.get("email") != None else '_'}}</td>
         <td>
           {% if user.is_positive %}
           <b><i>positive</i></b>

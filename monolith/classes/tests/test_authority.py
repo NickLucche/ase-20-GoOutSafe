@@ -107,6 +107,5 @@ class TestAuthority(unittest.TestCase):
     def clean(self):
         delete_random_users(self.app)
 
-
 if __name__ == "__main__":
     unittest.main()

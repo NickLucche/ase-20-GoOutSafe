@@ -105,6 +105,39 @@ def contact_tracing(past_reservations, user_id: int):
             reservation_at_risk.append(u)
     return reservation_at_risk
 
+@celery.task
+def contact_tracing_users(past_reservations, user_id: int):
+    """Given a positive user id and a list of past reservation he/she made in the last 14 days,
+        returns a list of reservation made by other users which were allegedly in contact with him/her.
+
+    Args:
+        past_reservations: List of dictionaries, each representing a reservation the positive 
+        user made.
+        user_id (int): Positive customer id.
+    """
+    # check which users were at the restaurant at the same time as the positive guy
+    user_at_risk = []
+    for reservation in past_reservations:
+        et = reservation['entrance_time']
+        if isinstance(et, str):
+            et = datetime.strptime(reservation['entrance_time'], '%Y-%m-%dT%H:%M:%S.%f')
+        # get average staying time of the restaurant and compute 'danger period'
+        avg_stay_time = Restaurant.query.filter_by(id=reservation['restaurant_id']).first().avg_stay_time
+        staying_interval = timedelta(hours=avg_stay_time.hour, minutes=avg_stay_time.minute, seconds=avg_stay_time.second)
+        start_time = et - staying_interval
+        end_time = et + staying_interval
+
+        user_reservation = Reservation.query.filter(Reservation.user_id != user_id).\
+            filter_by(restaurant_id=reservation['restaurant_id']).\
+                filter(Reservation.entrance_time.between(start_time, end_time)).all()
+        # print(user_reservation)
+        # preserve positive user reservation we're referring to, as to notify operator 
+        for u in user_reservation:
+            u = u.user.to_dict()
+            u['positive_user_reservation'] = reservation['id']
+            user_at_risk.append(u)
+    return user_at_risk
+
 def fetch_user_notifications(app: Flask, user_id: int, unread_only=False):
     """Retrieve 'positive case contact' notifications of user identified by `user_id`.
     Args:

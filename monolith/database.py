@@ -99,6 +99,7 @@ class Reservation(db.Model):
     __tablename__ = 'reservation'
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
+    user = relationship('User', foreign_keys='Reservation.user_id')
     restaurant_id = db.Column(db.Integer, db.ForeignKey('restaurant.id'))
     restaurant = db.relationship("Restaurant", backref=db.backref("restaurant_r"))
 
