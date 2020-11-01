@@ -4,6 +4,7 @@ from monolith.database import db, User, Restaurant, Reservation, RestaurantTable
 from monolith.views import blueprints
 from monolith.auth import login_manager
 import datetime
+from datetime import time
 
 def create_app():
     app = Flask(__name__)
@@ -62,6 +63,7 @@ def create_app():
         if restaurant is None:
             restaurant = Restaurant()
             restaurant.name = 'Trial Restaurant'
+            restaurant.avg_stay_time = time(hour=1)
             restaurant.likes = 42
             restaurant.phone = 555123456
             restaurant.lat = 43.720586
