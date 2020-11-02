@@ -7,7 +7,7 @@ from monolith.database import db, Restaurant, Like, RestaurantTable
 from monolith.auth import admin_required, current_user
 from flask_login import (current_user, login_user, logout_user,
                          login_required)
-from monolith.forms import UserForm, ReservationForm, RestaurantProfileEditForm
+from monolith.forms import UserForm, ReservationForm, RestaurantProfileEditForm,RatingForm
 from sqlalchemy import func
 from datetime import datetime
 
@@ -74,23 +74,30 @@ def _reserve(restaurant_id):
     return render_template('reserve.html', name=record.name, form=form)
 
 
-@restaurants.route('/restaurants/like/<restaurant_id>')
-@login_required
+@restaurants.route('/restaurants/like/<restaurant_id>',methods=['GET', 'POST'])  
+@login_required 
 def _like(restaurant_id):
+    form=RatingForm()
     r = Restaurant.query.get(restaurant_id)
     if not r:
         return render_template("error.html", error_message="The page you're looking does not exists")
     q = Like.query.filter_by(liker_id=current_user.id, restaurant_id=restaurant_id)
-    if q.first() != None:
-        new_like = Like()
-        new_like.liker_id = current_user.id
-        new_like.restaurant_id = restaurant_id
-        db.session.add(new_like)
-        db.session.commit()
-        message = ''
-    else:
-        message = 'You\'ve already liked this place!'
-    return _restaurants(message)
+    if(request.method == 'POST'):    
+        if q.first() != None:
+             result =request.form["Iddd"] 
+             result2 =request.form["review"] 
+             print(result,result2,restaurant_id,current_user.id)
+            # new_like = Like()
+            # new_like.liker_id = current_user.id
+            # new_like.restaurant_id = restaurant_id
+            # db.session.add(new_like)
+            # db.session.commit()
+            # message = ''
+           
+        else:
+            message = 'You\'ve already liked this place!'
+        return _restaurants(message)
+     return  render_template('rate.html', title='rate', form=form) 
 
 @restaurants.route('/restaurants/edit/<restaurant_id>', methods=['GET', 'POST'])
 @login_required
