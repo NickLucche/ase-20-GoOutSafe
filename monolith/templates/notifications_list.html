@@ -5,7 +5,7 @@
     <ul>
       {% for notification in notifications: %}
       <li class='{{"new-notification" if notification.notification_checked else "old-notification"}}'>
-      "{{notification.date}}" at {{notification.restaurant_id}} 
+      "{{notification.date}}" at {{notification.restaurant.name}} 
      
       </li>
       {% endfor %}

@@ -3,6 +3,7 @@ from monolith.background import celery
 from monolith.database import User
 from flask import Flask
 from monolith.database import db
+from monolith.classes.ratings_task import average_review_stars
 
 # This task is useful for 14 days delayed task
 @celery.task
@@ -50,3 +51,5 @@ def setup_periodic_tasks(sender, **kwargs):
     print("Crono task configuration")
     # Register the unmark_all as crono task
     sender.add_periodic_task(60.0 * 60.0, unmark_all.s(14), name='unmark_positive')
+    # register mean computing task
+    sender.add_periodic_task(60.0 * 60.0, average_review_stars.s(), name='average_stars')

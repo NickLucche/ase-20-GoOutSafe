@@ -57,7 +57,3 @@ def all_notifications():
         return render_template('notifications_list.html', notifications=notifs, message='You were in contact with a positive user in the following occasions:')
     except GoOutSafeError as e:
         return render_template("error.html", error_message=str(e))
-
-@users.route('/notifications/<notification_id>')
-def notification_detail():
-    pass

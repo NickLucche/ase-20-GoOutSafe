@@ -22,9 +22,12 @@ crossorigin=""></script>
     <a onclick="showUnreadNotifications()" class="dropbtn">Notifications</a>
     <div id="notificationPanel" class="dropdown-content">
       {% if notifications is defined %}
+      <ul>
       {% for notification in notifications %}
-        <a href="#">{{notification.date}}</a>
+        <li>{{notification.date}} at {{notification.restaurant.name}}</li>
       {% endfor %}
+      <li><a href='/notifications'>See all</a></li>
+      </ul>
       {% endif %}
     </div>
   </div> 

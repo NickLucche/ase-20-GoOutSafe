@@ -11,7 +11,7 @@ def fetch_user_notifications(app: Flask, user_id: int, unread_only=False):
         unread_only (bool, optional): Whether to retrieve unread notifications only. Defaults to False.
     """
     with app.app_context():
-        query = Notification.query.filter_by(user_id=user_id)
+        query = Notification.query.filter_by(user_id=user_id, user_notification=True)
         # get restaurant too
         query = query.join(Restaurant).with_entities(Notification, Restaurant)
         if unread_only:
@@ -44,4 +44,10 @@ def fetch_notifications(app: Flask, user: User, unread_only=False):
     if hasattr(user, 'restaurant_id') and not user.restaurant_id is None:
         return fetch_operator_notifications(app, user.id, unread_only)
     else:
-        return fetch_user_notifications(app, user.id, unread_only)
+        user_not = fetch_user_notifications(app, user.id, unread_only)
+        # add restaurant info
+        notifications = []
+        for notif, restaurant in user_not:
+            notif['restaurant'] = restaurant
+            notifications.append(notif)
+        return notifications

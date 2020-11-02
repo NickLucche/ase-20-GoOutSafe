@@ -15,6 +15,7 @@ def index():
             return redirect("/authority")
         restaurants = db.session.query(Restaurant)
         notifs = fetch_notifications(current_app, current_user)
+        print(notifs)
     else:
         restaurants = []
         notifs = []
