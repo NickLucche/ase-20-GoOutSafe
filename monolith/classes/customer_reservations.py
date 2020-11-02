@@ -1,4 +1,4 @@
-from monolith.database import db, Restaurant, Like, Reservation, RestaurantTable
+from monolith.database import db, Reservation, RestaurantTable
 from datetime import datetime, time, timedelta, date
 from sqlalchemy import func, and_
 

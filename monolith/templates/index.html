@@ -7,16 +7,6 @@ crossorigin=""/>
 <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"
 integrity="sha512-XQoYMqMTK8LvdxXYG3nZ448hOEQiglfqkJs1NOQV44cWnUrBc8PkAOcXy20w0vlaXaVUearIOBhiXZ5V3ynxwA=="
 crossorigin=""></script>
-
- <!-- Required meta tags -->
- <meta charset="utf-8">
- <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-
- <!-- Bootstrap CSS -->
- <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.5.3/dist/css/bootstrap.min.css" integrity="sha384-TX8t27EcRE3e/ihU7zmQxVncDAy5uIKz4rEkgIXeMed4M0jlfIDPvg6uqKI2xXr2" crossorigin="anonymous">
-
- 
-
 </head>
 <body>
   <div class="container">
@@ -26,7 +16,6 @@ crossorigin=""></script>
 {% if current_user.is_authenticated %}
   Hi {{ current_user.firstname }}! <a href="/logout">Logout</a><br>
   {% if current_user.restaurant_id %}
-    <p>click <a href="/restaurant/edit/{{ current_user.restaurant_id }}">here</a> to edit the restaurant profile!</p>
     <p>click <a href="{{url_for('reservations.home')}}">here</a> to check your reservations</p>
     <p>click <a href="/restaurants/edit/{{ current_user.restaurant_id }}">here</a> to edit the restaurant <a href="/restaurants/{{ current_user.restaurant_id }}">profile</a>!</p>
   {% else %}

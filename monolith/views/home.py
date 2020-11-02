@@ -1,6 +1,6 @@
 from flask import Blueprint, redirect, render_template
 
-from monolith.database import db, Restaurant, Like
+from monolith.database import db, Restaurant
 from monolith.auth import current_user
 
 

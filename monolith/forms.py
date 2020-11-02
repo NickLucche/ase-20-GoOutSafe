@@ -65,5 +65,6 @@ class ReservationForm(FlaskForm):
     display = ['reservation_time', 'reservation_time', 'seats']
 
 class RatingForm(FlaskForm): 
-    review = TextAreaField('Your review goes here : ',default="Add Your Review")  
-    submit = SubmitField('Rate Us') 
+    review = f.TextAreaField(render_kw={"placeholder":"(optional) Add a written review!"})  
+    submit = f.SubmitField('Submit') 
+    display = ['review', 'submit']

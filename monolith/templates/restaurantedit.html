@@ -24,20 +24,6 @@
       var str = "<div id = '" + nTables + "'><dt><label>Table " + nTables + ", seats: </dt><dd>" +
         "<input required type='number' min=2 value=" + value + " name='table_" + nTables + "'></dd></div>";
       div.insertAdjacentHTML('beforeend', str)
-      /* div.innerHTML += "<div id = '" + nTables + "'><dt><label>Table " + nTables + ", seats: </dt><dd>" +
-        "<input required type='number' min=2 value=4></dd></div>"; */
-      /*var label = document.createElement('label');
-      var dt = document.createElement('dt');
-      var dd = document.createElement('dt');
-      label.innerText = 'Table ' + nTables + ", seats: "; 
-      dt.append(label);
-      div.append(dt);
-      var form = document.createElement('dd');
-      var input = document.createElement('input');
-      input.type = "number";
-      input.defaultValue = "4"
-      dd.append(input);
-      div.append(dd);*/
     }
     function removeTablePressed() {
       nTables--;
