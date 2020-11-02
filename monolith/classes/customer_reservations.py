@@ -1,6 +1,6 @@
 from monolith.database import db, Restaurant, Like, Reservation, RestaurantTable
 from datetime import datetime, time, timedelta, date
-from sqlalchemy import func, and_
+from sqlalchemy import func, and_, or_
 
 
 # Computes the list of reserved tables (filtered by reservation_seats) that overlap with the
@@ -18,7 +18,7 @@ def get_overlapping_tables(restaurant_id: int, reservation_time: datetime,
     overlapping_tables = db.session.query(Reservation.table_no).filter_by(
         restaurant_id=restaurant_id).filter_by(seats=reservation_seats).filter(
             and_(Reservation.reservation_time >= inf_limit,
-                 Reservation.reservation_time <= sup_limit)).all()
+                 Reservation.reservation_time <= sup_limit)).filter(or_(Reservation.status == 'PENDING', Reservation.status == 'ACCEPTED')).all()
     print(overlapping_tables)
     overlapping_tables_ids = [id for id, in overlapping_tables]
     print(overlapping_tables_ids)
