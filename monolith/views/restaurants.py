@@ -3,7 +3,7 @@ from monolith.classes.exceptions import GoOutSafeError
 from monolith.classes.restaurant import edit_tables
 import monolith.classes.customer_reservations as cr
 from flask import Blueprint, redirect, render_template, request, flash
-from monolith.database import db, Restaurant, Like, RestaurantTable
+from monolith.database import db, Restaurant, Like, RestaurantTable, Reservation
 from monolith.auth import admin_required, current_user
 from flask_login import (current_user, login_user, logout_user,
                          login_required)
@@ -41,7 +41,7 @@ def _reserve(restaurant_id):
     if (request.method == 'POST'):
         if ReservationForm(request.form).validate_on_submit():
             reservation_time = datetime.combine(
-                ReservationForm(request.form).data['reservation_time'],
+                ReservationForm(request.form).data['reservation_date'],
                 ReservationForm(request.form).data['reservation_time'])
             overlapping_tables = cr.get_overlapping_tables(
                 restaurant_id=record.id,

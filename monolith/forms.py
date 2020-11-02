@@ -57,9 +57,9 @@ class RestaurantProfileEditForm(FlaskForm):
 
 
 class ReservationForm(FlaskForm):
-    reservation_time = f.DateField('date',
+    reservation_date = f.DateField('date',
                                    validators=[DataRequired(), DateRange(min=datetime.now().date())],
                                    format='%d/%m/%Y')
     reservation_time = f.TimeField('time', validators=[DataRequired()])
     seats = f.IntegerField('seats', validators=[DataRequired()])
-    display = ['reservation_time', 'reservation_time', 'seats']
+    display = ['reservation_date', 'reservation_time', 'seats']
