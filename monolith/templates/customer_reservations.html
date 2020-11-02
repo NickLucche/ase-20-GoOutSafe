@@ -1,0 +1,26 @@
+<html>
+    <body>
+        <h1>Your Reservations</h1> 
+        {% if current_user.is_authenticated %}
+            {% if reservations|length == 0 %}
+                <h2>You have not reserved any table yet</h2>
+            {% endif %}
+            <h3>{{ message }}</h3>
+            {% for reservation in reservations %}
+                <h3>Reservation for {{reservation.reservation_time|prettytime}}</h3>
+                <ul>
+                    <p><h3>Restaurant: {{reservation.restaurant.name}}</h3></p>
+                    <p><h3>Current status: {{ reservation.status }}</h3></p>
+                    <p><h3>Table: {{reservation.table_no}}</h3></p>
+                    <p><h3>Seats: {{reservation.seats}}<h3></p>
+                </ul>
+                {% if not reservation is declined_reservation %}
+                <a href='reservations/user/<user_id>/modify/<reservation_id>'> Modify</a>
+                <a href='reservations/user/<user_id>/delete/<reservation_id>'>Delete</a>
+                {% else %}
+                <a href='reservations/user/<user_id>/delete/<reservation_id>'>Delete</a>
+                {% endif %}
+            {% endfor %}
+        {% endif %}
+    </body>
+</html>
