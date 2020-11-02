@@ -1,6 +1,6 @@
 from flask import Blueprint, redirect, render_template, current_app
 
-from monolith.database import db, Restaurant, Like
+from monolith.database import db, Restaurant
 from monolith.auth import current_user
 from monolith.classes.notification_retrieval import fetch_notifications
 

@@ -63,3 +63,8 @@ class ReservationForm(FlaskForm):
     reservation_time = f.TimeField('time', validators=[DataRequired()])
     seats = f.IntegerField('seats', validators=[DataRequired()])
     display = ['reservation_time', 'reservation_time', 'seats']
+
+class RatingForm(FlaskForm): 
+    review = f.TextAreaField(render_kw={"placeholder":"(optional) Add a written review!"})  
+    submit = f.SubmitField('Submit') 
+    display = ['review', 'submit']

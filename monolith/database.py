@@ -78,11 +78,14 @@ class Restaurant(db.Model):
     #One to many relationship
     tables = db.relationship("RestaurantTable", back_populates="restaurant")
 
-class Like(db.Model):
-    __tablename__ = 'like'
+class Review(db.Model):
+    __tablename__ = 'review'
 
-    liker_id = db.Column(db.Integer, db.ForeignKey('user.id'), primary_key=True)
-    liker = db.relationship('User', foreign_keys='Like.liker_id')
+    reviewer_id = db.Column(db.Integer, db.ForeignKey('user.id'), primary_key=True)
+    reviewer = db.relationship('User', foreign_keys='Review.reviewer_id')
+
+    stars = db.Column(db.Integer)
+    text_review = db.Column(db.Text(180), nullable=True)
 
     restaurant_id = db.Column(db.Integer, db.ForeignKey('restaurant.id'), primary_key=True)
     restaurant = db.relationship('Restaurant')
