@@ -29,3 +29,10 @@ def add_review(user_id, restaurant_id, stars, text=None):
     db.session.add(r)
     db.session.commit()
 
+def update_review(restaurant, stars_no):
+    # updates restaurant view with newly written review
+    restaurant.num_reviews += 1
+    restaurant.avg_stars = 1/restaurant.num_reviews * \
+        (restaurant.avg_stars * (restaurant.num_reviews-1) + stars_no)
+    return restaurant
+

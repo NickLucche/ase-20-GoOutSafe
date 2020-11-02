@@ -61,13 +61,15 @@ class User(db.Model):
 class Restaurant(db.Model):
     __tablename__ = 'restaurant'
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    likes = db.Column(db.Integer, default=0)
     name = db.Column(db.Text(100))
-    likes = db.Column(db.Integer) # will store the number of likes, periodically updated in background
     lat = db.Column(db.Float) # restaurant latitude
     lon = db.Column(db.Float) # restaurant longitude
     phone = db.Column(db.Text)
     extra_info = db.Column(db.Text(300)) # restaurant infos (menu, ecc.)
     avg_stay_time = db.Column(db.Time, default=time(hour=1))
+    avg_stars = db.Column(db.Float, default=0.0)
+    num_reviews = db.Column(db.Integer, default=0)
 
     #One to one relationship
     operator = db.relationship("User", back_populates="restaurant", uselist=False)
@@ -77,6 +79,9 @@ class Restaurant(db.Model):
 
     #One to many relationship
     tables = db.relationship("RestaurantTable", back_populates="restaurant")
+
+    def to_dict(self):
+        return {column.name:getattr(self, column.name) for column in self.__table__.columns}
 
 class Review(db.Model):
     __tablename__ = 'review'

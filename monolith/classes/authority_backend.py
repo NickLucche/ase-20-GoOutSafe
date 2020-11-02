@@ -52,4 +52,4 @@ def setup_periodic_tasks(sender, **kwargs):
     # Register the unmark_all as crono task
     sender.add_periodic_task(60.0 * 60.0, unmark_all.s(14), name='unmark_positive')
     # register mean computing task
-    sender.add_periodic_task(60.0 * 60.0, average_review_stars.s(), name='average_stars')
+    sender.add_periodic_task(60.0, average_review_stars.s(), name='average_stars')

@@ -1,6 +1,6 @@
 from logging import error
 from monolith.classes.exceptions import GoOutSafeError
-from monolith.classes.restaurant import add_review, edit_tables
+from monolith.classes.restaurant import add_review, edit_tables, update_review
 import monolith.classes.customer_reservations as cr
 from flask import Blueprint, redirect, render_template, request, flash
 from monolith.database import db, Restaurant, Review, RestaurantTable
@@ -19,7 +19,8 @@ def _restaurants(message=''):
     allrestaurants = db.session.query(Restaurant)
     return render_template("restaurants.html",
                            message=message,
-                           restaurants=allrestaurants)
+                           restaurants=allrestaurants,
+                           base_url='restaurants')
 
 
 @restaurants.route('/restaurants/<restaurant_id>',
@@ -28,20 +29,26 @@ def restaurant_sheet(restaurant_id):
     record = Restaurant.query.get(restaurant_id)
     if not record:
         return render_template("error.html", error_message="The page you're looking does not exists")
+    review = Review.query.filter_by(reviewer_id=current_user.id, restaurant_id=restaurant_id).scalar()
+    if review is not None:
+        # show the user their updated view
+        update_review(record, review.stars)
     if current_user.is_authenticated and not current_user.restaurant_id \
-        and Review.query.filter_by(reviewer_id=current_user.id, restaurant_id=restaurant_id).scalar() is None:
+        and review is None:
         # the user is logged and hasn't already a review for this restaurant
         form = RatingForm()
         if(request.method == 'POST'):
             if form.validate_on_submit():
                 if form.review is not None:
-                    add_review(current_user.id, restaurant_id, int(request.form.get("stars_number")), text=str(form.review.data))
+                    add_review(current_user.id, restaurant_id, int(request.form.get("stars_number")), text=str(form.review.data))                                        
                 else:
                     add_review(current_user.id, restaurant_id, int(request.form.get("stars_number")))
+                # update review count immediately so user can see it
+                record = update_review(record, int(request.form.get("stars_number")))
         else:
-            return render_template("restaurantsheet.html", form=form, name=record.name, likes=record.likes, lat=record.lat, lon=record.lon, phone=record.phone)
+            return render_template("restaurantsheet.html", form=form, name=record.name, likes=record.likes, lat=record.lat, lon=record.lon, phone=record.phone, avg_stars=record.avg_stars, n_reviews=record.num_reviews)
 
-    return render_template("restaurantsheet.html", name=record.name, likes=record.likes, lat=record.lat, lon=record.lon, phone=record.phone)
+    return render_template("restaurantsheet.html", name=record.name, likes=record.likes, lat=record.lat, lon=record.lon, phone=record.phone, avg_stars=record.avg_stars, n_reviews=record.num_reviews)
 
 
 @restaurants.route('/restaurants/reserve/<restaurant_id>',
