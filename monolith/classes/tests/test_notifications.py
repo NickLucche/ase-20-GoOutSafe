@@ -185,7 +185,7 @@ class Notifications(unittest.TestCase):
             # make sure every user got their notification
             for user_id in other_users_visiting:
                 user_not = fetch_user_notifications(app, user_id)
-                print(f"[{user_id}] USER NOTIFICATION:", [u.to_dict() for u in user_not])
+                print(f"[{user_id}] USER NOTIFICATION:", [(u[0].to_dict(), u[1]) for u in user_not])
                 self.assertEqual(len(user_not), len(risky_visits))
                 
 

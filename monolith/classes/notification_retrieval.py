@@ -1,5 +1,5 @@
 from datetime import datetime, timedelta
-from monolith.database import Notification, User
+from monolith.database import Notification, Restaurant, User
 from flask import Flask
 from sqlalchemy import desc, distinct
 
@@ -12,8 +12,11 @@ def fetch_user_notifications(app: Flask, user_id: int, unread_only=False):
     """
     with app.app_context():
         query = Notification.query.filter_by(user_id=user_id)
+        # get restaurant too
+        query = query.join(Restaurant).with_entities(Notification, Restaurant)
         if unread_only:
             query = query.filter_by(notification_checked=False)
+
         query = query.order_by(desc(Notification.date))
         
         return query.all()
