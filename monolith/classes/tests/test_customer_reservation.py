@@ -102,7 +102,7 @@ class CustomerReservationsTest(unittest.TestCase):
                                 datetime.now().date(), time(hour=11,
                                                             minute=00)),
                             status='DONE',
-                            seats=self.data['tables'][4].seats)               
+                            seats=self.data['tables'][4].seats)
             ]
 
             db.session.add_all(self.data['reservations'])
@@ -152,10 +152,14 @@ class CustomerReservationsTest(unittest.TestCase):
     def test_get_overlapping_tables_declined_and_done_reservations(self):
         res_time = time(hour=12, minute=30)
         res_date = datetime.now().date()
-        res_datetime= datetime.combine(res_date, res_time)
+        res_datetime = datetime.combine(res_date, res_time)
         with self.app.app_context():
             restaurant = db.session.query(Restaurant).filter_by(id=2).first()
-            overlapping_tables=cr.get_overlapping_tables(restaurant_id=restaurant.id, reservation_time=res_datetime, reservation_seats=6, avg_stay_time=restaurant.avg_stay_time)
+            overlapping_tables = cr.get_overlapping_tables(
+                restaurant_id=restaurant.id,
+                reservation_time=res_datetime,
+                reservation_seats=6,
+                avg_stay_time=restaurant.avg_stay_time)
             self.assertEqual(0, len(overlapping_tables))
 
     def test_is_overbooked(self):
