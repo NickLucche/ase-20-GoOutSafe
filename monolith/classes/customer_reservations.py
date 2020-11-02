@@ -59,6 +59,29 @@ def add_reservation(reservation: Reservation):
     db.session.commit()
 
 
+def get_user_reservations(user_id: int):
+    """ 
+    Returns a list of all the reservations performed by a particular user specified by user_id.
+    """
+    #  No need to filter by Reservation.status != DONE since we are only considering future reservations.
+
+    user_reservations = db.session.query(Reservation).filter_by(
+        user_id=user_id).filter(
+            Reservation.reservation_time > datetime.now()).order_by(
+                Reservation.status.asc(),
+                Reservation.reservation_time.asc()).all()
+    print(user_reservations)
+    return user_reservations
+
+
+def update_reservation(reservation: Reservation):
+    pass
+
+
+def delete_reservation(reservation: Reservation):
+    pass
+
+
 def diff_time(t1: time, t2: time):
     t1_delta = timedelta(hours=t1.hour, minutes=t1.minute, seconds=t1.second)
     t2_delta = timedelta(hours=t2.hour, minutes=t2.minute, seconds=t2.second)

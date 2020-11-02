@@ -24,19 +24,35 @@ class CustomerReservationsTest(unittest.TestCase):
                        lat=2,
                        lon=2,
                        phone=1338,
+                       avg_stay_time=time(hour=2, minute=00)),
+            Restaurant(id=3,
+                       name="op3 restaurant",
+                       likes=10,
+                       lat=2,
+                       lon=2,
+                       phone=1338,
                        avg_stay_time=time(hour=2, minute=00))
         ]
 
         self.data['users'] = [
-            User(firstname="op1",
+            User(id=1,
+                 firstname="op1",
                  lastname="op1",
                  email="op1@op1.com",
                  password="op1"),
             User(
+                id=2,
                 firstname="op2",
                 lastname="op2",
                 email="op2@op2.com",
                 password="op2",
+            ),
+            User(
+                id=3,
+                firstname="op3",
+                lastname="op3",
+                email="op3@op3.com",
+                password="op3",
             )
         ]
 
@@ -55,7 +71,16 @@ class CustomerReservationsTest(unittest.TestCase):
                             restaurant_id=self.data['restaurants'][1].id),
             RestaurantTable(table_id=5,
                             seats=6,
-                            restaurant_id=self.data['restaurants'][1].id)
+                            restaurant_id=self.data['restaurants'][1].id),
+            RestaurantTable(table_id=6,
+                            seats=2,
+                            restaurant_id=self.data['restaurants'][2].id),
+            RestaurantTable(table_id=7,
+                            seats=8,
+                            restaurant_id=self.data['restaurants'][2].id),
+            RestaurantTable(table_id=8,
+                            seats=4,
+                            restaurant_id=self.data['restaurants'][2].id)
         ]
 
         self.app = Flask(__name__)
@@ -102,7 +127,34 @@ class CustomerReservationsTest(unittest.TestCase):
                                 datetime.now().date(), time(hour=11,
                                                             minute=00)),
                             status='DONE',
-                            seats=self.data['tables'][4].seats)
+                            seats=self.data['tables'][1].seats),
+                Reservation(user_id=self.data['users'][2].id,
+                            restaurant_id=self.data['restaurants'][2].id,
+                            table_no=self.data['tables'][5].table_id,
+                            reservation_time=datetime.combine(
+                                datetime.now().date(),
+                                time(hour=datetime.now().time().hour + 1,
+                                     minute=15)),
+                            status='ACCEPTED',
+                            seats=self.data['tables'][5].seats),
+                Reservation(user_id=self.data['users'][2].id,
+                            restaurant_id=self.data['restaurants'][2].id,
+                            table_no=self.data['tables'][6].table_id,
+                            reservation_time=datetime.combine(
+                                datetime.now().date(),
+                                time(hour=datetime.now().time().hour + 1,
+                                     minute=30)),
+                            status='PENDING',
+                            seats=self.data['tables'][6].seats),
+                Reservation(user_id=self.data['users'][2].id,
+                            restaurant_id=self.data['restaurants'][2].id,
+                            table_no=self.data['tables'][7].table_id,
+                            reservation_time=datetime.combine(
+                                datetime.now().date(),
+                                time(hour=datetime.now().time().hour + 1,
+                                     minute=00)),
+                            status='DECLINED',
+                            seats=self.data['tables'][7].seats)
             ]
 
             db.session.add_all(self.data['reservations'])
@@ -249,7 +301,7 @@ class CustomerReservationsTest(unittest.TestCase):
             table = db.session.query(RestaurantTable).filter_by(
                 table_id=1).first()
             reservation = Reservation()
-            reservation.id = 5
+            reservation.id = 100
             reservation.user_id = user.id
             reservation.restaurant_id = restaurant.id
             reservation.reservation_time = datetime.combine(res_date, res_time)
@@ -257,8 +309,16 @@ class CustomerReservationsTest(unittest.TestCase):
             cr.add_reservation(reservation)
 
             reservation_in_db = db.session.query(Reservation).filter_by(
-                id=5).first()
+                id=100).first()
         self.assertEqual(reservation, reservation_in_db)
+
+    def test_get_user_reservations(self):
+        with self.app.app_context():
+            reservations = cr.get_user_reservations(3)
+        for reservation in reservations:
+            print(reservation.reservation_time)
+            self.assertEqual(reservation.user_id, 3)
+            self.assertGreater(reservation.reservation_time, datetime.now())
 
 
 if __name__ == '__main__':
