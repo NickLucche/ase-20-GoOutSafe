@@ -1,7 +1,14 @@
 <html>
   <body>
     <h1>Restaurant List</h1>
-    <h5>{{message}}</h5>
+    {% with messages = get_flashed_messages(category_filter=['booking']) %}
+      {% if messages %}
+        {% for message in messages %}
+            <p class=flashes><h3>{{ message }}</h3></p>
+        {% endfor %}
+        </ul>
+      {% endif %}
+    {% endwith %}
     <ul>
       {% for restaurant in restaurants: %}
       <li>

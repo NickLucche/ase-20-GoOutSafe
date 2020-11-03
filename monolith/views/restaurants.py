@@ -54,10 +54,8 @@ def _reserve(restaurant_id):
                                  reservation_seats=ReservationForm(
                                      request.form).data['seats'],
                                  overlapping_tables=overlapping_tables)):
-                return _restaurants(
-                    message=
-                    'Overbooking Notification: no tables with the wanted seats on the requested date and time. Please, try another one.'
-                )
+                flash('Overbooking Notification: no tables with the wanted seats on the requested date and time. Please, try another one.', 'booking')
+                return redirect('/restaurants')
             else:
                 assigned_table = cr.assign_table_to_reservation(
                     overlapping_tables=overlapping_tables,
@@ -71,7 +69,8 @@ def _reserve(restaurant_id):
                                               request.form).data['seats'],
                                           table_no=assigned_table.table_id)
                 cr.add_reservation(reservation)
-                return _restaurants(message='Booking confirmed')
+                flash('Booking confirmed', 'booking')
+                return redirect('/restaurants')
 
     return render_template('reserve.html', name=record.name, form=form)
 
