@@ -16,6 +16,8 @@ class User(db.Model):
     email = db.Column(db.Unicode(128), nullable=False)
     firstname = db.Column(db.Unicode(128))
     lastname = db.Column(db.Unicode(128))
+    fiscal_code = db.Column(db.Text(50))
+    phone = db.Column(db.Text(50), nullable=True)
     password = db.Column(db.Unicode(128))
     dateofbirth = db.Column(db.DateTime)
     is_active = db.Column(db.Boolean, default=True)
