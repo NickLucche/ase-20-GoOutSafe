@@ -319,6 +319,18 @@ class CustomerReservationsTest(unittest.TestCase):
             print(reservation.reservation_time)
             self.assertEqual(reservation.user_id, 3)
             self.assertGreater(reservation.reservation_time, datetime.now())
+    
+    def test_delete_reservation(self):
+        with self.app.app_context():
+            #There should be a reservation with id 1
+            self.assertTrue(cr.delete_reservation(reservation_id=1))
+            #reservation_1 should not exist after the execution of the method
+            reservation_1 = db.session.query(Reservation).filter_by(id=1).first()
+            self.assertIsNone(reservation_1)
+            #There should not be a reservation with id 42
+            self.assertFalse(cr.delete_reservation(reservation_id=42))
+
+
 
 
 if __name__ == '__main__':

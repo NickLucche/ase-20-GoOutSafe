@@ -5,7 +5,14 @@
             {% if reservations|length == 0 %}
                 <h2>You have not reserved any table yet</h2>
             {% endif %}
-            <h3>{{ message }}</h3>
+            {% with messages = get_flashed_messages(category_filter=['deletion_success']) %}
+                {% if messages %}
+                    {% for message in messages %}
+                        <p class=flashes><h3>{{ message }}</h3></p>
+                    {% endfor %}
+                    </ul>
+                {% endif %}
+            {% endwith %}
             {% for reservation in reservations %}
                 <h3>Reservation for {{reservation.reservation_time|prettytime}}</h3>
                 <ul>
@@ -15,10 +22,10 @@
                     <p><h3>Seats: {{reservation.seats}}<h3></p>
                 </ul>
                 {% if not reservation is declined_reservation %}
-                <a href='reservations/user/<user_id>/modify/<reservation_id>'> Modify</a>
-                <a href='reservations/user/<user_id>/delete/<reservation_id>'>Delete</a>
+                <a href='/my_reservations/{{ reservation.id }}/modify'> Modify</a>
+                <a href='/my_reservations/{{ reservation.id }}/delete'>Delete</a>
                 {% else %}
-                <a href='reservations/user/<user_id>/delete/<reservation_id>'>Delete</a>
+                <a href='/my_reservations/{{ reservation.id }}/delete''>Delete</a>
                 {% endif %}
             {% endfor %}
         {% endif %}

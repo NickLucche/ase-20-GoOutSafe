@@ -78,8 +78,19 @@ def update_reservation(reservation: Reservation):
     pass
 
 
-def delete_reservation(reservation: Reservation):
-    pass
+def delete_reservation(reservation_id: int):
+    """ 
+    Deletes the reservation corresponding to the given reservation_id. 
+    Returns True if the reservation is succesfully deleted, False otherwise.
+    """
+    reservation_to_be_deleted = db.session.query(Reservation).filter_by(id=reservation_id).first()
+    print(reservation_to_be_deleted)
+    if reservation_to_be_deleted == None:
+        return False
+    else:
+        db.session.delete(reservation_to_be_deleted)
+        db.session.commit()
+        return True
 
 
 def diff_time(t1: time, t2: time):

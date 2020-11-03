@@ -15,6 +15,7 @@ restaurants = Blueprint('restaurants', __name__)
 
 
 @restaurants.route('/restaurants')
+
 def _restaurants(message=''):
     allrestaurants = db.session.query(Restaurant)
     return render_template("restaurants.html",
@@ -33,6 +34,7 @@ def restaurant_sheet(restaurant_id):
 
 @restaurants.route('/restaurants/reserve/<restaurant_id>',
                    methods=['GET', 'POST'])
+@login_required
 def _reserve(restaurant_id):
     form = ReservationForm()
     record = db.session.query(Restaurant).filter_by(
