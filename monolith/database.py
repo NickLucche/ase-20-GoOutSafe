@@ -16,8 +16,8 @@ class User(db.Model):
     email = db.Column(db.Unicode(128), nullable=False)
     firstname = db.Column(db.Unicode(128))
     lastname = db.Column(db.Unicode(128))
-    fiscal_code = db.Column(db.Text(50))
-    phone = db.Column(db.Text(50), nullable=True)
+    fiscal_code = db.Column(db.Text(50), unique=True)
+    phone = db.Column(db.Text(50), nullable=True, unique=True)
     password = db.Column(db.Unicode(128))
     dateofbirth = db.Column(db.DateTime)
     is_active = db.Column(db.Boolean, default=True)
@@ -67,7 +67,7 @@ class Restaurant(db.Model):
     likes = db.Column(db.Integer) # will store the number of likes, periodically updated in background
     lat = db.Column(db.Float) # restaurant latitude
     lon = db.Column(db.Float) # restaurant longitude
-    phone = db.Column(db.Text)
+    phone = db.Column(db.Text, unique=True)
     extra_info = db.Column(db.Text(300)) # restaurant infos (menu, ecc.)
     avg_stay_time = db.Column(db.Time, default=time(hour=1))
 
