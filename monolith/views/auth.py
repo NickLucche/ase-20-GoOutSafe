@@ -14,10 +14,11 @@ def login():
         email, password = form.data['email'], form.data['password']
         q = db.session.query(User).filter(User.email == email)
         user = q.first()
-        print(q.first().id)
         if user is not None and user.authenticate(password):
             login_user(user)
             return redirect('/')
+        else:
+            form.email.errors.append("The email or password inserted is invalid")
     return render_template('login.html', form=form)
 
 
