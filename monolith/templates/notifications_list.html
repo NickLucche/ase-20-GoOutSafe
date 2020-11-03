@@ -1,5 +1,5 @@
-<html>
-  <body>
+{% extends "base.html" %}
+{% block content %}
     <h1>Notification List</h1>
     <h5>{{message}}</h5>
     <ul>
@@ -10,5 +10,4 @@
       </li>
       {% endfor %}
     </ul>
-  </body>
-</html>
+{% endblock %}

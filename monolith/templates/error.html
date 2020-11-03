@@ -1,5 +1,7 @@
 <!-- call it as return render_template("error.html", error_message="...") -->
-
+{% extends "base.html" %}
+{% block content %}
 <h1>Error!</h1>
 {{ error_message }} <br>
 <a href="javascript:history.back()">Go Back</a>
+{% endblock %}

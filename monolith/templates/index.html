@@ -1,6 +1,6 @@
 
-<html>
-<head>
+{% extends "base.html" %}
+{% block head %}
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css"
 integrity="sha512-xodZBNTC5n17Xt2atTPuE1HxjVMSvLVW9ocqUKLsCC5CXdbqCmblAshOMAS6/keqq/sMZMZ19scR4PsZChSR7A=="
 crossorigin=""/>
@@ -8,30 +8,14 @@ crossorigin=""/>
 integrity="sha512-XQoYMqMTK8LvdxXYG3nZ448hOEQiglfqkJs1NOQV44cWnUrBc8PkAOcXy20w0vlaXaVUearIOBhiXZ5V3ynxwA=="
 crossorigin=""></script>
 
-<script type = "text/javascript" src = "{{ url_for('static', filename = 'script.js') }}" ></script>
-<link rel="stylesheet" type="text/css" href="/static/styles.css">
-<link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
+<!-- <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons"> -->
 
-</head>
-<body>
-  <div class="container">
+{% endblock %}
+{% block content %}
+<div class="container">
 
 <h1>GoOutSafe</h1>
-
 {% if current_user.is_authenticated %}
-  <div class="dropdown">
-    <a onclick="showUnreadNotifications()" class="dropbtn">Notifications</a>
-    <div id="notificationPanel" class="dropdown-content">
-      {% if notifications is defined %}
-      <ul>
-      {% for notification in notifications %}
-        <li>{{notification.date}} at {{notification.restaurant.name}}</li>
-      {% endfor %}
-      <li><a href='/notifications'>See all</a></li>
-      </ul>
-      {% endif %}
-    </div>
-  </div> 
   <p>Hi {{ current_user.firstname }}! <a href="/logout">Logout</a><br></p>
   {% if current_user.restaurant_id %}
     <p>click <a href="{{url_for('reservations.home')}}">here</a> to check your reservations</p>
@@ -84,5 +68,4 @@ crossorigin=""></script>
   </div>
 
   
-
-</body>
+{% endblock %}

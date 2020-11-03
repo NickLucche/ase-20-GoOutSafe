@@ -1,5 +1,5 @@
-<html>
- <body>
+{% extends "base.html" %}
+{% block content %}
    <script>
     var nTables = 0;
     function changeTablesText(n) {
@@ -60,5 +60,5 @@
   {% endfor %}
   <input type=submit value="Save and update">
 </form>
- </body>
-</html>
+
+{% endblock %}

@@ -8,8 +8,30 @@
     <!-- Bootstrap CSS -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.5.3/dist/css/bootstrap.min.css" integrity="sha384-TX8t27EcRE3e/ihU7zmQxVncDAy5uIKz4rEkgIXeMed4M0jlfIDPvg6uqKI2xXr2" crossorigin="anonymous">
 
+    <!-- Custom Js for simple stuff -->
+    <script type = "text/javascript" src = "{{ url_for('static', filename = 'script.js') }}" ></script>
+    <!-- Custom CSS for very hard stuff -->
+    <link rel="stylesheet" type="text/css" href="/static/styles.css">
+
+    {% block head %}
+    {% endblock %}
   </head>
   <body>
+    {% if current_user.is_authenticated %}
+      {% if notifications is defined %}
+        <div class="dropdown">
+        <a onclick="showUnreadNotifications()" class="dropbtn">Notifications</a>
+        <div id="notificationPanel" class="dropdown-content">
+          <ul>
+          {% for notification in notifications %}
+            <li>{{notification.date}} at {{notification.restaurant.name}}</li>
+          {% endfor %}
+          <li><a href='/notifications'>See all</a></li>
+          </ul>
+        </div>
+      </div> 
+    {% endif %}
+  {% endif %}
 
     <!-- Optional JavaScript; choose one of the two! -->
 
