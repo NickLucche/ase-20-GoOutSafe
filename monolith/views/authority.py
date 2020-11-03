@@ -11,12 +11,6 @@ authority = Blueprint('authority', __name__)
 def _authority(message=''):
     return render_template("authority.html")
 
-@authority.route('/authority/users')
-@admin_required
-def _authority_users(message=''):
-    allusers = db.session.query(User)
-    return render_template("users_for_authority.html", users=allusers)
-
 @authority.route('/authority/search_user', methods=['GET', 'POST'])
 @admin_required
 def _search_user(message=''):

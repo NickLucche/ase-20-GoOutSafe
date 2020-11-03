@@ -19,9 +19,9 @@ class UserForm(FlaskForm):
 
 class SearchUserForm(FlaskForm):
     email = f.StringField('email')
-    phone_number = f.StringField('Phone number')
-    ssn = f.StringField('SSN code')
-    display = ['email', 'phone_number', 'ssn']
+    phone = f.StringField('Phone number')
+    fiscal_code = f.StringField('Fiscal code')
+    display = ['email', 'phone', 'fiscal_code']
 
 class OperatorForm(FlaskForm):
     l1 = f.Label('Owner infos', 'Owner infos')

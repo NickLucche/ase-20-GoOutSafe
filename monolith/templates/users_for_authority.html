@@ -5,7 +5,7 @@
       <b><tr>
         <td><b>Firstname</b></td>
         <td><b>Lastname</b></td>
-        <td><b>SSN</b></td>
+        <td><b>Fiscal code</b></td>
         <td><b>Phone number</b></td>
         <td><b>Email address</b></td>
         
@@ -16,8 +16,8 @@
       <tr>
         <td>{{user.get("firstname") if user.get("firstname") != None else '_'}}</td>
         <td>{{user.get("lastname")  if user.get("lastname") != None else '_'}}</td>
-        <td>{{user.get("ssn") if user.get("ssn") != None else '_'}}</td>
-        <td>{{user.get("phone_number") if user.get("phone_number") != None else '_'}}</td>
+        <td>{{user.get("fiscal_code") if user.get("fiscal_code") != None else '_'}}</td>
+        <td>{{user.get("phone") if user.get("phone") != None else '_'}}</td>
         <td>{{user.get("email") if user.get("email") != None else '_'}}</td>
         <td>
           {% if user.is_positive %}

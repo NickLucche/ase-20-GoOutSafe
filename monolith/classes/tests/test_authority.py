@@ -69,26 +69,26 @@ class TestAuthority(unittest.TestCase):
             # Add a user
             user = User(email='test@test.com', firstname=f'test_search', lastname=f'test_search', 
             password='test', dateofbirth=datetime.now(), is_active=bool(random.randrange(0, 2)),
-            is_admin=False, is_positive=False, ssn='TESTCF95M00A123A', phone_number='3331231234')
+            is_admin=False, is_positive=False, fiscal_code='TESTCF95M00A123A', phone='3331231234')
             print(f"Adding user {user}")
             db.session.add(user)
             db.session.commit()
 
             # get the id and ensure is not positive
-            user = User.query.filter_by(ssn='TESTCF95M00A123A').first()
+            user = User.query.filter_by(fiscal_code='TESTCF95M00A123A').first()
             self.assertIsNotNone(user)
             usrid = user.id
 
             filter_mail = User(email='test@test.com')
-            filter_ssn = User(ssn='TESTCF95M00A123A')
-            filter_phone = User(phone_number='3331231234')
-            filter_absent_user = User(phone_number='345677890')
+            filter_fiscal_code = User(fiscal_code='TESTCF95M00A123A')
+            filter_phone = User(phone='3331231234')
+            filter_absent_user = User(phone='345677890')
             
             user, message = search_user(filter_mail)
             self.assertIsNotNone(user)
             self.assertEqual(user.id, usrid)
 
-            user, message = search_user(filter_ssn)
+            user, message = search_user(filter_fiscal_code)
             self.assertIsNotNone(user)
             self.assertEqual(user.id, usrid)
 
@@ -100,7 +100,7 @@ class TestAuthority(unittest.TestCase):
             self.assertIsNone(user)
 
             # Delete the user
-            delete_query = User.__table__.delete().where(User.ssn == 'TESTCF95M00A123A')
+            delete_query = User.__table__.delete().where(User.fiscal_code == 'TESTCF95M00A123A')
             db.session.execute(delete_query)
             db.session.commit()
 

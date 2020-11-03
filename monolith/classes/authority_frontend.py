@@ -29,14 +29,14 @@ def mark_user(user_id: int):
     return message, user
 
 def search_user(filter_user: User):
-    if filter_user.email == '' and filter_user.ssn == '' and filter_user.phone_number == '':
-        return None, 'At least one in ssn, email or phone number is required'
+    if filter_user.email == '' and filter_user.fiscal_code == '' and filter_user.phone == '':
+        return None, 'At least one in fiscal code, email or phone number is required'
 
-    if filter_user.phone_number != None and filter_user.phone_number != '' and len(filter_user.phone_number) < 9:
+    if filter_user.phone != None and filter_user.phone != '' and len(filter_user.phone) < 9:
         return None, 'Invalid phone number'
 
-    if filter_user.ssn != None and filter_user.ssn != '' and len(filter_user.ssn) != 16:
-        return None, 'Invalid ssn number'
+    if filter_user.fiscal_code != None and filter_user.fiscal_code != '' and len(filter_user.fiscal_code) != 16:
+        return None, 'Invalid fiscal code'
     
     q = db.session.query(User)
 
@@ -46,10 +46,10 @@ def search_user(filter_user: User):
     #    q = q.filter(func.lower(User.lastname) == func.lower(filter_user.lastname))
     if filter_user.email != None and filter_user.email != '':
         q = q.filter(func.lower(User.email) == func.lower(filter_user.email))
-    if filter_user.phone_number != None and filter_user.phone_number != '':
-        q = q.filter(User.phone_number == filter_user.phone_number)
-    if filter_user.ssn != None and filter_user.ssn != '':
-        q = q.filter(func.upper(User.ssn) == func.upper(filter_user.ssn))
+    if filter_user.phone != None and filter_user.phone != '':
+        q = q.filter(User.phone == filter_user.phone)
+    if filter_user.fiscal_code != None and filter_user.fiscal_code != '':
+        q = q.filter(func.upper(User.fiscal_code) == func.upper(filter_user.fiscal_code))
 
     if q.first() == None:
         return None, 'No user found'
