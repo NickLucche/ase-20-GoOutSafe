@@ -17,6 +17,8 @@ def login():
         if user is not None and user.authenticate(password):
             login_user(user)
             return redirect('/')
+        else:
+            form.email.errors.append("The email or password inserted is invalid")
     return render_template('login.html', form=form)
 
 

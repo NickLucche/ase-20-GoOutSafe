@@ -16,6 +16,8 @@ class User(db.Model):
     email = db.Column(db.Unicode(128), nullable=False)
     firstname = db.Column(db.Unicode(128))
     lastname = db.Column(db.Unicode(128))
+    fiscal_code = db.Column(db.Text(50), unique=True)
+    phone = db.Column(db.Text(50), nullable=True, unique=True)
     password = db.Column(db.Unicode(128))
     dateofbirth = db.Column(db.DateTime)
     is_active = db.Column(db.Boolean, default=True)
@@ -65,7 +67,7 @@ class Restaurant(db.Model):
     name = db.Column(db.Text(100))
     lat = db.Column(db.Float) # restaurant latitude
     lon = db.Column(db.Float) # restaurant longitude
-    phone = db.Column(db.Text)
+    phone = db.Column(db.Text, unique=True)
     extra_info = db.Column(db.Text(300)) # restaurant infos (menu, ecc.)
     avg_stay_time = db.Column(db.Time, default=time(hour=1))
     avg_stars = db.Column(db.Float, default=0.0)
