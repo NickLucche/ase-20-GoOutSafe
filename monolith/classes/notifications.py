@@ -56,12 +56,12 @@ def create_notifications(reservation_at_riks, positive_id: int):
         
         # create notification for the user
         notification = Notification(positive_user_id=positive_id, restaurant_id=rest_id,
-        date=et, user_id = customer_id, positive_user_reservation=pos_res, user_notification=True)
+        date=et, user_id = customer_id, positive_user_reservation=pos_res, user_notification=True, email_sent=False)
         # create notification for the operator
         if not pos_res in pos_user_reservations:
             # operator_id = User.query.filter_by(restaurant_id=rest_id).first()
             operator_notification = Notification(positive_user_id=positive_id, restaurant_id=rest_id,
-            date=et, positive_user_reservation=pos_res, user_notification=False)
+            date=et, positive_user_reservation=pos_res, user_notification=False, email_sent=False)
             pos_user_reservations.append(pos_res)
             notifications.append(operator_notification)
 
@@ -69,8 +69,7 @@ def create_notifications(reservation_at_riks, positive_id: int):
     # store in database
     db.session.add_all(notifications)
     db.session.commit()
-    return [n.to_dict() for n in notifications]
-        
+    return [n.to_dict() for n in notifications]  
 
 @celery.task
 def contact_tracing(past_reservations, user_id: int):

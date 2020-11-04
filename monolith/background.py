@@ -7,7 +7,10 @@ def make_celery(app):
     # create celery object from single flask app configuration
     celery = Celery(__name__, backend=app.config['CELERY_RESULT_BACKEND'], 
     broker=app.config['CELERY_BROKER_URL'], 
-    include=['monolith.classes.notifications', 'monolith.classes.authority_backend', 'monolith.background']) # include list of modules to import when worker tarts
+    include=['monolith.classes.notifications', 
+             'monolith.classes.authority_backend',
+             'monolith.classes.mail',
+             'monolith.background']) # include list of modules to import when worker tarts
 
     celery.conf.update(app.config)
     # subclass celery task so that each task execution is wrapped in an app context

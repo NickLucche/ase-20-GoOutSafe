@@ -38,17 +38,13 @@ def _mark(marked_user_id):
     else:
         return render_template("single_user_for_authority.html", user=user)
 
-#XXX TBT
 @authority.route('/authority/trace_contacts/<user_id>')
 @admin_required
 def _get_contact_list(user_id):
-    # This can be done better
     from monolith.classes.notifications import contact_tracing_users, check_visited_places
 
     exec_chain = (check_visited_places.s(user_id, INCUBATION_PERIOD_COVID) | contact_tracing_users.s(user_id))()
     users_at_risk = exec_chain.get()
-
-    print(users_at_risk[0]["positive_user_reservation"])
     
     return render_template("users_for_authority.html", users=users_at_risk)
     

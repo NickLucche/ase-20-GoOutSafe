@@ -106,11 +106,13 @@ class Notification(db.Model):
     positive_user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
     date = db.Column(db.DateTime)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=True)
+    user = relationship('User', foreign_keys='Notification.user_id')
 
     positive_user_reservation = db.Column(db.Integer, db.ForeignKey('reservation.id'))
     restaurant_id = db.Column(db.Integer, db.ForeignKey('restaurant.id'))
     notification_checked = db.Column(db.Boolean, default=False)
-
+    email_sent = db.Column(db.Boolean, default=False)
+    
     user_notification = db.Column(db.Boolean) # belongs to a user or operator
 
     def to_dict(self):
