@@ -1,0 +1,13 @@
+{% extends "base.html" %}
+{% block content %}
+<h2>Notification {{notification.id}}</h2>
+    <h3>System detected that you were in contact with a customer which tested positive for Covid19</h3>
+    <h3>on date: {{notification.date}}</h3>
+    {% if notification.restaurant is defined %}
+    <h3>at: {{notification.restaurant.name}}</h3>
+    {% endif %}
+    <br></br>
+    <br></br>
+    <h5>Please inform your local health authority or family doctor as soon as possible.</h5>
+    <h5>Take care!</h5>
+{% endblock %}

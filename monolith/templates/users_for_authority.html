@@ -1,19 +1,24 @@
-<html>
-  <body>
+{% extends "base.html" %}
+{% block content %}
     <h1>User List</h1>
     <table>
       <b><tr>
         <td><b>Firstname</b></td>
         <td><b>Lastname</b></td>
+        <td><b>Fiscal code</b></td>
+        <td><b>Phone number</b></td>
         <td><b>Email address</b></td>
+        
         <td><b>Covid positive</b></td>
         <td><b></b></td>
       </tr></b>
       {% for user in users: %}
       <tr>
-        <td>{{user.firstname}}</td>
-        <td>{{user.lastname}}</td>
-        <td>{{user.email}}</td>
+        <td>{{user.get("firstname") if user.get("firstname") != None else '_'}}</td>
+        <td>{{user.get("lastname")  if user.get("lastname") != None else '_'}}</td>
+        <td>{{user.get("fiscal_code") if user.get("fiscal_code") != None else '_'}}</td>
+        <td>{{user.get("phone") if user.get("phone") != None else '_'}}</td>
+        <td>{{user.get("email") if user.get("email") != None else '_'}}</td>
         <td>
           {% if user.is_positive %}
           <b><i>positive</i></b>
@@ -29,5 +34,4 @@
       </tr>
       {% endfor %}
     </table>
-  </body>
-</html>
+{% endblock %}

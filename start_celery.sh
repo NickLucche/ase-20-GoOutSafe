@@ -1,4 +1,6 @@
 #!/usr/bin/env sh
 
-celery -A monolith.background worker --loglevel=INFO &
-celery -A monolith.background beat --loglevel=INFO &
+killall celery
+sleep 1
+celery -A monolith.background worker --loglevel=INFO -B
+#celery -A monolith.background beat --loglevel=INFO &

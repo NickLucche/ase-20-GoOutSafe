@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+{% block content %}
+    <h1>Notification List</h1>
+    <h5>{{message}}</h5>
+    <ul>
+      {% for notification in notifications_list: %}
+      <li class='{{"new-notification" if notification.notification_checked else "old-notification"}}'>
+      {% if notification.restaurant is defined %}
+            <a class="dropdown-item" href="/notifications/{{notification.id}}">{{notification.date}} at {{notification.restaurant.name}}</a>
+          {% else %}
+            <!-- operator doesn't need to see their own restaurant name -->
+            <a class="dropdown-item" href="/notifications/{{notification.id}}">{{notification.date}}</a>
+      {%endif%}
+        
+      </li>
+      {% endfor %}
+    </ul>
+{% endblock %}

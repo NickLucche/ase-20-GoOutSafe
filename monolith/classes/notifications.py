@@ -56,12 +56,12 @@ def create_notifications(reservation_at_riks, positive_id: int):
         
         # create notification for the user
         notification = Notification(positive_user_id=positive_id, restaurant_id=rest_id,
-        date=et, user_id = customer_id, positive_user_reservation=pos_res, user_notification=True)
+        date=et, user_id = customer_id, positive_user_reservation=pos_res, user_notification=True, email_sent=False)
         # create notification for the operator
         if not pos_res in pos_user_reservations:
             # operator_id = User.query.filter_by(restaurant_id=rest_id).first()
             operator_notification = Notification(positive_user_id=positive_id, restaurant_id=rest_id,
-            date=et, positive_user_reservation=pos_res, user_notification=False)
+            date=et, positive_user_reservation=pos_res, user_notification=False, email_sent=False)
             pos_user_reservations.append(pos_res)
             notifications.append(operator_notification)
 
@@ -69,8 +69,7 @@ def create_notifications(reservation_at_riks, positive_id: int):
     # store in database
     db.session.add_all(notifications)
     db.session.commit()
-    return [n.to_dict() for n in notifications]
-        
+    return [n.to_dict() for n in notifications]  
 
 @celery.task
 def contact_tracing(past_reservations, user_id: int):
@@ -105,31 +104,35 @@ def contact_tracing(past_reservations, user_id: int):
             reservation_at_risk.append(u)
     return reservation_at_risk
 
-def fetch_user_notifications(app: Flask, user_id: int, unread_only=False):
-    """Retrieve 'positive case contact' notifications of user identified by `user_id`.
+@celery.task
+def contact_tracing_users(past_reservations, user_id: int):
+    """Given a positive user id and a list of past reservation he/she made in the last 14 days,
+        returns a list of reservation made by other users which were allegedly in contact with him/her.
+
     Args:
-        app (Flask): flask app.
-        user_id (int): identifier of user requesting notifications.
-        unread_only (bool, optional): Whether to retrieve unread notifications only. Defaults to False.
+        past_reservations: List of dictionaries, each representing a reservation the positive 
+        user made.
+        user_id (int): Positive customer id.
     """
-    with app.app_context():
-        query = Notification.query.filter_by(user_id=user_id)
-        if unread_only:
-            query = query.filter_by(notification_checked=False)
-        query = query.order_by(desc(Notification.date))
-        
-        return query.all()
+    # check which users were at the restaurant at the same time as the positive guy
+    user_at_risk = []
+    for reservation in past_reservations:
+        et = reservation['entrance_time']
+        if isinstance(et, str):
+            et = datetime.strptime(reservation['entrance_time'], '%Y-%m-%dT%H:%M:%S.%f')
+        # get average staying time of the restaurant and compute 'danger period'
+        avg_stay_time = Restaurant.query.filter_by(id=reservation['restaurant_id']).first().avg_stay_time
+        staying_interval = timedelta(hours=avg_stay_time.hour, minutes=avg_stay_time.minute, seconds=avg_stay_time.second)
+        start_time = et - staying_interval
+        end_time = et + staying_interval
 
-def fetch_operator_notifications(app:Flask, rest_id: int, unread_only=False):
-    # get notifications belonging to a certain restaurant
-    with app.app_context():
-        # query = Reservation.query.join(Notification)\
-        query = Notification.query.filter_by(restaurant_id=rest_id, user_notification=False)
-            
-        if unread_only:
-            query = query.filter_by(notification_checked=False)
-
-        # query = query.with_entities(Reservation, Notification)
-        query = query.order_by(desc(Notification.date))
-
-        return [q.to_dict() for q in query.all()]
+        user_reservation = Reservation.query.filter(Reservation.user_id != user_id).\
+            filter_by(restaurant_id=reservation['restaurant_id']).\
+                filter(Reservation.entrance_time.between(start_time, end_time)).all()
+        # print(user_reservation)
+        # preserve positive user reservation we're referring to, as to notify operator 
+        for u in user_reservation:
+            u = u.user.to_dict()
+            u['positive_user_reservation'] = reservation['id']
+            user_at_risk.append(u)
+    return user_at_risk

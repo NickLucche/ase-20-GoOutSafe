@@ -1,0 +1,33 @@
+<html>
+    <body>
+        <h1>Your Reservations</h1> 
+        {% if current_user.is_authenticated %}
+            {% if reservations|length == 0 %}
+                <h2>You have not reserved any table yet</h2>
+            {% endif %}
+            {% with messages = get_flashed_messages(category_filter=['reservation_mod']) %}
+                {% if messages %}
+                    {% for message in messages %}
+                        <p class=flashes><h3>{{ message }}</h3></p>
+                    {% endfor %}
+                    </ul>
+                {% endif %}
+            {% endwith %}
+            {% for reservation in reservations %}
+                <h3>Reservation for {{reservation.reservation_time|prettytime}}</h3>
+                <ul>
+                    <p><h3>Restaurant: {{reservation.restaurant.name}}</h3></p>
+                    <p><h3>Current status: {{ reservation.status }}</h3></p>
+                    <p><h3>Table: {{reservation.table_no}}</h3></p>
+                    <p><h3>Seats: {{reservation.seats}}<h3></p>
+                </ul>
+                {% if not reservation is declined_reservation %}
+                <a href='/my_reservations/{{ reservation.id }}/update'> Update Reservation</a>
+                <a href='/my_reservations/{{ reservation.id }}/delete'>Delete Reservation</a>
+                {% else %}
+                <a href='/my_reservations/{{ reservation.id }}/delete'>Delete Reservation</a>
+                {% endif %}
+            {% endfor %}
+        {% endif %}
+    </body>
+</html>

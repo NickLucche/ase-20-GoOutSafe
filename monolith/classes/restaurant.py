@@ -1,6 +1,6 @@
 
 from monolith.classes.exceptions import FormValidationError
-from monolith.database import RestaurantTable, db
+from monolith.database import RestaurantTable, Review, db
 
 
 def edit_tables(form, request_form, restaurant_id : int, __submit=True):
@@ -20,4 +20,19 @@ def edit_tables(form, request_form, restaurant_id : int, __submit=True):
     else:
         raise FormValidationError()
 
+def add_review(user_id, restaurant_id, stars, text=None):
+    if text:
+        r = Review(reviewer_id=user_id, restaurant_id=restaurant_id, stars=stars, text_review=text)
+    else:
+        r = Review(reviewer_id=user_id, restaurant_id=restaurant_id, stars=stars)
+    
+    db.session.add(r)
+    db.session.commit()
+
+def update_review(restaurant, stars_no):
+    # updates restaurant view with newly written review
+    restaurant.num_reviews += 1
+    restaurant.avg_stars = 1/restaurant.num_reviews * \
+        (restaurant.avg_stars * (restaurant.num_reviews-1) + stars_no)
+    return restaurant
 
