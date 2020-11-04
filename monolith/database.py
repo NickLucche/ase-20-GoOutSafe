@@ -6,8 +6,8 @@ import datetime as dt
 from flask_sqlalchemy import SQLAlchemy
 from datetime import datetime, time
 
-
 db = SQLAlchemy()
+
 
 class User(db.Model):
     __tablename__ = 'user'
@@ -56,17 +56,18 @@ class User(db.Model):
         return f'{self.firstname} {self.lastname}--mail:{self.email}--born:{self.dateofbirth.strftime("%B %d %Y")}'
 
     def to_dict(self):
-        return {column.name:getattr(self, column.name) for column in self.__table__.columns}
+        return {column.name: getattr(self, column.name) for column in self.__table__.columns}
+
 
 class Restaurant(db.Model):
     __tablename__ = 'restaurant'
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     name = db.Column(db.Text(100))
-    likes = db.Column(db.Integer) # will store the number of likes, periodically updated in background
-    lat = db.Column(db.Float) # restaurant latitude
-    lon = db.Column(db.Float) # restaurant longitude
+    likes = db.Column(db.Integer)  # will store the number of likes, periodically updated in background
+    lat = db.Column(db.Float)  # restaurant latitude
+    lon = db.Column(db.Float)  # restaurant longitude
     phone = db.Column(db.Text)
-    extra_info = db.Column(db.Text(300)) # restaurant infos (menu, ecc.)
+    extra_info = db.Column(db.Text(300))  # restaurant infos (menu, ecc.)
     avg_stay_time = db.Column(db.Time, default=time(hour=1))
 
     #One to one relationship
@@ -77,6 +78,7 @@ class Restaurant(db.Model):
 
     #One to many relationship
     tables = db.relationship("RestaurantTable", back_populates="restaurant")
+
 
 class Like(db.Model):
     __tablename__ = 'like'
@@ -101,20 +103,27 @@ class Notification(db.Model):
     restaurant_id = db.Column(db.Integer, db.ForeignKey('restaurant.id'))
     notification_checked = db.Column(db.Boolean, default=False)
 
-    user_notification = db.Column(db.Boolean) # belongs to a user or operator
+    user_notification = db.Column(db.Boolean)  # belongs to a user or operator
 
     def to_dict(self):
-        return {column.name:getattr(self, column.name) for column in self.__table__.columns}
+        return {column.name: getattr(self, column.name) for column in self.__table__.columns}
 
 
 class ReservationState(enum.IntEnum):
     DECLINED = 0
     PENDING = 1
     ACCEPTED = 2
-    DONE = 3
+    SEATED = 3
+    DONE = 4
 
     def __str__(self):
-        return {self.DECLINED: "Declined", self.PENDING: "Pending", self.ACCEPTED: "Accepted"}.get(self)
+        return {
+            self.DECLINED: "Declined",
+            self.PENDING: "Pending",
+            self.ACCEPTED: "Accepted",
+            self.SEATED: "Seated",
+            self.DONE: "Done"
+        }.get(self)
 
 
 class Reservation(db.Model):
@@ -139,9 +148,10 @@ class Reservation(db.Model):
 
     seats = db.Column(db.Integer, default=False)
     entrance_time = db.Column(db.DateTime, nullable=True)
+    exit_time = db.Column(db.DateTime, nullable=True)
 
     def to_dict(self):
-        return {column.name:getattr(self, column.name) for column in self.__table__.columns}
+        return {column.name: getattr(self, column.name) for column in self.__table__.columns}
 
 
 class RestaurantTable(db.Model):

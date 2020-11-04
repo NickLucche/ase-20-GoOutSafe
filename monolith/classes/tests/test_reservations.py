@@ -1,9 +1,10 @@
 import unittest, datetime
 from flask import Flask
-from monolith.database import db, User, Restaurant, Reservation, RestaurantTable
+from monolith.database import db, User, Restaurant, Reservation, RestaurantTable, ReservationState
 from sqlalchemy.schema import MetaData
 from pprint import PrettyPrinter
 from monolith.classes import reservations
+from monolith.views import reservations as reservations_view
 
 
 class TestReservations(unittest.TestCase):
@@ -38,6 +39,7 @@ class TestReservations(unittest.TestCase):
         self.app = Flask(__name__)
         self.app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///:memory:'
         self.app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = True
+        self.app.register_blueprint(reservations_view)
 
         db.init_app(self.app)
         db.create_all(app=self.app)
@@ -54,11 +56,31 @@ class TestReservations(unittest.TestCase):
                             restaurant=self.data['restaurants'][0],
                             table=self.data['tables'][0],
                             reservation_time=datetime.datetime.now() + datetime.timedelta(hours=1),
+                            status=ReservationState.ACCEPTED,
                             seats=3),
                 Reservation(user_id=self.data['users'][1].id,
                             restaurant=self.data['restaurants'][1],
                             table=self.data['tables'][1],
                             reservation_time=datetime.datetime.now() + datetime.timedelta(hours=2),
+                            status=ReservationState.DECLINED,
+                            seats=3),
+                Reservation(user_id=self.data['users'][1].id,
+                            restaurant=self.data['restaurants'][1],
+                            table=self.data['tables'][1],
+                            status=ReservationState.ACCEPTED,
+                            reservation_time=datetime.datetime.now() - datetime.timedelta(hours=2),
+                            seats=3),
+                Reservation(user_id=self.data['users'][1].id,
+                            restaurant=self.data['restaurants'][1],
+                            table=self.data['tables'][1],
+                            status=ReservationState.SEATED,
+                            reservation_time=datetime.datetime.now() - datetime.timedelta(hours=2),
+                            seats=3),
+                Reservation(user_id=self.data['users'][1].id,
+                            restaurant=self.data['restaurants'][1],
+                            table=self.data['tables'][1],
+                            status=ReservationState.DONE,
+                            reservation_time=datetime.datetime.now() - datetime.timedelta(hours=2),
                             seats=3)
             ]
 
@@ -101,3 +123,53 @@ class TestReservations(unittest.TestCase):
 
                 self.assertTrue(reservations.accept_reservation(ok_user, reservation))
                 self.assertFalse(reservations.accept_reservation(failure_user, reservation))
+
+    def test_jinja_tests(self):
+        with self.app.app_context():
+            reservations_list = Reservation.query.all()
+            test_dict = self.app.jinja_env.tests
+
+            self.assertTrue(test_dict['modifiable_reservation'](reservations_list[0]))
+            self.assertFalse(test_dict['modifiable_reservation'](reservations_list[2]))
+
+            self.assertTrue(test_dict['accepted_reservation'](reservations_list[0]))
+            self.assertFalse(test_dict['accepted_reservation'](reservations_list[1]))
+
+            self.assertTrue(test_dict['declined_reservation'](reservations_list[1]))
+            self.assertFalse(test_dict['declined_reservation'](reservations_list[0]))
+
+            self.assertTrue(test_dict['show_mark_buttons'](reservations_list[3]))
+            self.assertFalse(test_dict['show_mark_buttons'](reservations_list[1]))
+
+            self.assertTrue(test_dict['entrance_marked'](reservations_list[3]))
+            self.assertFalse(test_dict['entrance_marked'](reservations_list[2]))
+
+            self.assertTrue(test_dict['exit_marked'](reservations_list[4]))
+            self.assertFalse(test_dict['exit_marked'](reservations_list[3]))
+
+    def test_jinja_filters(self):
+        with self.app.app_context():
+            reservations_list = Reservation.query.all()
+            filters_dict = self.app.jinja_env.filters
+
+            self.assertEqual(filters_dict['prettytime'](datetime.datetime(2020, 10, 31, 0, 0)),
+                             "Saturday 31 October - 00:00")
+            self.assertEqual(filters_dict['prettyhour'](datetime.datetime(2020, 10, 31, 0, 0)), "00:00")
+
+    def test_mark_entrance(self):
+        with self.app.app_context():
+            reservations_list = Reservation.query.all()
+            users = User.query.all()
+
+            self.assertFalse(reservations.reservation_mark_entrance(users[0], reservations_list[0]))
+            self.assertTrue(reservations.reservation_mark_entrance(users[1], reservations_list[2]))
+            self.assertFalse(reservations.reservation_mark_entrance(users[1], reservations_list[4]))
+
+    def test_mark_exit(self):
+        with self.app.app_context():
+            reservations_list = Reservation.query.all()
+            users = User.query.all()
+
+            self.assertFalse(reservations.reservation_mark_exit(users[0], reservations_list[0]))
+            self.assertTrue(reservations.reservation_mark_exit(users[1], reservations_list[3]))
+            self.assertFalse(reservations.reservation_mark_exit(users[1], reservations_list[4]))

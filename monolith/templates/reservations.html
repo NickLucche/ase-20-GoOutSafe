@@ -1,7 +1,7 @@
 {% extends "base.html" %}
 {% block content %}
 <div class="col-auto offset-2 pl-0" style="margin-left: 2rem; margin-right: 2rem">
-  <h1 class="mb-5">Reservations</h1>
+  <h1 class="mb-3">Reservations</h1>
   <div class="row justify-content-start ml-auto ">
 
 
@@ -18,17 +18,52 @@
           </ul>
         </div>
         {% if reservation is modifiable_reservation %}
-        <div class="card-body d-flex justify-content-between">
+        <div class="card-body d-flex justify-content-between pt-0 {{'pb-1' if reservation is show_mark_buttons else ''}}">
+
           {% if not reservation is declined_reservation %}
           <form class="form-inline d-inline w-50 ml-1" action="/reservations/{{reservation.id}}/decline" method="POST">
             <button class="btn btn-primary w-100">Decline reservation</button>
           </form>
+          {% else %}
+          <form class="form-inline d-inline w-50 ml-1" action="/reservations/{{reservation.id}}/decline" method="POST">
+            <button class="btn btn-primary w-100 disabled" disabled>Decline reservation</button>
+          </form>
           {% endif %}
+
           {% if not reservation is accepted_reservation %}
           <form class="form-inline d-inline w-50 ml-1" action="/reservations/{{reservation.id}}/accept" method="POST">
             <button class="btn btn-primary w-100">Accept reservation</button>
           </form>
+          {% else %}
+          <form class="form-inline d-inline w-50 ml-1" action="/reservations/{{reservation.id}}/accept" method="POST">
+            <button class="btn btn-primary w-100 disabled" disabled>Accept reservation</button>
+          </form>
           {% endif %}
+        </div>
+        {% endif %}
+        {% if reservation is show_mark_buttons %}
+        <div class="card-body d-flex justify-content-between pt-0">
+          <form class="form-inline d-inline w-50 ml-1" action="/reservations/{{reservation.id}}/markentrance"
+            method="POST">
+            <button class="btn btn-primary w-100 {{'disabled' if reservation is entrance_marked else ''}}"
+              {{'disabled' if reservation is entrance_marked else ''}}>
+              {% if reservation is entrance_marked %}
+              Entered at {{reservation.entrance_time|prettyhour}}
+              {% else %}
+              Mark entrance
+              {% endif %}
+            </button>
+          </form>
+          <form class="form-inline d-inline w-50 ml-1" action="/reservations/{{reservation.id}}/markexit" method="POST">
+            <button class="btn btn-primary w-100 {{'disabled' if reservation is exit_marked or reservation is not entrance_marked else ''}}"
+              {{'disabled' if reservation is exit_marked or reservation is not entrance_marked  else ''}}>
+              {% if reservation is exit_marked %}
+              Exited at {{reservation.exit_time|prettyhour}}
+              {% else %}
+              Mark exit
+              {% endif %}
+            </button>
+          </form>
         </div>
         {% endif %}
       </div>
