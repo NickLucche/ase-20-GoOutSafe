@@ -40,8 +40,8 @@ def fetch_operator_notifications(app:Flask, rest_id: int, unread_only=False):
 def fetch_notifications(app: Flask, user: User, unread_only=False):
     """Fetch notifications of operator or user alike.
     Args:
-        app (Flask): [description]
-        user_id ([type]): [description]
+        app (Flask): flask app for context.
+        user_id ([type]): id of the user to retrieve notifications of.
     """
     if hasattr(user, 'restaurant_id') and not user.restaurant_id is None:
         return fetch_operator_notifications(app, user.restaurant_id, unread_only)
@@ -55,6 +55,14 @@ def fetch_notifications(app: Flask, user: User, unread_only=False):
         return notifications
 
 def getAndSetNotification(notification_id: int):
+    """ Fetch specific notification by id and sets its state to
+       'read' if the notification was unread.
+    Args:
+        notification_id (int): id of the notification to retrieve.
+
+    Returns:
+        [type]: Notification object requested.
+    """
     notification = Notification.query.filter_by(id=notification_id).join(Restaurant).with_entities(Notification, Restaurant).first()
     if notification[0].notification_checked == False:
         notification[0].notification_checked = True

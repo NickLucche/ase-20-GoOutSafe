@@ -1,6 +1,7 @@
 from monolith.classes.ratings_task import average_review_stars
 from monolith.classes.tests.utils import *
 from monolith.database import db, User, Review, Restaurant
+from monolith.classes.restaurant import update_review
 import unittest
 import random
 
@@ -32,4 +33,15 @@ class TestRatings(unittest.TestCase):
             rest = Restaurant.query.filter_by(id=rest['id']).first()
             self.assertEqual(rest.avg_stars, stars)
             self.assertEqual(rest.num_reviews, 1)
+
+    def test_stars_update_for_user(self):
+        # user writes a review
+         with self.app.app_context():
+            stars = random.randint(1, 5)
+            rest = Restaurant.query.filter_by(name='test_rest_0').first()
+            rest_update = update_review(rest, stars)
+            # check user sees their review updated immediately
+            self.assertEqual(rest_update.avg_stars, stars)
+            self.assertEqual(rest_update.num_reviews, 1)
+
             
