@@ -81,7 +81,19 @@ class TestReservations(unittest.TestCase):
                             table=self.data['tables'][1],
                             status=ReservationState.DONE,
                             reservation_time=datetime.datetime.now() - datetime.timedelta(hours=2),
-                            seats=3)
+                            seats=3),
+                Reservation(user_id=self.data['users'][1].id,
+                            restaurant=self.data['restaurants'][1],
+                            table=self.data['tables'][1],
+                            status=ReservationState.DONE,
+                            reservation_time=datetime.datetime(2020, 10, 31),
+                            seats=3),
+                Reservation(user_id=self.data['users'][1].id,
+                            restaurant=self.data['restaurants'][1],
+                            table=self.data['tables'][1],
+                            status=ReservationState.DONE,
+                            reservation_time=datetime.datetime(2020, 10, 31),
+                            seats=3),
             ]
 
             db.session.add_all(self.data['reservations'])
@@ -173,3 +185,18 @@ class TestReservations(unittest.TestCase):
             self.assertFalse(reservations.reservation_mark_exit(users[0], reservations_list[0]))
             self.assertTrue(reservations.reservation_mark_exit(users[1], reservations_list[3]))
             self.assertFalse(reservations.reservation_mark_exit(users[1], reservations_list[4]))
+
+    def test_get_reservations_of_the_day(self):
+        with self.app.app_context():
+            users = User.query.all()
+            reservations_list, more = reservations.get_reservations_of_the_day(users[1].restaurant, 30, 1);
+
+            self.assertEqual(len(reservations_list), 4)
+            self.assertFalse(more)
+
+    def test_get_seated_customers(self):
+        with self.app.app_context():
+            users = User.query.all()
+
+            self.assertEqual(reservations.get_seated_customers(users[1].restaurant), 3)
+

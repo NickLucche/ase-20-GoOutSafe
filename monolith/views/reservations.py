@@ -77,7 +77,31 @@ def exit_marked(reservation: Reservation):
 @operator_required
 def home(page: int):
     reservations, more = get_reservations(current_user.restaurant, num_of_reservations=6, page=page)
-    return render_template("reservations.html", reservations=reservations, current_page=page, morepages=more)
+    if len(reservations):
+        return render_template("reservations.html",
+                               reservations=reservations,
+                               current_page=page,
+                               morepages=more,
+                               customers=get_seated_customers(current_user.restaurant),
+                               today=False)
+    else:
+        return "", 404
+
+
+@reservations.route('/today', defaults={'page': 1})
+@reservations.route('/today/page/<int:page>', methods=('GET', ))
+@operator_required
+def today(page: int):
+    reservations, more = get_reservations_of_the_day(current_user.restaurant, num_of_reservations=6, page=page)
+    if len(reservations):
+        return render_template("reservations.html",
+                               reservations=reservations,
+                               current_page=page,
+                               morepages=more,
+                               customers=get_seated_customers(current_user.restaurant),
+                               today=True)
+    else:
+        return "", 404
 
 
 @reservations.route('/<id>/decline', methods=('POST', ))
@@ -114,21 +138,3 @@ def mark_exit(id: int):
         return redirect(request.referrer)
 
     return "You are not allowed to do that", 401
-
-
-counter = 1
-
-
-@reservations.route('/add')
-@operator_required
-def add(): #pragma: no cover
-    global counter
-    db.session.add(
-        Reservation(user_id=current_user.id,
-                    restaurant_id=current_user.restaurant_id,
-                    reservation_time=datetime.datetime.now() + datetime.timedelta(minutes=counter),
-                    table=current_user.restaurant.tables[0],
-                    seats=4))
-    db.session.commit()
-    counter += 1
-    return "Add", 200

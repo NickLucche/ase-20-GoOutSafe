@@ -2,6 +2,7 @@
 {% block content %}
 <div class="col-auto offset-2 pl-0" style="margin-left: 2rem; margin-right: 2rem">
   <h1 class="mb-3">Reservations</h1>
+  <h5 class="mb-5">There are {{customers}} seated customers right now</h5>
   <div class="row justify-content-start ml-auto ">
 
 
@@ -73,10 +74,10 @@
   <footer>
     <nav class="nav">
       {% if current_page > 1 %}
-      <a class="nav-link pl-0" href="{{url_for('reservations.home', page=current_page - 1)}}">Previous page</a>
+      <a class="nav-link pl-0" href="{{url_for('reservations.today', page=current_page - 1) if today else url_for('reservations.home', page=current_page - 1)}}">Previous page</a>
       {% endif %}
       {% if morepages %}
-      <a class="nav-link pl-0" href="{{url_for('reservations.home', page=current_page + 1)}}">Next page</a>
+      <a class="nav-link pl-0" href="{{url_for('reservations.today', page=current_page + 1) if today else url_for('reservations.home', page=current_page + 1)}}">Next page</a>
       {% endif %}
     </nav>
   </footer>
