@@ -67,7 +67,8 @@ class RestaurantProfileEditForm(FlaskForm):
 
 class UserProfileEditForm(FlaskForm):
     email = f.StringField('e-mail', validators=[DataRequired(), Email(message="Please enter a valid email")])
-    password = f.PasswordField('New password', validators=[Optional(), EqualTo('password_confirm', message='Passwords must match')])
+    password = f.PasswordField('New password', validators=[Optional(), EqualTo('password_confirm', message='Passwords must match')], \
+        render_kw={"minlength":"4", "maxlength": "12"})
     password_confirm = f.PasswordField('Confirm new password', validators=[Optional()])
     phone = f.IntegerField('(optional) Phone number', validators=[Optional()], render_kw={"minlength":"9", "maxlength": "10"})
     display = ['email', 'password', 'password_confirm', 'phone']
