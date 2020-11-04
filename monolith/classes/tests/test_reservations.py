@@ -32,8 +32,8 @@ class TestReservations(unittest.TestCase):
         ]
 
         self.data['tables'] = [
-            RestaurantTable(seats=3, restaurant=self.data['restaurants'][0]),
-            RestaurantTable(seats=5, restaurant=self.data['restaurants'][1])
+            RestaurantTable(table_id=1, seats=3, restaurant=self.data['restaurants'][0]),
+            RestaurantTable(table_id=1, seats=5, restaurant=self.data['restaurants'][1])
         ]
 
         self.app = Flask(__name__)

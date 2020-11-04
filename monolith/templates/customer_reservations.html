@@ -1,5 +1,5 @@
-<html>
-    <body>
+{% extends "base.html" %}
+{% block head %}
         <h1>Your Reservations</h1> 
         {% if current_user.is_authenticated %}
             {% if reservations|length == 0 %}
@@ -29,5 +29,4 @@
                 {% endif %}
             {% endfor %}
         {% endif %}
-    </body>
-</html>
+{% endblock %}

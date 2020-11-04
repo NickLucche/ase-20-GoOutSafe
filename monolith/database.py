@@ -170,8 +170,7 @@ class Reservation(db.Model):
 class RestaurantTable(db.Model):
     __tablename__ = 'restaurant_table'
     table_id = db.Column(db.Integer, primary_key=True)
-
-    #Many to one relationship
-    restaurant_id = db.Column(db.Integer, db.ForeignKey('restaurant.id'))
+    restaurant_id = db.Column(db.Integer, db.ForeignKey('restaurant.id'), primary_key=True)
+    
     restaurant = db.relationship('Restaurant', back_populates="tables")
     seats = db.Column(db.Integer, default=False)

@@ -43,7 +43,7 @@ class OperatorForm(FlaskForm):
     password = f.PasswordField('Password', validators=[DataRequired(), \
         Length(min=4, max=12, message="Password must be in [4,12] characters"), EqualTo('password_confirm', message='Passwords must match')])
     password_confirm = f.PasswordField('Confirm password', validators=[DataRequired()])
-    dateofbirth = f.DateField('Date of birth', format='%d/%m/%Y', render_kw={"type":"date"})
+    dateofbirth = f.DateField('Date of birth', format='%d/%m/%Y')
     h1 = f.HiddenField()
     l2 = f.Label('', 'Restaurant info')
     name = f.StringField('Name', validators=[DataRequired()])
@@ -52,7 +52,7 @@ class OperatorForm(FlaskForm):
     phone = f.IntegerField('Phone number', validators=[DataRequired()], render_kw={"minlength":"9", "maxlength": "10"})
     extra_info = f.TextAreaField('Extra infos [optional]')
     display = [
-        'l1', 'email', 'firstname', 'lastname', 'password', 'dateofbirth', 'l2', 'name', 'lat', 'lon', 'phone',
+        'l1', 'email', 'firstname', 'lastname', 'password', 'password_confirm', 'dateofbirth', 'l2', 'name', 'lat', 'lon', 'phone',
         'extra_info'
     ]
 

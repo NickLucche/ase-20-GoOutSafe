@@ -47,9 +47,9 @@ def restaurant_sheet(restaurant_id):
                 # update review count immediately so user can see it
                 record = update_review(record, int(request.form.get("stars_number")))
         else:
-            return render_template("restaurantsheet.html", form=form, name=record.name, likes=record.likes, lat=record.lat, lon=record.lon, phone=record.phone, avg_stars=record.avg_stars, n_reviews=record.num_reviews)
+            return render_template("restaurantsheet.html", form=form, record=record)
 
-    return render_template("restaurantsheet.html", name=record.name, likes=record.likes, lat=record.lat, lon=record.lon, phone=record.phone, avg_stars=record.avg_stars, n_reviews=record.num_reviews)
+    return render_template("restaurantsheet.html", record=record)
 
 
 @restaurants.route('/restaurants/reserve/<restaurant_id>',

@@ -8,7 +8,7 @@
     crossorigin=""></script>
   <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js" type="text/javascript"></script>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width">
+  <meta record.name="viewport" content="width=device-width">
   <style>
       textarea {
         resize: none;
@@ -49,12 +49,12 @@
 {% endblock%}
 
 {% block content %}
-  <h1>{{name}} -- Likes: {{likes}}</h1>
+  <h1>{{record.name}}</h1>
   <h2>Phone: {{phone}}</h2>
-  {% if extra_info %}
-  <h3>Info: {{extra_info}}</h3>
+  {% if record.extra_info %}
+  <h3>Info: {s{record.extra_info}}</h3>
   {% endif %}
-  <p>Average Rating: {{avg_stars}} ({{n_reviews}} reviews)</p>
+  <p>Average Rating: {{record.avg_stars}} ({{n_reviews}} reviews)</p>
   <br>
   <ul>
     <div id="mapid" style="width: 600px; height: 300px;"></div>
@@ -72,7 +72,7 @@
         zoomOffset: -1
       }).addTo(map);
       var mark = L.marker(['{{ lat }}', '{{ lon }}']).addTo(map)
-        .bindPopup("<a href=/restaurants/{{ id }}><b>{{ name }}</b></a><br><center>{{ phone }}</center>").openPopup();
+        .bindPopup("<a href=/restaurants/{{ id }}><b>{{ record.name }}</b></a><br><center>{{ phone }}</center>").openPopup();
 
       mark.on('click', function (e) {
         map.setView(e.latlng, 17);
@@ -128,26 +128,26 @@
 
         console.log(num)
         $(document).ready(function () {    // function that take the  rating value and insert in to hidden html input 
-          $('input[name="stars_number"]').val(num);
+          $('input[record.name="stars_number"]').val(num);
         });
       }  
     </script>
     <form action="" method="post">
       <!-- // input for rating value  -->
-      <input type="hidden" name="stars_number" value="">
+      <input type="hidden" record.name="stars_number" value="">
       {{ form.hidden_tag() }}
       <p>
-        {{ form.review(rows='5',cols='50') }}
+        {{ form.review(rows='3',cols='50') }}
       </p>
       {% for error in form.review.errors %}
       <span style="color: red;">[{{ error }}]</span>
       {% endfor %}
       {{ form.submit }}
     </form>
-    {% elif current_user.is_authenticated %}
+    {% elif current_user.is_authenticated and current_user.restaurant_id is not defined %}
     <br>
     <p>You already inserted a review!</p>
-    {% else %}
+    {% elif not current_user.is_authenticated %}
     <br>
     <p>Login to insert a review!</p>
     {% endif %}
