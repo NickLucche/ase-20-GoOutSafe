@@ -85,7 +85,7 @@ def create_app(dbfile='sqlite:///gooutsafe.db'):
         q = db.session.query(RestaurantTable).filter(RestaurantTable.restaurant == restaurant)
         restaurant_table = q.first()
         if restaurant_table is None:
-            restaurant_table = RestaurantTable(restaurant=restaurant, seats=4)
+            restaurant_table = RestaurantTable(table_id=1, restaurant=restaurant, seats=4)
             db.session.add(restaurant_table)
             db.session.commit()
 
