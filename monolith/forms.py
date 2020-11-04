@@ -30,9 +30,9 @@ class UserForm(FlaskForm):
 
 class SearchUserForm(FlaskForm):
     email = f.StringField('email', validators=[Email(message="Please enter a valid email")])
-    firstname = f.StringField('firstname')
-    lastname = f.StringField('lastname')
-    display = ['email', 'firstname', 'lastname']
+    phone = f.StringField('Phone number')
+    fiscal_code = f.StringField('Fiscal code')
+    display = ['email', 'phone', 'fiscal_code']
 
 
 class OperatorForm(FlaskForm):

@@ -135,34 +135,3 @@ def add_random_visits_to_place(app: Flask, restaurant_id:int, start_date: dateti
         db.session.add_all(visits)
         db.session.commit()
         return risky_visits
-
-def add_random_restaurant(n_restaurants: int, app: Flask):
-    global counter
-    restaurants = []
-    with app.app_context():
-        for i in range(n_restaurants):
-            restaurant = Restaurant(name=f'test_{i}',
-                        likes=0,
-                        lat=0,
-                        lon=0,
-                        phone=counter,
-                        extra_info='')
-            print(f"Adding restaurant {restaurant}")
-            counter += 1
-            restaurants.append(restaurant)
-        db.session.add_all(restaurants)
-        db.session.commit()
-
-def add_random_reservation(user):
-    with app.app_context():
-        for i in range(n_users):
-            user = User(email='test',
-                        firstname=f'test_{i}',
-                        lastname=f'test_{i}',
-                        password='test',
-                        dateofbirth=datetime.now(),
-                        is_active=bool(random.randrange(0, 2)),
-                        is_admin=False)
-            print(f"Adding user {user}")
-            db.session.add(user)
-            db.session.commit()

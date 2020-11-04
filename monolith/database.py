@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, time
 from werkzeug.security import generate_password_hash, check_password_hash
 import enum
 from sqlalchemy.orm import relationship
@@ -20,6 +20,8 @@ class User(db.Model):
     phone = db.Column(db.Text(20), nullable=True, unique=True)
     password = db.Column(db.Unicode(128))
     dateofbirth = db.Column(db.DateTime)
+    fiscal_code = db.Column(db.Text(50), unique=True)
+    phone = db.Column(db.Text(50), nullable=True, unique=True)
     is_active = db.Column(db.Boolean, default=True)
     is_admin = db.Column(db.Boolean, default=False)
     is_positive = db.Column(db.Boolean, default=False)
@@ -107,12 +109,14 @@ class Notification(db.Model):
     positive_user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
     date = db.Column(db.DateTime)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=True)
+    user = relationship('User', foreign_keys='Notification.user_id')
 
     positive_user_reservation = db.Column(db.Integer, db.ForeignKey('reservation.id'))
     restaurant_id = db.Column(db.Integer, db.ForeignKey('restaurant.id'))
     notification_checked = db.Column(db.Boolean, default=False)
-
-    user_notification = db.Column(db.Boolean)  # belongs to a user or operator
+    email_sent = db.Column(db.Boolean, default=False)
+    
+    user_notification = db.Column(db.Boolean) # belongs to a user or operator
 
     def to_dict(self):
         return {column.name: getattr(self, column.name) for column in self.__table__.columns}

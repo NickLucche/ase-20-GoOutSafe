@@ -1,0 +1,46 @@
+{% extends "base.html" %}
+{% block content %}
+    <h1>User Info</h1>
+    <table>
+      <tr>
+        <td><b>Firstname</b></td>
+        <td>{{user.firstname}}</td>
+      </tr>
+      <tr>
+        <td><b>Lastname</b></td>
+        <td>{{user.lastname}}</td>
+      </tr>
+      <tr>
+        <td><b>Fiscal code</b></td>
+        <td>{{user.fiscal_code if user.fiscal_code != None else ''}}</td>
+      </tr>
+      <tr>
+        <td><b>Phone number</b></td>
+        <td>{{user.phone if user.phone != None else ''}}</td>
+      </tr>
+      <tr>
+        <td><b>email</b></td>
+        <td>{{user.email if user.email != None else ''}}</td>
+      </tr>
+      <tr>
+        <td><b>Covid state</b></td>
+        <td>
+            {% if user.is_positive %}
+            <b><i>Positive</i></b>
+            {% else %}
+            <i>Negative</i>
+            {% endif %}
+          </td>
+          <tr>
+            <td></td>
+            <td>
+                {% if user.is_positive %}
+                <a href="{{base_url}}/authority/trace_contacts/{{user.id}}">Trace contacts</a>
+                {% else %}
+                <a href="{{base_url}}/authority/mark/{{user.id}}">Mark as positive</a>
+                {% endif %}
+            </td>
+          </tr>
+      </tr>
+    </table>
+{% endblock %}
