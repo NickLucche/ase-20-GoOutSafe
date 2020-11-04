@@ -17,7 +17,7 @@ class TestRatings(unittest.TestCase):
             db.session.query(Reservation).delete()
             db.session.query(Review).delete()
 
-    def test_single_review_update(self):
+    def test_review_update(self):
         # user makes a review
         with self.app.app_context():
             stars = random.randint(1, 5)

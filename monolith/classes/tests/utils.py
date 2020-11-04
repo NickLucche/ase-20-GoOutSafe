@@ -36,14 +36,16 @@ def setup_for_test():
     return app
 
 def add_random_users(n_users: int, app: Flask):
+    users = []
     with app.app_context():
         for i in range(n_users):
-            user = User(email='test', firstname=f'test_{i}', lastname=f'test_{i}', 
+            user = User(email=f'test_{i}', firstname=f'test_{i}', lastname=f'test_{i}', 
             password='test', dateofbirth=datetime.now(), is_active=bool(random.randrange(0, 2)),
             is_admin=False, is_positive=False)
             # print(f"Adding user {user}")
-            db.session.add(user)
-            db.session.commit()
+            users.append(user)
+        db.session.add_all(users)
+        db.session.commit() 
 
 def delete_random_users(app: Flask):
     with app.app_context():
