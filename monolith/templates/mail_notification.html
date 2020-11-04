@@ -1,0 +1,12 @@
+<html>
+<body>
+Dear {% recipient.firstname recipient.lastname if recipient.firstname != None and recipient.lastname != None else 'user' %}
+this is a contanct notification from GoOutSafe. The local health authority verified the presence of one Covid-19 positive case in a restaurant you recently frequented.
+Heres the details of the reservation at risk.
+
+The authority will contact you as soon as possible, in the meanwhile you are asked the attend the following instructions.
+++++istruzioni+++
+
+Best regard,
+GoOutSafe team
+</body>
