@@ -56,7 +56,7 @@ def edit_user_data(form:UserProfileEditForm, user_id, __submit=True):
         u = User.query.filter_by(id=user_id).first()
         
         form.populate_obj(u)
-        if form.password.data:
+        if form.password is not None and form.password.data != '':
             u.set_password(str(form.password.data))
         db.session.commit()
     else:

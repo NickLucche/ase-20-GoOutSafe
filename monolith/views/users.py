@@ -1,5 +1,3 @@
-from logging import error
-from re import template
 from flask_login.utils import login_required
 from monolith.classes.exceptions import DatabaseError, FormValidationError, GoOutSafeError
 from monolith.classes.user import edit_user_data, new_operator, new_user, users_view
@@ -27,6 +25,8 @@ def create_user():
             return redirect('/')
         except FormValidationError:
             return render_template('create_user.html', form=form)
+        except Exception as e:
+            return render_template("error.html", error_message=str(e))
             
     return render_template('create_user.html', form=form)
 
@@ -42,8 +42,11 @@ def create_operator():
             return redirect('/')
         except GoOutSafeError as e:
             return render_template('create_user.html', form=form)
+        except Exception as e:
+            return render_template("error.html", error_message=str(e))
 
     return render_template('create_user.html', form=form)
+
 
 @users.route('/users/edit/<user_id>', methods=['GET', 'POST'])
 @login_required
