@@ -150,14 +150,14 @@ class Notifications(unittest.TestCase):
                 rnot = fetch_operator_notifications(app, rid)
                 print(f"[{rid}] REST NOTIFICATION:", rnot)
                 self.assertEqual(len(rnot), 1)
-                self.assertEqual(rnot[0]['date'], et)
+                self.assertEqual(rnot[0].date, et)
 
         self.assertEqual(len(db_notifications), nrisky_places)
 
 
     def test_user_notifications(self):
         with app.app_context():
-            positive_guy = mark_random_guy_as_positive(app, self.now)
+            positive_guy = User.query.filter_by(is_positive=True).first().to_dict()
             # generate positive user visits to random restaurants in last 14 days
             n_places = random.randrange(1, 10)
             nrisky_places, risky_visits = visit_random_places(app, positive_guy['id'], self.now, INCUBATION_PERIOD_COVID, n_places, RESTAURANT_TEST_IDS, time_span_offset=0)

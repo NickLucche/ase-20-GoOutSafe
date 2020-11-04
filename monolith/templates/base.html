@@ -28,18 +28,16 @@
           </button>
           <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
             {% for notification in notifications %}
+            {% if notification.restaurant is defined %}
               <a class="dropdown-item" href="/notifications/{{notification.id}}">{{notification.date}} at {{notification.restaurant.name}}</a>
+            {% else %}
+              <!-- operator doesn't need to see their own restaurant name -->
+              <a class="dropdown-item" href="/notifications/{{notification.id}}">{{notification.date}}</a>
+            {%endif%}
             {% endfor %}
             <a class="dropdown-item" href="/notifications">See All</a>
           </div>
-        <!-- <div id="notificationPanel" class="dropdown-content">
-          <ul>
-          {% for notification in notifications %}
-            <li>{{notification.date}} at {{notification.restaurant.name}}</li>
-          {% endfor %}
-          <li><a href='/notifications'>See all</a></li>
-          </ul>
-        </div> -->
+        
       </div> 
     {% endif %}
   {% endif %}

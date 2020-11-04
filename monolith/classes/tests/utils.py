@@ -5,6 +5,7 @@ from monolith.views import blueprints
 from monolith.auth import login_manager
 import random
 from flask import Flask
+from werkzeug.security import generate_password_hash
 
 user_data = {'email':'prova@prova.com', 
         'firstname':'Mario', 
@@ -38,9 +39,10 @@ def setup_for_test():
 def add_random_users(n_users: int, app: Flask):
     users = []
     with app.app_context():
+        pswd = generate_password_hash('test') 
         for i in range(n_users):
-            user = User(email=f'test_{i}', firstname=f'test_{i}', lastname=f'test_{i}', 
-            password='test', dateofbirth=datetime.now(), is_active=bool(random.randrange(0, 2)),
+            user = User(email=f'test_{i}@test.com', firstname=f'test_{i}', lastname=f'test_{i}', 
+            password=pswd, dateofbirth=datetime.now(), is_active=1,
             is_admin=False, is_positive=False)
             # print(f"Adding user {user}")
             users.append(user)
@@ -49,7 +51,7 @@ def add_random_users(n_users: int, app: Flask):
 
 def delete_random_users(app: Flask):
     with app.app_context():
-        delete_query = User.__table__.delete().where(User.email == 'test')
+        delete_query = User.__table__.delete().where(User.email.like('test_%'))
         db.session.execute(delete_query)
         db.session.commit()
 

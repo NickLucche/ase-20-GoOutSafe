@@ -13,9 +13,10 @@ def fetch_user_notifications(app: Flask, user_id: int, unread_only=False):
     with app.app_context():
         query = Notification.query.filter_by(user_id=user_id, user_notification=True)
         # get restaurant too
-        query = query.join(Restaurant).with_entities(Notification, Restaurant)
         if unread_only:
             query = query.filter_by(notification_checked=False)
+
+        query = query.join(Restaurant).with_entities(Notification, Restaurant)
 
         query = query.order_by(desc(Notification.date))
         
@@ -33,7 +34,8 @@ def fetch_operator_notifications(app:Flask, rest_id: int, unread_only=False):
         # query = query.with_entities(Reservation, Notification)
         query = query.order_by(desc(Notification.date))
 
-        return [q.to_dict() for q in query.all()]
+        # return [q.to_dict() for q in query.all()]
+        return query.all()
 
 def fetch_notifications(app: Flask, user: User, unread_only=False):
     """Fetch notifications of operator or user alike.
@@ -42,12 +44,12 @@ def fetch_notifications(app: Flask, user: User, unread_only=False):
         user_id ([type]): [description]
     """
     if hasattr(user, 'restaurant_id') and not user.restaurant_id is None:
-        return fetch_operator_notifications(app, user.id, unread_only)
+        return fetch_operator_notifications(app, user.restaurant_id, unread_only)
     else:
         user_not = fetch_user_notifications(app, user.id, unread_only)
         # add restaurant info
         notifications = []
         for notif, restaurant in user_not:
-            notif['restaurant'] = restaurant
+            notif.restaurant = restaurant
             notifications.append(notif)
         return notifications

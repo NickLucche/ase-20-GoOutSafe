@@ -19,7 +19,7 @@ class TestAuthority(unittest.TestCase):
         add_random_users(1, self.app)
         with self.app.app_context():
             # get the id and ensure is not positive
-            user = User.query.filter_by(email='test').first()
+            user = User.query.filter_by(email='test_0@test.com').first()
             self.assertIsNotNone(user)
             self.assertFalse(user.is_positive)
             self.assertIsNone(user.reported_positive_date)
@@ -46,7 +46,7 @@ class TestAuthority(unittest.TestCase):
             quarantine_days = random.randrange(1, 20)
             
             # get the id and ensure is not positive
-            user = User.query.filter_by(email='test').first()
+            user = User.query.filter_by(email='test_0@test.com').first()
             self.assertIsNotNone(user)
             usrid = user.id
             

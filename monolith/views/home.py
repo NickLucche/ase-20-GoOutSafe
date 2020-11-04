@@ -14,8 +14,7 @@ def index():
         if hasattr(current_user, 'is_admin') and current_user.is_admin == True:
             return redirect("/authority")
         restaurants = db.session.query(Restaurant)
-        notifs = fetch_notifications(current_app, current_user)
-        print(notifs)
+        notifs = fetch_notifications(current_app, current_user, unread_only=True)
     else:
         restaurants = []
         notifs = []

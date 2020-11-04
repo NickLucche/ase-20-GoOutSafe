@@ -53,8 +53,8 @@ def all_notifications():
         if hasattr(current_user, 'is_admin') and current_user.is_admin == True:
             # redirect authority to another page
             return redirect("/authority")
-        notifs = fetch_notifications(current_app, current_user)
-        return render_template('notifications_list.html', notifications=notifs, message='You were in contact with a positive user in the following occasions:')
+        notifs = fetch_notifications(current_app, current_user, unread_only=False)
+        return render_template('notifications_list.html', notifications_list=notifs, message='You were in contact with a positive user in the following occasions:')
     except GoOutSafeError as e:
         return render_template("error.html", error_message=str(e))
 
@@ -63,13 +63,13 @@ def all_notifications():
 def get_notification(notification_id):
     # show notification detail view and mark notification as seen
     try:
-        notification = Notification.query.join(Restaurant).filter_by(id=notification_id).with_entities(Notification, Restaurant).first()
+        notification = Notification.query.filter_by(id=notification_id).join(Restaurant).with_entities(Notification, Restaurant).first()
         if notification[0].notification_checked == False:
             notification[0].notification_checked = True
             db.session.commit()
-        notif = notification[0].to_dict()
-        notif['restaurant'] = notification[1]
-        render_template('notification_detail.html', notification=notif)
+        notif = notification[0]
+        notif.restaurant = notification[1]
+        return render_template('notification_detail.html', notification=notif)
     except GoOutSafeError as e:
         return render_template("error.html", error_message=str(e))
 

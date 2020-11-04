@@ -21,7 +21,7 @@ class TestRatings(unittest.TestCase):
         # user makes a review
         with self.app.app_context():
             stars = random.randint(1, 5)
-            reviewer = User.query.filter_by(email='test').first()
+            reviewer = User.query.filter_by(email='test_0@test.com').first()
             rest = Restaurant.query.filter_by(name='test_rest_0').first().to_dict()
             review = Review(reviewer_id=reviewer.id, stars=stars, restaurant_id=rest['id'])
             db.session.add(review)
