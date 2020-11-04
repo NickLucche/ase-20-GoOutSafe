@@ -4,7 +4,7 @@ from monolith.database import Notification, Reservation, Restaurant, db, User
 import random
 from datetime import datetime, timedelta
 from monolith.classes.notifications import check_visited_places, create_notifications, contact_tracing
-from monolith.classes.notification_retrieval import fetch_operator_notifications, fetch_user_notifications, getAndSetNotification
+from monolith.classes.notification_retrieval import fetch_notifications, fetch_operator_notifications, fetch_user_notifications, getAndSetNotification
 from monolith.classes.tests.utils import add_random_users, add_random_visits_to_place, delete_random_users, mark_random_guy_as_positive, random_datetime_in_range, visit_random_places, add_random_restaurants, setup_for_test
 
 app = create_app()
@@ -233,6 +233,7 @@ class Notifications(unittest.TestCase):
 
     def test_notification_retrieval(self):
         with app.app_context():
+            # create a notification and retrieve it by notification id
             n = Notification(user_id=10, positive_user_id=1, restaurant_id=12,
                 date=datetime.now(), positive_user_reservation=1, user_notification=True)
             db.session.add(n)
@@ -240,3 +241,7 @@ class Notifications(unittest.TestCase):
             notif_id = n.to_dict()['id']
             notif = getAndSetNotification(1)
             self.assertEqual(notif.id, notif_id)
+            # then retrieve it by user
+            user = User.query.get(10)
+            notifs = fetch_notifications(app, user)
+            self.assertDictEqual(notif.to_dict(), notifs[0].to_dict())
