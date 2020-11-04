@@ -1,8 +1,7 @@
-from flask_login.utils import login_required
-from monolith.classes.exceptions import DatabaseError, FormValidationError, GoOutSafeError
-from monolith.classes.user import edit_user_data, new_operator, new_user, users_view
-from flask import Blueprint, redirect, render_template, flash, request
-from flask_login import login_user
+from monolith.classes.exceptions import DatabaseError, GoOutSafeError, FormValidationError
+from monolith.classes.user import new_operator, new_user, users_view, edit_user_data
+from flask import Blueprint, redirect, render_template, flash, request, current_app
+from flask_login import login_user, login_required
 from monolith.database import Restaurant, db, User
 from monolith.auth import admin_required, current_user
 from monolith.forms import OperatorForm, UserForm, UserProfileEditForm
@@ -39,7 +38,6 @@ def create_operator():
     if request.method == 'POST':
         try:
             u = new_operator(form)
-            flash("User successfully created! Logging in.")
             login_user(u)
             return redirect('/')
         except GoOutSafeError as e:
@@ -85,12 +83,7 @@ def all_notifications():
 def get_notification(notification_id):
     # show notification detail view and mark notification as seen
     try:
-        notification = Notification.query.filter_by(id=notification_id).join(Restaurant).with_entities(Notification, Restaurant).first()
-        if notification[0].notification_checked == False:
-            notification[0].notification_checked = True
-            db.session.commit()
-        notif = notification[0]
-        notif.restaurant = notification[1]
+        notif = getAndSetNotification(notification_id)
         return render_template('notification_detail.html', notification=notif)
     except GoOutSafeError as e:
         return render_template("error.html", error_message=str(e))

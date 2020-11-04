@@ -4,7 +4,7 @@ from monolith.database import Notification, Reservation, Restaurant, db, User
 import random
 from datetime import datetime, timedelta
 from monolith.classes.notifications import check_visited_places, create_notifications, contact_tracing
-from monolith.classes.notification_retrieval import fetch_operator_notifications, fetch_user_notifications
+from monolith.classes.notification_retrieval import fetch_operator_notifications, fetch_user_notifications, getAndSetNotification
 from monolith.classes.tests.utils import add_random_users, add_random_visits_to_place, delete_random_users, mark_random_guy_as_positive, random_datetime_in_range, visit_random_places, add_random_restaurants, setup_for_test
 
 app = create_app()
@@ -154,6 +154,45 @@ class Notifications(unittest.TestCase):
 
         self.assertEqual(len(db_notifications), nrisky_places)
 
+    def test_operator_notifications_sync(self):
+        with app.app_context():
+            positive_guy = User.query.filter_by(is_positive=True).first().to_dict()
+
+            # generate positive user visits to random restaurants in last 14 days
+            n_places = random.randrange(1, 10)
+            nrisky_places, risky_visits = visit_random_places(app, positive_guy['id'], self.now,\
+                 INCUBATION_PERIOD_COVID, n_places, RESTAURANT_TEST_IDS,time_span_offset=0)
+            print(f"User {positive_guy['id']} visited {nrisky_places} restaurants")
+            # generate other users visits to same restaurants in same days
+            visits_per_rest = {}
+            n_visits = random.randint(1, 3)
+            for visit in risky_visits:
+                rid = visit['restaurant_id']
+                et = visit['entrance_time']
+                visits_per_rest[rid] = add_random_visits_to_place(app, rid, et, et, et, n_visits)
+                print(f"Some other {visits_per_rest[rid]} users visited restaurant {rid}")
+            # execute pipeline async to generate notifications
+            # run async tasks: check visited places -> check customers in danger -> write notifications
+            pos_id = positive_guy['id']
+            visited_places = check_visited_places(pos_id, INCUBATION_PERIOD_COVID)
+            dang_res = contact_tracing(visited_places, pos_id)
+            notifs = create_notifications(dang_res, pos_id)
+            
+            db_notifications = [n.to_dict() for n in Notification.query.filter_by(user_notification=False).all()]
+            print("Operator Notifications in db:", db_notifications)
+            print("Notifications written:", notifs)
+            # make sure every operator got their notification
+            for v in risky_visits:
+                rid = v['restaurant_id']
+                et = v['entrance_time']
+                rnot = fetch_operator_notifications(app, rid)
+                print(f"[{rid}] REST NOTIFICATION:", rnot)
+                self.assertEqual(len(rnot), 1)
+                self.assertEqual(rnot[0].date, et)
+
+        self.assertEqual(len(db_notifications), nrisky_places)
+
+
 
     def test_user_notifications(self):
         with app.app_context():
@@ -191,3 +230,13 @@ class Notifications(unittest.TestCase):
 
         # check that every user had their notifications generated
         self.assertEqual(len(db_notifications), sum(visits_per_rest.values()))
+
+    def test_notification_retrieval(self):
+        with app.app_context():
+            n = Notification(user_id=10, positive_user_id=1, restaurant_id=12,
+                date=datetime.now(), positive_user_reservation=1, user_notification=True)
+            db.session.add(n)
+            db.session.commit()
+            notif_id = n.to_dict()['id']
+            notif = getAndSetNotification(1)
+            self.assertEqual(notif.id, notif_id)

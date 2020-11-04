@@ -1,5 +1,5 @@
 from datetime import datetime, timedelta
-from monolith.database import Notification, Restaurant, User
+from monolith.database import Notification, Restaurant, User, db
 from flask import Flask
 from sqlalchemy import desc, distinct
 
@@ -53,3 +53,12 @@ def fetch_notifications(app: Flask, user: User, unread_only=False):
             notif.restaurant = restaurant
             notifications.append(notif)
         return notifications
+
+def getAndSetNotification(notification_id: int):
+    notification = Notification.query.filter_by(id=notification_id).join(Restaurant).with_entities(Notification, Restaurant).first()
+    if notification[0].notification_checked == False:
+        notification[0].notification_checked = True
+        db.session.commit()
+    notif = notification[0]
+    notif.restaurant = notification[1]
+    return notif
