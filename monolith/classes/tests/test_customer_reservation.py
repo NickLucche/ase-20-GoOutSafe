@@ -3,7 +3,7 @@ from monolith.database import Reservation, db, User, RestaurantTable, Restaurant
 import random
 from flask import Flask
 from datetime import datetime, time, date
-from monolith.database import db, User, Restaurant, Reservation, RestaurantTable
+from monolith.database import db, User, Restaurant, Reservation, RestaurantTable, ReservationState
 from monolith.classes import customer_reservations as cr
 
 
@@ -118,7 +118,7 @@ class CustomerReservationsTest(unittest.TestCase):
                             reservation_time=datetime.combine(
                                 datetime.now().date(), time(hour=12,
                                                             minute=30)),
-                            status='DECLINED',
+                            status=ReservationState.DECLINED,
                             seats=self.data['tables'][4].seats),
                 Reservation(user_id=self.data['users'][1].id,
                             restaurant_id=self.data['restaurants'][1].id,
@@ -126,7 +126,7 @@ class CustomerReservationsTest(unittest.TestCase):
                             reservation_time=datetime.combine(
                                 datetime.now().date(), time(hour=11,
                                                             minute=00)),
-                            status='DONE',
+                            status=ReservationState.DONE,
                             seats=self.data['tables'][1].seats),
                 Reservation(user_id=self.data['users'][2].id,
                             restaurant_id=self.data['restaurants'][2].id,
@@ -135,7 +135,7 @@ class CustomerReservationsTest(unittest.TestCase):
                                 datetime.now().date(),
                                 time(hour=datetime.now().time().hour + 1,
                                      minute=15)),
-                            status='ACCEPTED',
+                            status=ReservationState.ACCEPTED,
                             seats=self.data['tables'][5].seats),
                 Reservation(user_id=self.data['users'][2].id,
                             restaurant_id=self.data['restaurants'][2].id,
@@ -144,7 +144,7 @@ class CustomerReservationsTest(unittest.TestCase):
                                 datetime.now().date(),
                                 time(hour=datetime.now().time().hour + 1,
                                      minute=30)),
-                            status='PENDING',
+                            status=ReservationState.PENDING,
                             seats=self.data['tables'][6].seats),
                 Reservation(user_id=self.data['users'][2].id,
                             restaurant_id=self.data['restaurants'][2].id,
@@ -153,7 +153,7 @@ class CustomerReservationsTest(unittest.TestCase):
                                 datetime.now().date(),
                                 time(hour=datetime.now().time().hour + 1,
                                      minute=00)),
-                            status='DECLINED',
+                            status=ReservationState.DECLINED,
                             seats=self.data['tables'][7].seats),
                 Reservation(user_id=self.data['users'][1].id,
                             restaurant_id=self.data['restaurants'][0].id,
@@ -161,7 +161,7 @@ class CustomerReservationsTest(unittest.TestCase):
                             reservation_time=datetime.combine(
                                 datetime.now().date(), time(hour=12,
                                                             minute=30)),
-                            status='ACCEPTED',
+                            status=ReservationState.ACCEPTED,
                             seats=self.data['tables'][2].seats)
             ]
 

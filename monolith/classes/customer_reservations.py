@@ -1,4 +1,4 @@
-from monolith.database import db, Restaurant, Like, Reservation, RestaurantTable
+from monolith.database import db, Restaurant, Like, Reservation, RestaurantTable, ReservationState
 from datetime import datetime, time, timedelta, date
 from sqlalchemy import func, and_, or_
 
@@ -19,8 +19,8 @@ def get_overlapping_tables(restaurant_id: int, reservation_time: datetime,
         restaurant_id=restaurant_id).filter_by(seats=reservation_seats).filter(
             and_(Reservation.reservation_time >= inf_limit,
                  Reservation.reservation_time <= sup_limit)).filter(
-                     or_(Reservation.status == 'PENDING',
-                         Reservation.status == 'ACCEPTED')).all()
+                     or_(Reservation.status == ReservationState.ACCEPTED,
+                         Reservation.status == ReservationState.PENDING)).all()
     print(overlapping_tables)
     overlapping_tables_ids = [id for id, in overlapping_tables]
     print(overlapping_tables_ids)
@@ -107,7 +107,7 @@ def update_reservation(reservation: Reservation,
     if (new_seats == reservation.seats
             and is_safely_updatable(reservation, new_reservation_time)):
         reservation.reservation_time = new_reservation_time
-        reservation.status = 'PENDING'
+        reservation.status = ReservationState.PENDING
         db.session.commit()
         return True
     else:
@@ -128,7 +128,7 @@ def update_reservation(reservation: Reservation,
             reservation.reservation_time = new_reservation_time
             reservation.table_no = new_table.table_id
             reservation.seats = new_seats
-            reservation.status = 'PENDING'
+            reservation.status = ReservationState.PENDING
             db.session.commit()
             return True
 
