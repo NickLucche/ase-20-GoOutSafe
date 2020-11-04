@@ -5,6 +5,7 @@ from flask import Flask
 from monolith.database import db
 from monolith.classes.authority_frontend import INCUBATION_PERIOD_COVID
 from monolith.classes.notifications import check_visited_places, contact_tracing, create_notifications
+from monolith.classes.ratings_task import average_review_stars
 
 def new_positive_case(user_id: int):
     print(f'New case:{user_id}, starting background task')
@@ -57,3 +58,5 @@ def setup_periodic_tasks(sender, **kwargs):
     print("Crono task configuration")
     # Register the unmark_all as crono task
     sender.add_periodic_task(60.0 * 60.0, unmark_all.s(14), name='unmark_positive')
+    # register mean computing task
+    sender.add_periodic_task(60.0, average_review_stars.s(), name='average_stars')

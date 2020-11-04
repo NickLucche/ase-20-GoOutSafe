@@ -1,9 +1,8 @@
 from datetime import datetime, timedelta
 from monolith.app import create_app
 from celery import Celery
-from monolith.database import db, User, Restaurant
 
-# BACKEND = BROKER = 'redis://localhost:6379'
+BACKEND = BROKER = 'redis://localhost:6379'
 def make_celery(app):
     # create celery object from single flask app configuration
     celery = Celery(__name__, backend=app.config['CELERY_RESULT_BACKEND'], 

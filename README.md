@@ -37,4 +37,6 @@ CREATE TABLE IF NOT EXISTS "like" (
     CHECK (marked IN (0, 1))
 );
 ```
+# DB diagram
 
+![](./db-diagram.svg)

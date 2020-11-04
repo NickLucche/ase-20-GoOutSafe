@@ -1,21 +1,23 @@
 
-<html>
-<head>
+{% extends "base.html" %}
+{% block head %}
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css"
 integrity="sha512-xodZBNTC5n17Xt2atTPuE1HxjVMSvLVW9ocqUKLsCC5CXdbqCmblAshOMAS6/keqq/sMZMZ19scR4PsZChSR7A=="
 crossorigin=""/>
 <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"
 integrity="sha512-XQoYMqMTK8LvdxXYG3nZ448hOEQiglfqkJs1NOQV44cWnUrBc8PkAOcXy20w0vlaXaVUearIOBhiXZ5V3ynxwA=="
 crossorigin=""></script>
-</head>
-<body>
+
+<!-- <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons"> -->
+
+{% endblock %}
+{% block content %}
+<div class="container">
 
 <h1>GoOutSafe</h1>
-
 {% if current_user.is_authenticated %}
-  Hi {{ current_user.firstname }}! <a href="/logout">Logout</a><br>
+  <p>Hi {{ current_user.firstname }}! <a href="/logout">Logout</a><br></p>
   {% if current_user.restaurant_id %}
-    <p>click <a href="/restaurant/edit/{{ current_user.restaurant_id }}">here</a> to edit the restaurant profile!</p>
     <p>click <a href="{{url_for('reservations.home')}}">here</a> to check your reservations</p>
     <p>click <a href="/restaurants/edit/{{ current_user.restaurant_id }}">here</a> to edit the restaurant <a href="/restaurants/{{ current_user.restaurant_id }}">profile</a>!</p>
   {% else %}
@@ -62,5 +64,8 @@ crossorigin=""></script>
   Hi Anonymous, <a href="/login">Log in</a> or <a href="/create_user">Sign up</a>!<br>
   Do you have a restaurant? <a href="/create_operator">Register it</a>, is free!
 {% endif %}
+    
+  </div>
 
-</body>
+  
+{% endblock %}

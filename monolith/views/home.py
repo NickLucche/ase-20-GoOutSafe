@@ -1,7 +1,8 @@
-from flask import Blueprint, redirect, render_template
+from flask import Blueprint, redirect, render_template, current_app
 
-from monolith.database import db, Restaurant, Like
+from monolith.database import db, Restaurant
 from monolith.auth import current_user
+from monolith.classes.notification_retrieval import fetch_notifications
 
 
 home = Blueprint('home', __name__)
@@ -13,6 +14,9 @@ def index():
         if hasattr(current_user, 'is_admin') and current_user.is_admin == True:
             return redirect("/authority")
         restaurants = db.session.query(Restaurant)
+        notifs = fetch_notifications(current_app, current_user)
+        print(notifs)
     else:
-        restaurants = None
-    return render_template("index.html", restaurants=restaurants)
+        restaurants = []
+        notifs = []
+    return render_template("index.html", restaurants=restaurants, notifications=notifs)

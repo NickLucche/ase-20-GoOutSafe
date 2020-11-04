@@ -1,5 +1,5 @@
-<html>
-  <body>
+{% extends "base.html" %}
+{% block content %}
     <h1>Restaurant List</h1>
     <h5>{{message}}</h5>
     <ul>
@@ -8,10 +8,11 @@
       "{{restaurant.name}}"    Likes: {{restaurant.likes}} 
       {% if current_user.is_authenticated %}
       <a href="{{base_url}}/like/{{restaurant.id}}">Like it!</a>
+      <a href="{{base_url}}/{{restaurant.id}}">See Details!</a>
+      <a href="{{base_url}}/reserve/{{restaurant.id}}">Reserve!</a>
       {% endif %}
       <a href="{{base_url}}/{{restaurant.id}}">See Details!</a>
       </li>
       {% endfor %}
     </ul>
-  </body>
-</html>
+{% endblock %}

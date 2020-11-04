@@ -1,6 +1,8 @@
 from flask_wtf import FlaskForm
 import wtforms as f
+from datetime import datetime
 from wtforms.validators import DataRequired
+from wtforms_components import DateRange
 
 
 class LoginForm(FlaskForm):
@@ -17,11 +19,13 @@ class UserForm(FlaskForm):
     dateofbirth = f.DateField('Date of Birth', format='%d/%m/%Y')
     display = ['email', 'firstname', 'lastname', 'password', 'dateofbirth']
 
+
 class SearchUserForm(FlaskForm):
     email = f.StringField('email')
     phone = f.StringField('Phone number')
     fiscal_code = f.StringField('Fiscal code')
     display = ['email', 'phone', 'fiscal_code']
+
 
 class OperatorForm(FlaskForm):
     l1 = f.Label('Owner infos', 'Owner infos')
@@ -37,8 +41,11 @@ class OperatorForm(FlaskForm):
     lon = f.FloatField('Longitude', validators=[DataRequired()])
     phone = f.IntegerField('Phone number', validators=[DataRequired()])
     extra_info = f.TextAreaField('Extra infos [optional]')
-    display = ['l1', 'email', 'firstname', 'lastname', 'password', 'dateofbirth', 'l2',
-     'name', 'lat', 'lon', 'phone', 'extra_info']
+    display = [
+        'l1', 'email', 'firstname', 'lastname', 'password', 'dateofbirth', 'l2', 'name', 'lat', 'lon', 'phone',
+        'extra_info'
+    ]
+
 
 class RestaurantProfileEditForm(FlaskForm):
     name = f.StringField('Name', validators=[DataRequired()])
@@ -47,3 +54,17 @@ class RestaurantProfileEditForm(FlaskForm):
     phone = f.IntegerField('Phone number', validators=[DataRequired()])
     extra_info = f.TextAreaField('Extra info')
     display = ['name', 'lat', 'lon', 'phone', 'extra_info']
+
+
+class ReservationForm(FlaskForm):
+    reservation_time = f.DateField('date',
+                                   validators=[DataRequired(), DateRange(min=datetime.now().date())],
+                                   format='%d/%m/%Y')
+    reservation_time = f.TimeField('time', validators=[DataRequired()])
+    seats = f.IntegerField('seats', validators=[DataRequired()])
+    display = ['reservation_time', 'reservation_time', 'seats']
+
+class RatingForm(FlaskForm): 
+    review = f.TextAreaField(render_kw={"placeholder":"(optional) Add a written review!"})  
+    submit = f.SubmitField('Submit') 
+    display = ['review', 'submit']
