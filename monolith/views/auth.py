@@ -1,3 +1,5 @@
+from monolith.classes.exceptions import GoOutSafeError, UserNotInDB
+from monolith.classes.authentication import authenticate_user
 from flask import Blueprint, render_template, redirect, request
 from flask_login import (current_user, login_user, logout_user,
                          login_required)
@@ -10,14 +12,13 @@ auth = Blueprint('auth', __name__)
 @auth.route('/login', methods=['GET', 'POST'])
 def login():
     form = LoginForm()
-    if form.validate_on_submit():
-        email, password = form.data['email'], form.data['password']
-        q = db.session.query(User).filter(User.email == email)
-        user = q.first()
-        print(q.first().id)
-        if user is not None and user.authenticate(password):
-            login_user(user)
+    if request.method == 'POST':
+        try:
+            authenticate_user(form)
             return redirect('/')
+        except GoOutSafeError:
+            form.email.errors.append("The email or password inserted is invalid")
+
     return render_template('login.html', form=form)
 
 

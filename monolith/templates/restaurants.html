@@ -1,5 +1,5 @@
-<html>
-  <body>
+{% extends "base.html" %}
+{% block content %}
     <h1>Restaurant List</h1>
     {% with messages = get_flashed_messages(category_filter=['booking']) %}
       {% if messages %}
@@ -22,5 +22,4 @@
       </li>
       {% endfor %}
     </ul>
-  </body>
-</html>
+{% endblock %}

@@ -1,43 +1,85 @@
-<html>
-  <body>
-    <h1>Reservations</h1>
-      {% for reservation in reservations: %}
-      <section>
-        <div style="display: inline-block">
-          <h2>Reservation for {{reservation.reservation_time|prettytime}}</h2>
-          <ul>
-            <p>Booked by {{reservation.user.firstname}} {{reservation.user.lastname}}</p>
-            <p>Current status: {{ reservation.status }}</p>
-            <li>Table: {{reservation.table_no}}</li>
-            <li>Seats: {{reservation.seats}}</li>
+{% extends "base.html" %}
+{% block content %}
+<div class="col-auto offset-2 pl-0" style="margin-left: 2rem; margin-right: 2rem">
+  <h1 class="mb-3">Reservations</h1>
+  <h5 class="mb-5">There are {{customers}} seated customers right now</h5>
+  <div class="row justify-content-start ml-auto ">
+
+
+    {% for reservation in reservations: %}
+    <section>
+      <div class="card mb-3 mr-3" style="min-width: 31vw">
+        <h5 class="card-header text-center">Reservation for {{reservation.reservation_time|prettytime}}</h5>
+        <div class="card-body">
+          <ul class="list-group list-group-flush">
+            <li class="list-group-item">Booked by {{reservation.user.firstname}} {{reservation.user.lastname}}</li>
+            <li class="list-group-item">Current status: {{ reservation.status }}</li>
+            <li class="list-group-item">Table: {{reservation.table_no}}</li>
+            <li class="list-group-item">Seats: {{reservation.seats}}</li>
           </ul>
-          {% if reservation is modifiable_reservation %}
-          <div style="display: flex; flex-direction: row-reverse;">
-            {% if not reservation is declined_reservation %}
-            <form action="/reservations/{{reservation.id}}/decline" method="POST">
-              <button style="margin-right: 16px">Decline reservation</button>
-            </form>
-            {% endif %}
-            {% if not reservation is accepted_reservation %}
-            <form action="/reservations/{{reservation.id}}/accept" method="POST">
-              <button style="margin-right: 16px">Accept reservation</button>
-            </form>
-            {% endif %}
-          </div>
+        </div>
+        {% if reservation is modifiable_reservation %}
+        <div class="card-body d-flex justify-content-between pt-0 {{'pb-1' if reservation is show_mark_buttons else ''}}">
+
+          {% if not reservation is declined_reservation %}
+          <form class="form-inline d-inline w-50 ml-1" action="/reservations/{{reservation.id}}/decline" method="POST">
+            <button class="btn btn-primary w-100">Decline reservation</button>
+          </form>
+          {% else %}
+          <form class="form-inline d-inline w-50 ml-1" action="/reservations/{{reservation.id}}/decline" method="POST">
+            <button class="btn btn-primary w-100 disabled" disabled>Decline reservation</button>
+          </form>
+          {% endif %}
+
+          {% if not reservation is accepted_reservation %}
+          <form class="form-inline d-inline w-50 ml-1" action="/reservations/{{reservation.id}}/accept" method="POST">
+            <button class="btn btn-primary w-100">Accept reservation</button>
+          </form>
+          {% else %}
+          <form class="form-inline d-inline w-50 ml-1" action="/reservations/{{reservation.id}}/accept" method="POST">
+            <button class="btn btn-primary w-100 disabled" disabled>Accept reservation</button>
+          </form>
           {% endif %}
         </div>
-      </section>
-      {% endfor %}
-    </ul>
-    <footer>
-      <nav>
-        {% if current_page > 1 %}
-        <a href="{{url_for('reservations.home', page=current_page - 1)}}">Previous page</a>
         {% endif %}
-        {% if morepages %}
-        <a href="{{url_for('reservations.home', page=current_page + 1)}}">Next page</a>
+        {% if reservation is show_mark_buttons %}
+        <div class="card-body d-flex justify-content-between pt-0">
+          <form class="form-inline d-inline w-50 ml-1" action="/reservations/{{reservation.id}}/markentrance"
+            method="POST">
+            <button class="btn btn-primary w-100 {{'disabled' if reservation is entrance_marked else ''}}"
+              {{'disabled' if reservation is entrance_marked else ''}}>
+              {% if reservation is entrance_marked %}
+              Entered at {{reservation.entrance_time|prettyhour}}
+              {% else %}
+              Mark entrance
+              {% endif %}
+            </button>
+          </form>
+          <form class="form-inline d-inline w-50 ml-1" action="/reservations/{{reservation.id}}/markexit" method="POST">
+            <button class="btn btn-primary w-100 {{'disabled' if reservation is exit_marked or reservation is not entrance_marked else ''}}"
+              {{'disabled' if reservation is exit_marked or reservation is not entrance_marked  else ''}}>
+              {% if reservation is exit_marked %}
+              Exited at {{reservation.exit_time|prettyhour}}
+              {% else %}
+              Mark exit
+              {% endif %}
+            </button>
+          </form>
+        </div>
         {% endif %}
-      </nav>
-    </footer>
-  </body>
-</html>
+      </div>
+    </section>
+    {% endfor %}
+  </div>
+  <footer>
+    <nav class="nav">
+      {% if current_page > 1 %}
+      <a class="nav-link pl-0" href="{{url_for('reservations.today', page=current_page - 1) if today else url_for('reservations.home', page=current_page - 1)}}">Previous page</a>
+      {% endif %}
+      {% if morepages %}
+      <a class="nav-link pl-0" href="{{url_for('reservations.today', page=current_page + 1) if today else url_for('reservations.home', page=current_page + 1)}}">Next page</a>
+      {% endif %}
+    </nav>
+  </footer>
+</div>
+{% endblock %}

@@ -1,3 +1,4 @@
+from monolith.views import restaurants
 from monolith.classes import restaurant
 from monolith.database import Restaurant, db, User, Reservation
 from datetime import datetime, timedelta, time
@@ -5,6 +6,7 @@ from monolith.views import blueprints
 from monolith.auth import login_manager
 import random
 from flask import Flask
+from werkzeug.security import generate_password_hash
 
 user_data = {'email':'prova@prova.com', 
         'firstname':'Mario', 
@@ -36,29 +38,35 @@ def setup_for_test():
     return app
 
 def add_random_users(n_users: int, app: Flask):
+    users = []
     with app.app_context():
+        pswd = generate_password_hash('test') 
         for i in range(n_users):
-            user = User(email='test', firstname=f'test_{i}', lastname=f'test_{i}', 
-            password='test', dateofbirth=datetime.now(), is_active=bool(random.randrange(0, 2)),
+            user = User(email=f'test_{i}@test.com', firstname=f'test_{i}', lastname=f'test_{i}', 
+            password=pswd, dateofbirth=datetime.now(), is_active=1,
             is_admin=False, is_positive=False)
             # print(f"Adding user {user}")
-            db.session.add(user)
-            db.session.commit()
+            users.append(user)
+        db.session.add_all(users)
+        db.session.commit() 
 
 def delete_random_users(app: Flask):
     with app.app_context():
-        delete_query = User.__table__.delete().where(User.email == 'test')
+        delete_query = User.__table__.delete().where(User.email.like('test_%'))
         db.session.execute(delete_query)
         db.session.commit()
 
+counter = 1
 def add_random_restaurants(n_places: int, app: Flask):
+    global counter
     with app.app_context():
         rests = []
         for i in range(n_places):
             stay_time = time(hour=1)
-            res = Restaurant(name=f'test_rest_{i}', likes = 10, lat = 42.111,lon = 11.111, phone = '343493490',
+            res = Restaurant(name=f'test_rest_{i}', likes = 10, lat = 42.111,lon = 11.111, phone = '343493490'+str(counter),
              extra_info = '', avg_stay_time=stay_time)
             rests.append(res)
+            counter += 1
         db.session.add_all(rests)
         db.session.commit()
     
@@ -105,15 +113,14 @@ def visit_random_places(app: Flask, pos_id:int, positive_date: datetime, time_sp
         db.session.commit()
         return risky_places, [v.to_dict() for v in visits]
 
-def add_random_visits_to_place(app: Flask, restaurant_id:int, start_date: datetime, end_date: datetime, pos_date:datetime, min_visits:int=0, max_visits:int=5):
+def add_random_visits_to_place(app: Flask, restaurant_id:int, start_date: datetime, end_date: datetime, pos_date:datetime, n_visits:int, users_ids=None):
     visits = []
-    n_visits = random.randint(min_visits, max_visits)
     risky_visits = 0
     with app.app_context():
         # make a bunch of reservations
-        for _ in range(n_visits):
-            # some random id identifying a user
-            rand_user = random.randint(1000, 2000)
+        for i in range(n_visits):
+            # use provided user id if given, otherwise generate random
+            rand_user = random.randint(1000, 2000) if users_ids is None else users_ids[i]
             visit_date = random_datetime_in_range(start_date, end_date)
             # compute 'danger period' in which user might have been in contact with positive dude
             stay_time = Restaurant.query.filter_by(id=restaurant_id).first().avg_stay_time
@@ -128,30 +135,3 @@ def add_random_visits_to_place(app: Flask, restaurant_id:int, start_date: dateti
         db.session.add_all(visits)
         db.session.commit()
         return risky_visits
-
-def add_random_restaurant(n_restaurants: int, app: Flask):
-    with app.app_context():
-        for i in range(n_restaurants):
-            restaurant = Restaurant(name=f'test_{i}',
-                        likes=0,
-                        lat=0,
-                        lon=0,
-                        phone=-1,
-                        extra_info='')
-            print(f"Adding restaurant {restaurant}")
-            db.session.add(restaurant)
-            db.session.commit()
-
-def add_random_reservation(user):
-    with app.app_context():
-        for i in range(n_users):
-            user = User(email='test',
-                        firstname=f'test_{i}',
-                        lastname=f'test_{i}',
-                        password='test',
-                        dateofbirth=datetime.now(),
-                        is_active=bool(random.randrange(0, 2)),
-                        is_admin=False)
-            print(f"Adding user {user}")
-            db.session.add(user)
-            db.session.commit()

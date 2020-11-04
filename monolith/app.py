@@ -4,6 +4,7 @@ from monolith.database import db, User, Restaurant, Reservation, RestaurantTable
 from monolith.views import blueprints
 from monolith.auth import login_manager
 import datetime
+from datetime import time
 
 def create_app(dbfile='sqlite:///gooutsafe.db'):
     app = Flask(__name__)
@@ -33,6 +34,8 @@ def create_app(dbfile='sqlite:///gooutsafe.db'):
             example.firstname = 'Authority'
             example.lastname = 'Authority'
             example.email = 'authority@authority.com'
+            example.phone = '3334567890'
+            example.fiscal_code = 'SURNAM95A32B123C'
             example.dateofbirth = datetime.datetime(2020, 10, 5)
             example.is_admin = True
             example.set_password('authority')
@@ -47,6 +50,8 @@ def create_app(dbfile='sqlite:///gooutsafe.db'):
             example.firstname = 'Admin'
             example.lastname = 'Admin'
             example.email = 'example@example.com'
+            example.phone = '3334567891'
+            example.fiscal_code = 'SURNAM95A32B123D'
             example.dateofbirth = datetime.datetime(2020, 10, 5)
             example.is_admin = True
             example.set_password('admin')
@@ -59,8 +64,9 @@ def create_app(dbfile='sqlite:///gooutsafe.db'):
         if restaurant is None:
             restaurant = Restaurant()
             restaurant.name = 'Trial Restaurant'
+            restaurant.avg_stay_time = time(hour=1)
             restaurant.likes = 42
-            restaurant.phone = 555123456
+            restaurant.phone = '555123456'
             restaurant.lat = 43.720586
             restaurant.lon = 10.408347
             restaurant.avg_stay_time = datetime.time(1, 30)
@@ -86,8 +92,11 @@ def create_app(dbfile='sqlite:///gooutsafe.db'):
         q = db.session.query(Reservation).filter(Reservation.restaurant == restaurant);
         reservation = q.first()
         if reservation is None:
-            reservation = Reservation(table=restaurant_table, restaurant=restaurant, user_id=1, seats=3)
-            db.session.add(reservation)
+            now = datetime.datetime.now()
+            reservation1 = Reservation(entrance_time = now - datetime.timedelta(days=1), table=restaurant_table, restaurant=restaurant, user_id=1, seats=3)
+            reservation2 = Reservation(entrance_time = now - datetime.timedelta(days=1), table=restaurant_table, restaurant=restaurant, user_id=2, seats=3)
+            db.session.add(reservation1)
+            db.session.add(reservation2)
             db.session.commit()
 
 
