@@ -1,0 +1,32 @@
+<html>
+    <body>
+        {% if current_user.is_authenticated%}
+            <h1> Update Reservation</h1>
+            <h2>Current Reservation</h2>
+            <h3>Reservation for {{reservation.reservation_time|prettytime}}</h3>
+            <ul>
+                <p><h3>Restaurant: {{reservation.restaurant.name}}</h3></p>
+                <p><h3>Current status: {{ reservation.status }}</h3></p>
+                <p><h3>Table: {{reservation.table_no}}</h3></p>
+                <p><h3>Seats: {{reservation.seats}}<h3></p>
+            </ul>
+            <form action="" method="POST">
+                {{ form.hidden_tag() }}
+                <dl>
+                {% for field in form.display %}
+                <dt>{{ form[field].label }}</dt>
+                <dd>{{ form[field]() }}</dd>
+                  {% if form[field].errors %}
+                      {% for e in form[field].errors %}
+                      <p class="help-block">{{ e }}</p>
+                      {% endfor %}
+                  {% endif %}
+                {% endfor %}
+                </dl>
+                <p>
+                    <input type=submit value="Update">
+                </p>
+            </form>
+        {% endif %}
+    </body>
+</html>

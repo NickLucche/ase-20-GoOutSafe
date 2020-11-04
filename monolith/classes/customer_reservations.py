@@ -61,7 +61,7 @@ def add_reservation(reservation: Reservation):
 
 def get_user_reservations(user_id: int):
     """ 
-    Returns a list of all the reservations performed by a particular user specified by user_id.
+    Returns a list of all the future reservations performed by a particular user specified by user_id.
     """
     #  No need to filter by Reservation.status != DONE since we are only considering future reservations.
 
@@ -74,8 +74,63 @@ def get_user_reservations(user_id: int):
     return user_reservations
 
 
-def update_reservation(reservation: Reservation):
-    pass
+def is_safely_updatable(reservation: Reservation,
+                        new_reservation_time: datetime):
+    """ 
+    Returns True if the reservation can be safely updated, False otherwise.
+    A reservation can be safely updated if the new reservation date specified by new_reservation_time
+    is in the closed interval [reservation_time - avg_stay_time, reservation_time + avg_stay_time]
+    """
+    old_res_time = reservation.reservation_time.time()
+    avg_stay_time = reservation.restaurant.avg_stay_time
+
+    inf_limit_time = diff_time(old_res_time, avg_stay_time)
+    sup_limit_time = sum_time(old_res_time, avg_stay_time)
+
+    inf_limit = datetime.combine(reservation.reservation_time.date(),
+                                 inf_limit_time)
+    sup_limit = datetime.combine(reservation.reservation_time.date(),
+                                 sup_limit_time)
+
+    if (new_reservation_time >= inf_limit
+            and new_reservation_time <= sup_limit):
+        return True
+    else:
+        return False
+
+
+def update_reservation(reservation: Reservation,
+                       new_reservation_time: datetime, new_seats: int):
+    """ 
+    Returns True if the reservion is updated, False otherwise.
+    """
+    if (new_seats == reservation.seats
+            and is_safely_updatable(reservation, new_reservation_time)):
+        reservation.reservation_time = new_reservation_time
+        reservation.status = 'PENDING'
+        db.session.commit()
+        return True
+    else:
+        overlapping_tables = get_overlapping_tables(
+            restaurant_id=reservation.restaurant_id,
+            reservation_time=new_reservation_time,
+            reservation_seats=new_seats,
+            avg_stay_time=reservation.restaurant.avg_stay_time)
+        if (is_overbooked(restaurant_id=reservation.restaurant_id,
+                          reservation_seats=new_seats,
+                          overlapping_tables=overlapping_tables)):
+            return False
+        else:
+            new_table = assign_table_to_reservation(
+                overlapping_tables=overlapping_tables,
+                restaurant_id=reservation.restaurant_id,
+                reservation_seats=new_seats)
+            reservation.reservation_time = new_reservation_time
+            reservation.table_no = new_table.table_id
+            reservation.seats = new_seats
+            reservation.status = 'PENDING'
+            db.session.commit()
+            return True
 
 
 def delete_reservation(reservation_id: int):
@@ -83,7 +138,8 @@ def delete_reservation(reservation_id: int):
     Deletes the reservation corresponding to the given reservation_id. 
     Returns True if the reservation is succesfully deleted, False otherwise.
     """
-    reservation_to_be_deleted = db.session.query(Reservation).filter_by(id=reservation_id).first()
+    reservation_to_be_deleted = db.session.query(Reservation).filter_by(
+        id=reservation_id).first()
     print(reservation_to_be_deleted)
     if reservation_to_be_deleted == None:
         return False
