@@ -26,6 +26,7 @@ class TestUsers(unittest.TestCase):
 
     def test_createuser(self):
         app = setup_for_test()
+        # tests the creation of a new user with data validation
 
         with app.test_request_context():
             form = UserForm(**user_data)
@@ -43,6 +44,7 @@ class TestUsers(unittest.TestCase):
     def test_edituser(self):
         app = setup_for_test()
 
+        # tests the editing of the profile information of an user
         new_data = {'email':'email' + str(random.randint(0, 1000)) + 'email.com', 'phone':'3333333333'}
 
         with app.test_request_context():
@@ -58,6 +60,7 @@ class TestUsers(unittest.TestCase):
 
     def test_createoperator(self):
         app = setup_for_test()
+        # tests the creation of a new operator/restaurant with data validation
 
         data = {**user_data, **restaurant_data}
 
