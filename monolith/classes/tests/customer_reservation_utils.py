@@ -36,16 +36,18 @@ def select_user(app: Flask):
         print(rand_user)
         return rand_user
 
-
+counter = 0
 def add_random_restaurants(n: int, app: Flask):
+    global counter
     with app.app_context():
         for i in range(n):
             restaurant = Restaurant(name=f'restaurant_{i}',
                                     likes=random.randint(0, 100),
                                     lat=3.131212,
                                     lon=4.125125,
-                                    phone=33333333)
+                                    phone='12341414'+counter)
             print(f'Adding Restaurant {restaurant.name}')
+            counter += 1
             db.session.add(restaurant)
             db.session.commit()
 

@@ -73,7 +73,7 @@ class UserProfileEditForm(FlaskForm):
     display = ['email', 'password', 'password_confirm', 'phone']
 
 class ReservationForm(FlaskForm):
-    reservation_time = f.DateField('date',
+    reservation_date = f.DateField('date',
                                    validators=[DataRequired(), DateRange(min=datetime.now().date())],
                                    format='%d/%m/%Y', render_kw={"type":"date"})
     reservation_time = f.TimeField('time', validators=[DataRequired()])

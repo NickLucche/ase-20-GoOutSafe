@@ -16,27 +16,43 @@ class CustomerReservationsTest(unittest.TestCase):
                        likes=1,
                        lat=1,
                        lon=1,
-                       phone=1337,
+                       phone='1337',
                        avg_stay_time=time(hour=1, minute=30)),
             Restaurant(id=2,
                        name="op2 restaurant",
                        likes=3,
                        lat=2,
                        lon=2,
-                       phone=1338,
+                       phone='1338',
+                       avg_stay_time=time(hour=2, minute=00)),
+            Restaurant(id=3,
+                       name="op3 restaurant",
+                       likes=10,
+                       lat=2,
+                       lon=2,
+                       phone='1339',
                        avg_stay_time=time(hour=2, minute=00))
         ]
 
         self.data['users'] = [
-            User(firstname="op1",
+            User(id=1,
+                 firstname="op1",
                  lastname="op1",
                  email="op1@op1.com",
                  password="op1"),
             User(
+                id=2,
                 firstname="op2",
                 lastname="op2",
                 email="op2@op2.com",
                 password="op2",
+            ),
+            User(
+                id=3,
+                firstname="op3",
+                lastname="op3",
+                email="op3@op3.com",
+                password="op3",
             )
         ]
 
@@ -55,7 +71,16 @@ class CustomerReservationsTest(unittest.TestCase):
                             restaurant_id=self.data['restaurants'][1].id),
             RestaurantTable(table_id=5,
                             seats=6,
-                            restaurant_id=self.data['restaurants'][1].id)
+                            restaurant_id=self.data['restaurants'][1].id),
+            RestaurantTable(table_id=6,
+                            seats=2,
+                            restaurant_id=self.data['restaurants'][2].id),
+            RestaurantTable(table_id=7,
+                            seats=8,
+                            restaurant_id=self.data['restaurants'][2].id),
+            RestaurantTable(table_id=8,
+                            seats=4,
+                            restaurant_id=self.data['restaurants'][2].id)
         ]
 
         self.app = Flask(__name__)
@@ -86,7 +111,58 @@ class CustomerReservationsTest(unittest.TestCase):
                             reservation_time=datetime.combine(
                                 datetime.now().date(), time(hour=12,
                                                             minute=30)),
-                            seats=self.data['tables'][3].seats)
+                            seats=self.data['tables'][3].seats),
+                Reservation(user_id=self.data['users'][1].id,
+                            restaurant_id=self.data['restaurants'][1].id,
+                            table_no=self.data['tables'][4].table_id,
+                            reservation_time=datetime.combine(
+                                datetime.now().date(), time(hour=12,
+                                                            minute=30)),
+                            status='DECLINED',
+                            seats=self.data['tables'][4].seats),
+                Reservation(user_id=self.data['users'][1].id,
+                            restaurant_id=self.data['restaurants'][1].id,
+                            table_no=self.data['tables'][4].table_id,
+                            reservation_time=datetime.combine(
+                                datetime.now().date(), time(hour=11,
+                                                            minute=00)),
+                            status='DONE',
+                            seats=self.data['tables'][1].seats),
+                Reservation(user_id=self.data['users'][2].id,
+                            restaurant_id=self.data['restaurants'][2].id,
+                            table_no=self.data['tables'][5].table_id,
+                            reservation_time=datetime.combine(
+                                datetime.now().date(),
+                                time(hour=datetime.now().time().hour + 1,
+                                     minute=15)),
+                            status='ACCEPTED',
+                            seats=self.data['tables'][5].seats),
+                Reservation(user_id=self.data['users'][2].id,
+                            restaurant_id=self.data['restaurants'][2].id,
+                            table_no=self.data['tables'][6].table_id,
+                            reservation_time=datetime.combine(
+                                datetime.now().date(),
+                                time(hour=datetime.now().time().hour + 1,
+                                     minute=30)),
+                            status='PENDING',
+                            seats=self.data['tables'][6].seats),
+                Reservation(user_id=self.data['users'][2].id,
+                            restaurant_id=self.data['restaurants'][2].id,
+                            table_no=self.data['tables'][7].table_id,
+                            reservation_time=datetime.combine(
+                                datetime.now().date(),
+                                time(hour=datetime.now().time().hour + 1,
+                                     minute=00)),
+                            status='DECLINED',
+                            seats=self.data['tables'][7].seats),
+                Reservation(user_id=self.data['users'][1].id,
+                            restaurant_id=self.data['restaurants'][0].id,
+                            table_no=self.data['tables'][2].table_id,
+                            reservation_time=datetime.combine(
+                                datetime.now().date(), time(hour=12,
+                                                            minute=30)),
+                            status='ACCEPTED',
+                            seats=self.data['tables'][2].seats)
             ]
 
             db.session.add_all(self.data['reservations'])
@@ -103,8 +179,9 @@ class CustomerReservationsTest(unittest.TestCase):
                 reservation_time=res_datetime,
                 reservation_seats=3,
                 avg_stay_time=restaurant.avg_stay_time)
-        self.assertEqual(1, len(overlapping_tables))
+        self.assertEqual(2, len(overlapping_tables))
         self.assertEqual(1, overlapping_tables[0])
+        self.assertEqual(3, overlapping_tables[1])
 
     def test_get_ovelapping_tables_restaurant2(self):
         res_time = time(hour=13, minute=00)
@@ -132,6 +209,19 @@ class CustomerReservationsTest(unittest.TestCase):
                 reservation_seats=3,
                 avg_stay_time=restaurant.avg_stay_time)
         self.assertEqual(0, len(overlapping_tables))
+
+    def test_get_overlapping_tables_declined_and_done_reservations(self):
+        res_time = time(hour=12, minute=30)
+        res_date = datetime.now().date()
+        res_datetime = datetime.combine(res_date, res_time)
+        with self.app.app_context():
+            restaurant = db.session.query(Restaurant).filter_by(id=2).first()
+            overlapping_tables = cr.get_overlapping_tables(
+                restaurant_id=restaurant.id,
+                reservation_time=res_datetime,
+                reservation_seats=6,
+                avg_stay_time=restaurant.avg_stay_time)
+            self.assertEqual(0, len(overlapping_tables))
 
     def test_is_overbooked(self):
         res_time_1 = time(hour=13, minute=00)
@@ -220,7 +310,7 @@ class CustomerReservationsTest(unittest.TestCase):
             table = db.session.query(RestaurantTable).filter_by(
                 table_id=1).first()
             reservation = Reservation()
-            reservation.id = 5
+            reservation.id = 100
             reservation.user_id = user.id
             reservation.restaurant_id = restaurant.id
             reservation.reservation_time = datetime.combine(res_date, res_time)
@@ -228,8 +318,105 @@ class CustomerReservationsTest(unittest.TestCase):
             cr.add_reservation(reservation)
 
             reservation_in_db = db.session.query(Reservation).filter_by(
-                id=5).first()
+                id=100).first()
         self.assertEqual(reservation, reservation_in_db)
+
+    def test_get_user_reservations(self):
+        with self.app.app_context():
+            reservations = cr.get_user_reservations(3)
+        for reservation in reservations:
+            print(reservation.reservation_time)
+            self.assertEqual(reservation.user_id, 3)
+            self.assertGreater(reservation.reservation_time, datetime.now())
+
+    def test_update_safely_updatable_reservation(self):
+        with self.app.app_context():
+            reservation = db.session.query(Reservation).filter_by(id=1).first()
+            new_time = time(hour=12, minute=45)
+            new_res_time = datetime.combine(datetime.now().date(), new_time)
+            new_seats = reservation.seats
+            self.assertTrue(
+                cr.update_reservation(reservation,
+                                      new_reservation_time=new_res_time,
+                                      new_seats=new_seats))
+            updated_res = db.session.query(Reservation).filter_by(id=1).first()
+            self.assertEqual(updated_res.reservation_time, new_res_time)
+            self.assertEqual(updated_res.seats, new_seats)
+            self.assertEqual(updated_res.status.__str__(), 'Pending')
+
+    def test_update_reservation_same_seats(self):
+        with self.app.app_context():
+            reservation = db.session.query(Reservation).filter_by(id=1).first()
+            new_time = time(hour=21, minute=45)
+            new_res_time = datetime.combine(datetime.now().date(), new_time)
+            new_seats = reservation.seats
+            self.assertTrue(
+                cr.update_reservation(reservation,
+                                      new_reservation_time=new_res_time,
+                                      new_seats=new_seats))
+            updated_res = db.session.query(Reservation).filter_by(id=1).first()
+            self.assertEqual(updated_res.reservation_time, new_res_time)
+            self.assertEqual(updated_res.seats, new_seats)
+            self.assertEqual(updated_res.status.__str__(), 'Pending')
+
+    def test_update_reservation_diff_seats(self):
+        with self.app.app_context():
+            reservation = db.session.query(Reservation).filter_by(id=1).first()
+            new_time = time(hour=21, minute=45)
+            new_res_time = datetime.combine(datetime.now().date(), new_time)
+            new_seats = 4
+            self.assertTrue(
+                cr.update_reservation(reservation,
+                                      new_reservation_time=new_res_time,
+                                      new_seats=new_seats))
+            updated_res = db.session.query(Reservation).filter_by(id=1).first()
+            self.assertEqual(updated_res.reservation_time, new_res_time)
+            self.assertEqual(updated_res.seats, new_seats)
+            # The new reservation is assigned a new table because of the new number of seats.
+            # This new table should the only 4 seats table of Restaurant 1 (== Table 2)
+            self.assertEqual(updated_res.table_no, 2)
+            self.assertEqual(updated_res.status.__str__(), 'Pending')
+
+    def test_update_reservation_diff_date(self):
+        with self.app.app_context():
+            reservation = db.session.query(Reservation).filter_by(id=1).first()
+            new_time = time(hour=21, minute=45)
+            new_res_time = datetime.combine(date(2020, 11, 15), new_time)
+            new_seats = reservation.seats
+            self.assertTrue(
+                cr.update_reservation(reservation,
+                                      new_reservation_time=new_res_time,
+                                      new_seats=new_seats))
+            updated_res = db.session.query(Reservation).filter_by(id=1).first()
+            self.assertEqual(updated_res.reservation_time, new_res_time)
+            self.assertEqual(updated_res.seats, new_seats)
+
+            self.assertEqual(updated_res.status.__str__(), 'Pending')
+
+    def test_update_reservation_fail(self):
+        with self.app.app_context():
+            reservation = db.session.query(Reservation).filter_by(id=1).first()
+            new_time = time(hour=21, minute=45)
+            new_res_time = datetime.combine(datetime.now().date(), new_time)
+            # Restaurant 1 has no tables with 10 seats, thus the reservation should not be updated
+            new_seats = 10
+            self.assertFalse(
+                cr.update_reservation(reservation,
+                                      new_reservation_time=new_res_time,
+                                      new_seats=new_seats))
+            updated_res = db.session.query(Reservation).filter_by(id=1).first()
+            self.assertEqual(reservation, updated_res)
+
+    def test_delete_reservation(self):
+        with self.app.app_context():
+            #There should be a reservation with id 1
+            self.assertTrue(cr.delete_reservation(reservation_id=1))
+            #reservation_1 should not exist after the execution of the method
+            reservation_1 = db.session.query(Reservation).filter_by(
+                id=1).first()
+            self.assertIsNone(reservation_1)
+            #There should not be a reservation with id 42
+            self.assertFalse(cr.delete_reservation(reservation_id=42))
 
 
 if __name__ == '__main__':

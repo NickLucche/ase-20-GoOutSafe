@@ -12,8 +12,8 @@ class TestReservations(unittest.TestCase):
 
         self.data = {}
         self.data['restaurants'] = [
-            Restaurant(name="op1 restaurant", likes=1, lat=1, lon=1, phone=1337),
-            Restaurant(name="op2 restaurant", likes=3, lat=2, lon=2, phone=1338)
+            Restaurant(name="op1 restaurant", likes=1, lat=1, lon=1, phone='6969696'),
+            Restaurant(name="op2 restaurant", likes=3, lat=2, lon=2, phone='969696')
         ]
 
         self.data['users'] = [

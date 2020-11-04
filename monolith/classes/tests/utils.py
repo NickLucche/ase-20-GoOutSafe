@@ -1,3 +1,4 @@
+from monolith.views import restaurants
 from monolith.classes import restaurant
 from monolith.database import Restaurant, db, User, Reservation
 from datetime import datetime, timedelta, time
@@ -55,14 +56,17 @@ def delete_random_users(app: Flask):
         db.session.execute(delete_query)
         db.session.commit()
 
+counter = 1
 def add_random_restaurants(n_places: int, app: Flask):
+    global counter
     with app.app_context():
         rests = []
         for i in range(n_places):
             stay_time = time(hour=1)
-            res = Restaurant(name=f'test_rest_{i}', likes = 10, lat = 42.111,lon = 11.111, phone = '343493490',
+            res = Restaurant(name=f'test_rest_{i}', likes = 10, lat = 42.111,lon = 11.111, phone = '343493490'+str(counter),
              extra_info = '', avg_stay_time=stay_time)
             rests.append(res)
+            counter += 1
         db.session.add_all(rests)
         db.session.commit()
     
@@ -133,17 +137,21 @@ def add_random_visits_to_place(app: Flask, restaurant_id:int, start_date: dateti
         return risky_visits
 
 def add_random_restaurant(n_restaurants: int, app: Flask):
+    global counter
+    restaurants = []
     with app.app_context():
         for i in range(n_restaurants):
             restaurant = Restaurant(name=f'test_{i}',
                         likes=0,
                         lat=0,
                         lon=0,
-                        phone=-1,
+                        phone=counter,
                         extra_info='')
             print(f"Adding restaurant {restaurant}")
-            db.session.add(restaurant)
-            db.session.commit()
+            counter += 1
+            restaurants.append(restaurant)
+        db.session.add_all(restaurants)
+        db.session.commit()
 
 def add_random_reservation(user):
     with app.app_context():

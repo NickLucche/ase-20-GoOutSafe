@@ -15,6 +15,7 @@ restaurants = Blueprint('restaurants', __name__)
 
 
 @restaurants.route('/restaurants')
+
 def _restaurants(message=''):
     allrestaurants = db.session.query(Restaurant)
     return render_template("restaurants.html",
@@ -53,6 +54,7 @@ def restaurant_sheet(restaurant_id):
 
 @restaurants.route('/restaurants/reserve/<restaurant_id>',
                    methods=['GET', 'POST'])
+@login_required
 def _reserve(restaurant_id):
     form = ReservationForm()
     record = db.session.query(Restaurant).filter_by(
@@ -61,7 +63,7 @@ def _reserve(restaurant_id):
     if (request.method == 'POST'):
         if ReservationForm(request.form).validate_on_submit():
             reservation_time = datetime.combine(
-                ReservationForm(request.form).data['reservation_time'],
+                ReservationForm(request.form).data['reservation_date'],
                 ReservationForm(request.form).data['reservation_time'])
             overlapping_tables = cr.get_overlapping_tables(
                 restaurant_id=record.id,
@@ -72,10 +74,8 @@ def _reserve(restaurant_id):
                                  reservation_seats=ReservationForm(
                                      request.form).data['seats'],
                                  overlapping_tables=overlapping_tables)):
-                return _restaurants(
-                    message=
-                    'Overbooking Notification: no tables with the wanted seats on the requested date and time. Please, try another one.'
-                )
+                flash('Overbooking Notification: no tables with the wanted seats on the requested date and time. Please, try another one.', 'booking')
+                return redirect('/restaurants')
             else:
                 assigned_table = cr.assign_table_to_reservation(
                     overlapping_tables=overlapping_tables,
@@ -89,7 +89,8 @@ def _reserve(restaurant_id):
                                               request.form).data['seats'],
                                           table_no=assigned_table.table_id)
                 cr.add_reservation(reservation)
-                return _restaurants(message='Booking confirmed')
+                flash('Booking confirmed', 'booking')
+                return redirect('/restaurants')
 
     return render_template('reserve.html', name=record.name, form=form)
 
