@@ -14,14 +14,14 @@ class TestMail(unittest.TestCase):
 
             self.user1 = User(firstname="user1",
                  lastname="user1",
-                 email="user1@user1",
+                 email="user1@example.com",
                  phone='324455551',
                  password="user1",
                  dateofbirth=datetime.date(2020, 10, 31))
 
             self.user2 = User(firstname="user2",
                  lastname="user2",
-                 email="user2@user2.com", #This is the recipient mail address
+                 email="user2@example.com", #This is the recipient mail address
                  phone='324455552',
                  password="user2",
                  dateofbirth=datetime.date(2020, 10, 31))

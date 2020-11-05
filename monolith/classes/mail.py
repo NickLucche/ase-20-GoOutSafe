@@ -45,9 +45,9 @@ def _send(notification, bodyContent):
     msgBody = message.as_string()
 
     print(f'Sending email to {to_email}')
-    server = SMTP('smtp.gmail.com', 587)
-    server.starttls()
-    server.login(from_email, 'AseSquad5')
-    server.sendmail(from_email, to_email, msgBody)
-
-    server.quit()
+    if (to_email.find("@example.com") == -1):
+        server = SMTP('smtp.gmail.com', 587)
+        server.starttls()
+        server.login(from_email, 'AseSquad5')
+        server.sendmail(from_email, to_email, msgBody)
+        server.quit()
