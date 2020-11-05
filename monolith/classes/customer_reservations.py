@@ -1,4 +1,4 @@
-from monolith.database import db, Reservation, RestaurantTable, ReservationState
+from monolith.database import db, Reservation, Restaurant, RestaurantTable, ReservationState
 from datetime import datetime, time, timedelta, date
 from sqlalchemy import func, and_, or_
 
@@ -60,6 +60,31 @@ def add_reservation(reservation: Reservation):
     db.session.commit()
 
 
+def reserve(restaurant: Restaurant, reservation_time: datetime,
+            reservation_seats: int, user_id: int):
+    """ 
+    Returns True if a reservation is performed, False otherwise.
+    """
+    overlapping_tables = get_overlapping_tables(restaurant.id,
+                                                reservation_time,
+                                                reservation_seats,
+                                                restaurant.avg_stay_time)
+    if (is_overbooked(restaurant.id, reservation_seats, overlapping_tables)):
+        return False
+    else:
+        assigned_table = assign_table_to_reservation(
+            overlapping_tables=overlapping_tables,
+            restaurant_id=restaurant.id,
+            reservation_seats=reservation_seats)
+        reservation = Reservation(user_id=user_id,
+                                  restaurant_id=restaurant.id,
+                                  reservation_time=reservation_time,
+                                  seats=reservation_seats,
+                                  table_no=assigned_table.table_id)
+        add_reservation(reservation)
+        return True
+
+
 def get_user_reservations(user_id: int):
     """ 
     Returns a list of all the future reservations performed by a particular user specified by user_id.
@@ -98,6 +123,23 @@ def is_safely_updatable(reservation: Reservation,
         return True
     else:
         return False
+
+
+def is_existing_reservation(restaurant_id: int, user_id: int,
+                            reservation_time: datetime, seats: int):
+    """ 
+    Returns True if the user specified by the given user_id already has a reservation at the restaurant
+    specified by restaurant_id, for the time and seats specified by reservation_time and seats; False
+    otherwise.
+    """
+    existing_reservation = db.session.query(Reservation).filter_by(
+        user_id=user_id).filter_by(restaurant_id=restaurant_id).filter_by(
+            reservation_time=reservation_time).filter_by(seats=seats).first()
+
+    if (existing_reservation == None):
+        return False
+    else:
+        return True
 
 
 def update_reservation(reservation: Reservation,

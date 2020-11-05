@@ -70,33 +70,10 @@ def _reserve(restaurant_id):
             flash ('Invalid Date Error. You cannot reserve a table in the past!', 'booking')
             return redirect(request.referrer)
         if ReservationForm(request.form).validate_on_submit():
-            reservation_time = datetime.combine(
-                ReservationForm(request.form).data['reservation_date'],
-                ReservationForm(request.form).data['reservation_time'])
-            overlapping_tables = cr.get_overlapping_tables(
-                restaurant_id=record.id,
-                reservation_time=reservation_time,
-                reservation_seats=ReservationForm(request.form).data['seats'],
-                avg_stay_time=record.avg_stay_time)
-            if (cr.is_overbooked(restaurant_id=record.id,
-                                 reservation_seats=ReservationForm(
-                                     request.form).data['seats'],
-                                 overlapping_tables=overlapping_tables)):
+            if (not cr.reserve(record, reservation_time, ReservationForm(request.form).data['seats'], current_user.id)):
                 flash('Overbooking Notification: no tables with the wanted seats on the requested date and time. Please, try another one.', 'booking')
                 return redirect('/restaurants')
             else:
-                assigned_table = cr.assign_table_to_reservation(
-                    overlapping_tables=overlapping_tables,
-                    restaurant_id=record.id,
-                    reservation_seats=ReservationForm(
-                        request.form).data['seats'])
-                reservation = Reservation(user_id=current_user.id,
-                                          restaurant_id=record.id,
-                                          reservation_time=reservation_time,
-                                          seats=ReservationForm(
-                                              request.form).data['seats'],
-                                          table_no=assigned_table.table_id)
-                cr.add_reservation(reservation)
                 flash('Booking confirmed', 'booking')
                 return redirect('/restaurants')
 

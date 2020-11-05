@@ -321,6 +321,22 @@ class CustomerReservationsTest(unittest.TestCase):
                 id=100).first()
         self.assertEqual(reservation, reservation_in_db)
 
+    def test_reserve(self):
+        res_time1 = time(hour=15, minute=00)
+        res_date1 = datetime.now().date()
+        res_datetime1 = datetime.combine(res_date1, res_time1)
+        res_time2 = time(hour=12, minute=30)
+        res_date2 = datetime.now().date()
+        res_datetime2 = datetime.combine(res_date2, res_time2)
+
+        with self.app.app_context():
+            user = db.session.query(User).filter_by(id=1).first()
+            restaurant = db.session.query(Restaurant).filter_by(id=1).first()
+            is_reserved1 = cr.reserve(restaurant, res_datetime1, 3, user.id)
+            is_reserved2 = cr.reserve(restaurant, res_datetime2, 3, user.id)
+            self.assertTrue(is_reserved1)
+            self.assertFalse(is_reserved2)
+
     def test_get_user_reservations(self):
         with self.app.app_context():
             reservations = cr.get_user_reservations(3)
@@ -392,18 +408,38 @@ class CustomerReservationsTest(unittest.TestCase):
             self.assertEqual(updated_res.seats, new_seats)
 
             self.assertEqual(updated_res.status.__str__(), 'Pending')
-    
+
     def test_is_safely_updatable(self):
         with self.app.app_context():
             reservation = db.session.query(Reservation).filter_by(id=1).first()
-            new_res_time_safe = cr.diff_time(reservation.reservation_time.time(), time(hour=1))
-            new_res_time_not_safe  = time(hour=3)
+            new_res_time_safe = cr.diff_time(
+                reservation.reservation_time.time(), time(hour=1))
+            new_res_time_not_safe = time(hour=3)
 
-            res_date_safe = datetime.combine(reservation.reservation_time.date(), new_res_time_safe)
-            res_date_not_safe = datetime.combine(reservation.reservation_time.date(), new_res_time_not_safe)
+            res_date_safe = datetime.combine(
+                reservation.reservation_time.date(), new_res_time_safe)
+            res_date_not_safe = datetime.combine(
+                reservation.reservation_time.date(), new_res_time_not_safe)
 
-            self.assertTrue(cr.is_safely_updatable(reservation, res_date_safe))       
-            self.assertFalse(cr.is_safely_updatable(reservation, res_date_not_safe))
+            self.assertTrue(cr.is_safely_updatable(reservation, res_date_safe))
+            self.assertFalse(
+                cr.is_safely_updatable(reservation, res_date_not_safe))
+
+    def test_is_existing_reservation(self):
+        existing_time = datetime.combine(datetime.now().date(), time(12, 30))
+        non_existing_time = datetime.combine(datetime.now().date(),
+                                             time(23, 00))
+        with self.app.app_context():
+            self.assertTrue(
+                cr.is_existing_reservation(restaurant_id=1,
+                                           user_id=2,
+                                           reservation_time=existing_time,
+                                           seats=3))
+            self.assertFalse(
+                cr.is_existing_reservation(restaurant_id=1,
+                                           user_id=2,
+                                           reservation_time=non_existing_time,
+                                           seats=3))
 
     def test_update_reservation_fail(self):
         with self.app.app_context():
@@ -429,13 +465,13 @@ class CustomerReservationsTest(unittest.TestCase):
             self.assertIsNone(reservation_1)
             #There should not be a reservation with id 42
             self.assertFalse(cr.delete_reservation(reservation_id=42))
-    
+
     def test_sum_time(self):
         t1 = time(hour=3, minute=00)
         t2 = time(hour=1, minute=00)
         self.assertEqual(time(hour=4, minute=00), cr.sum_time(t1, t2))
         self.assertIsInstance(cr.sum_time(t1, t2), time)
-    
+
     def test_diff_time(self):
         t1 = time(hour=3, minute=00)
         t2 = time(hour=1, minute=00)

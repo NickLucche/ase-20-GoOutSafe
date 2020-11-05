@@ -3,7 +3,7 @@ from flask_login import current_user, login_user, logout_user, login_required
 from monolith.auth import current_user
 from monolith.database import db, Reservation, RestaurantTable, User, ReservationState
 from monolith.views.reservations import prettytime
-from monolith.classes.customer_reservations import get_user_reservations, delete_reservation, update_reservation
+from monolith.classes.customer_reservations import get_user_reservations, delete_reservation, update_reservation, is_existing_reservation
 from monolith.forms import ReservationForm
 
 from datetime import datetime
@@ -19,33 +19,32 @@ def get_reservations():
     form = ReservationForm()
     reservations = get_user_reservations(current_user.id)
     return render_template("customer_reservations.html",
-                           reservations=reservations, form=form)
+                           reservations=reservations,
+                           form=form)
 
 
-@customer_reservations.route('/<reservation_id>/update',
-                             methods=(
-                                 'POST',
-                             ))
+@customer_reservations.route('/<reservation_id>/update', methods=('POST', ))
 @login_required
 def update_user_reservation(reservation_id: int):
     reservation = db.session.query(Reservation).filter_by(
         id=reservation_id).first()
     #form = ReservationForm()
     if (request.method == 'POST'):
-        new_date = datetime.combine(ReservationForm(request.form).data['reservation_date'],
-                            ReservationForm(request.form).data['reservation_time'])
+        new_date = datetime.combine(
+            ReservationForm(request.form).data['reservation_date'],
+            ReservationForm(request.form).data['reservation_time'])
         if (new_date <= datetime.now()):
-            flash ('Invalid Date Error. You cannot reserve a table in the past!', 'reservation_mod')
+            flash(
+                'Invalid Date Error. You cannot reserve a table in the past!',
+                'reservation_mod')
             return redirect('/my_reservations/')
         if ReservationForm(request.form).validate_on_submit():
             new_seats = ReservationForm(request.form).data['seats']
-            existing_reservation = db.session.query(Reservation).filter_by(
-                user_id=current_user.id).filter_by(
-                    restaurant_id=reservation.restaurant_id).filter_by(
-                        reservation_time=new_date).filter_by(
-                            seats=new_seats).first()
-            print(existing_reservation)
-            if (existing_reservation != None):
+            if (is_existing_reservation(
+                    restaurant_id=reservation.restaurant_id,
+                    user_id=current_user.id,
+                    reservation_time=new_date,
+                    seats=new_seats)):
                 flash(
                     f'You have already performed a reservation for the same time and seats at { reservation.restaurant.name }',
                     'reservation_mod')
@@ -62,6 +61,7 @@ def update_user_reservation(reservation_id: int):
                         'Overbooking Notification: your reservation has not been updated because of overbooking in the chosen date and time. Please, try another one.',
                         'reservation_mod')
                     return redirect('/my_reservations/')
+
 
 @customer_reservations.route('/<reservation_id>/delete',
                              methods=(
