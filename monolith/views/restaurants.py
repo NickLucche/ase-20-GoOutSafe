@@ -104,6 +104,8 @@ def _edit(restaurant_id):
         return render_template("error.html", error_message="You haven't the permissions to access this page")
     r = Restaurant.query.get(restaurant_id)
     form = RestaurantProfileEditForm(obj=r)
+
+    tables = RestaurantTable.query.filter_by(restaurant_id = restaurant_id).order_by(RestaurantTable.table_id.asc())
     
     if request.method == 'POST':
         try:
@@ -113,6 +115,4 @@ def _edit(restaurant_id):
         except GoOutSafeError as e:
             return render_template("restaurantedit.html", restaurant=r, form=form, tables=tables)
 
-
-    tables = RestaurantTable.query.filter_by(restaurant_id = restaurant_id).order_by(RestaurantTable.table_id.asc())
     return render_template("restaurantedit.html", restaurant=r, form=form, tables=tables)
