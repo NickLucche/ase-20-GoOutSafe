@@ -24,7 +24,7 @@ class UserForm(FlaskForm):
             render_kw={"maxlength": "16"})
     phone = f.IntegerField('(optional) Phone number', validators=[Optional()], render_kw={"minlength":"9", "maxlength": "10"})
 
-    dateofbirth = f.DateField('Date of Birth', format='%d/%m/%Y', validators=[DataRequired()])
+    dateofbirth = DateField('Date of Birth', format='%Y-%m-%d', validators=[DataRequired()])
     display = ['email', 'firstname', 'lastname', 'password', 'password_confirm', 'fiscal_code', 'phone', 'dateofbirth']
 
 
@@ -43,7 +43,7 @@ class OperatorForm(FlaskForm):
     password = f.PasswordField('Password', validators=[DataRequired(), \
         Length(min=4, max=12, message="Password must be in [4,12] characters"), EqualTo('password_confirm', message='Passwords must match')])
     password_confirm = f.PasswordField('Confirm password', validators=[DataRequired()])
-    dateofbirth = f.DateField('Date of birth', format='%d/%m/%Y')
+    dateofbirth = DateField('Date of birth', format='%Y-%m-%d', validators=[DataRequired()])
     h1 = f.HiddenField()
     l2 = f.Label('', 'Restaurant info')
     name = f.StringField('Name', validators=[DataRequired()])
