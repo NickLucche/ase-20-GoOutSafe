@@ -133,7 +133,7 @@ class CustomerReservationsTest(unittest.TestCase):
                             table_no=self.data['tables'][5].table_id,
                             reservation_time=datetime.combine(
                                 datetime.now().date(),
-                                time(hour=datetime.now().time().hour + 1,
+                                time(hour=(datetime.now().time().hour + 1) % 24,
                                      minute=15)),
                             status=ReservationState.ACCEPTED,
                             seats=self.data['tables'][5].seats),
@@ -142,7 +142,7 @@ class CustomerReservationsTest(unittest.TestCase):
                             table_no=self.data['tables'][6].table_id,
                             reservation_time=datetime.combine(
                                 datetime.now().date(),
-                                time(hour=datetime.now().time().hour + 1,
+                                time(hour=(datetime.now().time().hour + 1) % 24,
                                      minute=30)),
                             status=ReservationState.PENDING,
                             seats=self.data['tables'][6].seats),
@@ -151,7 +151,7 @@ class CustomerReservationsTest(unittest.TestCase):
                             table_no=self.data['tables'][7].table_id,
                             reservation_time=datetime.combine(
                                 datetime.now().date(),
-                                time(hour=datetime.now().time().hour + 1,
+                                time(hour=(datetime.now().time().hour + 1) % 24,
                                      minute=00)),
                             status=ReservationState.DECLINED,
                             seats=self.data['tables'][7].seats),
