@@ -54,6 +54,11 @@
   {% if record.extra_info %}
   <h3>Info: {{ record.extra_info }}</h3>
   {% endif %}
+  {% if current_user.is_authenticated %}
+  <h4><a href='/restaurants/reserve/{{ record.id }}'>Book a table!</a></h4>
+  {% else %}
+  <h4><a href='/login'>Login</a> or <a href="/create_user">register</a> to book table!</a></h4>
+  {% endif %}
   <p>Average Rating: {{record.avg_stars}} ({{record.num_reviews}} reviews)</p>
   <br>
   <ul>
