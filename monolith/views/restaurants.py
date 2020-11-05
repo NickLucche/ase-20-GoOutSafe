@@ -30,6 +30,8 @@ def restaurant_sheet(restaurant_id):
     record = Restaurant.query.get(restaurant_id)
     if not record:
         return render_template("error.html", error_message="The page you're looking does not exists")
+    if not current_user.is_authenticated:
+        return render_template("restaurantsheet.html", record=record)
     review = Review.query.filter_by(reviewer_id=current_user.id, restaurant_id=restaurant_id).scalar()
     if review is not None:
         # show the user their updated view

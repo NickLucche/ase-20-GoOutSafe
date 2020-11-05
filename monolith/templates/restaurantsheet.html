@@ -8,7 +8,7 @@
     crossorigin=""></script>
   <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js" type="text/javascript"></script>
   <meta charset="UTF-8">
-  <meta record.name="viewport" content="width=device-width">
+  <meta name="viewport" content="width=device-width">
   <style>
       textarea {
         resize: none;
@@ -50,11 +50,11 @@
 
 {% block content %}
   <h1>{{record.name}}</h1>
-  <h2>Phone: {{phone}}</h2>
+  <h2>Phone: {{ record.phone }}</h2>
   {% if record.extra_info %}
-  <h3>Info: {s{record.extra_info}}</h3>
+  <h3>Info: {{ record.extra_info }}</h3>
   {% endif %}
-  <p>Average Rating: {{record.avg_stars}} ({{n_reviews}} reviews)</p>
+  <p>Average Rating: {{record.avg_stars}} ({{record.num_reviews}} reviews)</p>
   <br>
   <ul>
     <div id="mapid" style="width: 600px; height: 300px;"></div>
@@ -71,17 +71,17 @@
         tileSize: 512,
         zoomOffset: -1
       }).addTo(map);
-      var mark = L.marker(['{{ lat }}', '{{ lon }}']).addTo(map)
-        .bindPopup("<a href=/restaurants/{{ id }}><b>{{ record.name }}</b></a><br><center>{{ phone }}</center>").openPopup();
+      var mark = L.marker(['{{ record.lat }}', '{{ record.lon }}']).addTo(map)
+        .bindPopup("<b>{{ record.name }}</b><br><center>{{ record.phone }}</center>").openPopup();
 
       mark.on('click', function (e) {
         map.setView(e.latlng, 17);
       });
-      map.setView(['{{ lat }}', '{{ lon }}'], 17);
+      map.setView(['{{ record.lat }}', '{{ record.lon }}'], 17);
 
     </script>
 
-    {% if current_user.is_authenticated and form %}
+    {% if current_user.is_authenticated and form is defined %}
     <br>
     <div class="stars" data-rating="0">
       <span class="star">&nbsp;</span>
@@ -128,13 +128,13 @@
 
         console.log(num)
         $(document).ready(function () {    // function that take the  rating value and insert in to hidden html input 
-          $('input[record.name="stars_number"]').val(num);
+          $('input[name="stars_number"]').val(num);
         });
       }  
     </script>
     <form action="" method="post">
       <!-- // input for rating value  -->
-      <input type="hidden" record.name="stars_number" value="">
+      <input type="hidden" name="stars_number" value="">
       {{ form.hidden_tag() }}
       <p>
         {{ form.review(rows='3',cols='50') }}
@@ -144,12 +144,12 @@
       {% endfor %}
       {{ form.submit }}
     </form>
-    {% elif current_user.is_authenticated and current_user.restaurant_id is not defined %}
+    {% elif current_user.is_authenticated and current_user.restaurant_id is none %}
     <br>
     <p>You already inserted a review!</p>
     {% elif not current_user.is_authenticated %}
     <br>
-    <p>Login to insert a review!</p>
+    <p><a href='/login'>Login</a> to insert a review!</p>
     {% endif %}
   </ul>
 {% endblock%}

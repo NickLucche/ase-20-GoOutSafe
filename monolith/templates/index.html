@@ -27,7 +27,7 @@ crossorigin=""></script>
     {% for restaurant in restaurants%}
       <div>
         <li>
-          {{restaurant.name}} -- Likes:{{restaurant.likes}}
+          <a href="/restaurants/{{ restaurant.id }}">{{restaurant.name}}</a>
         </li>
       </div>
     {% endfor %}
