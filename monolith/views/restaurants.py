@@ -63,6 +63,8 @@ def _reserve(restaurant_id):
         id=int(restaurant_id)).all()[0]
 
     if (request.method == 'POST'):
+        if (current_user.is_positive):
+            return render_template('error.html', error_message="Error: you cannot reserve a table while marked as positive!")
         if ReservationForm(request.form).validate_on_submit():
             reservation_time = datetime.combine(
                 ReservationForm(request.form).data['reservation_date'],
