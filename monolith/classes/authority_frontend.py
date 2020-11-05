@@ -12,12 +12,13 @@ def mark_user(user_id: int):
         str: '' in case of success, a error message string in case of failure.
     """
     user = User.query.filter_by(id=user_id).first()
-    
+    user_dict = None
     if user == None:
         message = 'Error! Unable to mark the user. User not found'
     elif user.is_positive == False:
         user.is_positive = True
         user.reported_positive_date = datetime.now()
+        user_dict = user.to_dict()
         db.session.commit()
         message = ''
         
@@ -26,7 +27,7 @@ def mark_user(user_id: int):
     else:
         message = 'You\'ve already marked this user as positive!'
 
-    return message, user
+    return message, user_dict
 
 def search_user(filter_user: User):
     if filter_user.email == '' and filter_user.fiscal_code == '' and filter_user.phone == '':
