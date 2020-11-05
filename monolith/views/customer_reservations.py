@@ -32,9 +32,12 @@ def update_user_reservation(reservation_id: int):
         id=reservation_id).first()
     #form = ReservationForm()
     if (request.method == 'POST'):
+        new_date = datetime.combine(ReservationForm(request.form).data['reservation_date'],
+                            ReservationForm(request.form).data['reservation_time'])
+        if (new_date <= datetime.now()):
+            flash ('Invalid Date Error. You cannot reserve a table in the past!', 'reservation_mod')
+            return redirect('/my_reservations/')
         if ReservationForm(request.form).validate_on_submit():
-            new_date = datetime.combine(ReservationForm(request.form).data['reservation_date'],
-                                        ReservationForm(request.form).data['reservation_time'])
             new_seats = ReservationForm(request.form).data['seats']
             existing_reservation = db.session.query(Reservation).filter_by(
                 user_id=current_user.id).filter_by(
@@ -59,7 +62,6 @@ def update_user_reservation(reservation_id: int):
                         'Overbooking Notification: your reservation has not been updated because of overbooking in the chosen date and time. Please, try another one.',
                         'reservation_mod')
                     return redirect('/my_reservations/')
-
 
 @customer_reservations.route('/<reservation_id>/delete',
                              methods=(
