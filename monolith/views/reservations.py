@@ -77,15 +77,15 @@ def exit_marked(reservation: Reservation):
 @operator_required
 def home(page: int):
     reservations, more = get_reservations(current_user.restaurant, num_of_reservations=6, page=page)
-    if len(reservations):
+    if not reservations and page > 1:
+        return "", 404
+    else:
         return render_template("reservations.html",
                                reservations=reservations,
                                current_page=page,
                                morepages=more,
                                customers=get_seated_customers(current_user.restaurant),
                                today=False)
-    else:
-        return "", 404
 
 
 @reservations.route('/today', defaults={'page': 1})
@@ -93,15 +93,15 @@ def home(page: int):
 @operator_required
 def today(page: int):
     reservations, more = get_reservations_of_the_day(current_user.restaurant, num_of_reservations=6, page=page)
-    if len(reservations):
+    if not reservations and page > 1:
+        return "", 404
+    else:
         return render_template("reservations.html",
                                reservations=reservations,
                                current_page=page,
                                morepages=more,
                                customers=get_seated_customers(current_user.restaurant),
-                               today=True)
-    else:
-        return "", 404
+                               today=False)
 
 
 @reservations.route('/<id>/decline', methods=('POST', ))
