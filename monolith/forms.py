@@ -29,7 +29,7 @@ class UserForm(FlaskForm):
 
 
 class SearchUserForm(FlaskForm):
-    email = f.StringField('email', validators=[Email(message="Please enter a valid email")])
+    email = f.StringField('email') #No validator here
     phone = f.StringField('Phone number')
     fiscal_code = f.StringField('Fiscal code')
     display = ['email', 'phone', 'fiscal_code']
