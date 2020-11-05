@@ -392,6 +392,18 @@ class CustomerReservationsTest(unittest.TestCase):
             self.assertEqual(updated_res.seats, new_seats)
 
             self.assertEqual(updated_res.status.__str__(), 'Pending')
+    
+    def test_is_safely_updatable(self):
+        with self.app.app_context():
+            reservation = db.session.query(Reservation).filter_by(id=1).first()
+            new_res_time_safe = cr.diff_time(reservation.reservation_time.time(), time(hour=1))
+            new_res_time_not_safe  = time(hour=3)
+
+            res_date_safe = datetime.combine(reservation.reservation_time.date(), new_res_time_safe)
+            res_date_not_safe = datetime.combine(reservation.reservation_time.date(), new_res_time_not_safe)
+
+            self.assertTrue(cr.is_safely_updatable(reservation, res_date_safe))       
+            self.assertFalse(cr.is_safely_updatable(reservation, res_date_not_safe))
 
     def test_update_reservation_fail(self):
         with self.app.app_context():
@@ -417,6 +429,18 @@ class CustomerReservationsTest(unittest.TestCase):
             self.assertIsNone(reservation_1)
             #There should not be a reservation with id 42
             self.assertFalse(cr.delete_reservation(reservation_id=42))
+    
+    def test_sum_time(self):
+        t1 = time(hour=3, minute=00)
+        t2 = time(hour=1, minute=00)
+        self.assertEqual(time(hour=4, minute=00), cr.sum_time(t1, t2))
+        self.assertIsInstance(cr.sum_time(t1, t2), time)
+    
+    def test_diff_time(self):
+        t1 = time(hour=3, minute=00)
+        t2 = time(hour=1, minute=00)
+        self.assertEqual(time(hour=2, minute=00), cr.diff_time(t1, t2))
+        self.assertIsInstance(cr.diff_time(t1, t2), time)
 
 
 if __name__ == '__main__':
