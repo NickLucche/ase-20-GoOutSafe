@@ -3,7 +3,7 @@ from monolith.classes.user import new_operator, new_user
 from monolith.forms import OperatorForm, RestaurantProfileEditForm, UserForm
 from monolith.classes.tests.utils import *
 import unittest
-from monolith.classes.restaurant import add_review, edit_tables, update_review
+from monolith.classes.restaurant import add_review, edit_restaurant, update_review
 import os
 
 class TestRestaurant(unittest.TestCase):
@@ -21,9 +21,9 @@ class TestRestaurant(unittest.TestCase):
             operator_form = OperatorForm(**data)
             edit_form = RestaurantProfileEditForm(**data)
             operator = new_operator(operator_form, __submit=False)
-            edit_tables(edit_form, request, operator.restaurant_id, __submit=False)
+            edit_restaurant(edit_form, request, operator.restaurant_id, __submit=False)
             try:
-                edit_tables(edit_form, request, operator.restaurant_id)
+                edit_restaurant(edit_form, request, operator.restaurant_id)
                 return False
             except FormValidationError:
                 return True

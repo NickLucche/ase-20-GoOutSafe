@@ -1,6 +1,6 @@
 from logging import error
 from monolith.classes.exceptions import GoOutSafeError
-from monolith.classes.restaurant import add_review, edit_tables, update_review
+from monolith.classes.restaurant import add_review, edit_restaurant, update_review
 import monolith.classes.customer_reservations as cr
 from flask import Blueprint, redirect, render_template, request, flash
 from monolith.database import Reservation, db, Restaurant, Review, RestaurantTable
@@ -109,8 +109,7 @@ def _edit(restaurant_id):
     
     if request.method == 'POST':
         try:
-            edit_tables(form, request.form, restaurant_id)
-            flash("Infos saved successfully")            
+            edit_restaurant(form, request.form, restaurant_id)
             return redirect('/restaurants/edit/' + restaurant_id)
         except GoOutSafeError as e:
             return render_template("restaurantedit.html", restaurant=r, form=form, tables=tables)
