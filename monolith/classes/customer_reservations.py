@@ -20,7 +20,8 @@ def get_overlapping_tables(restaurant_id: int, reservation_time: datetime,
             and_(Reservation.reservation_time >= inf_limit,
                  Reservation.reservation_time <= sup_limit)).filter(
                      or_(Reservation.status == ReservationState.ACCEPTED,
-                         Reservation.status == ReservationState.PENDING)).all()
+                         Reservation.status == ReservationState.PENDING,
+                         Reservation.status == ReservationState.SEATED)).all()
     print(overlapping_tables)
     overlapping_tables_ids = [id for id, in overlapping_tables]
     print(overlapping_tables_ids)

@@ -161,7 +161,7 @@ class CustomerReservationsTest(unittest.TestCase):
                             reservation_time=datetime.combine(
                                 datetime.now().date(), time(hour=12,
                                                             minute=30)),
-                            status=ReservationState.ACCEPTED,
+                            status=ReservationState.SEATED,
                             seats=self.data['tables'][2].seats)
             ]
 
