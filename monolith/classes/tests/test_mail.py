@@ -72,7 +72,7 @@ class TestMail(unittest.TestCase):
             db.session.query(User).delete()
             db.session.commit()
 
-    def test_clean(self):
+    def tearDown(self):
         with self.app.app_context():
             db.session.query(Notification).delete()
             db.session.query(Reservation).delete()
