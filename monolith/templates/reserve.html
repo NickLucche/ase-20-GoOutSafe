@@ -2,6 +2,14 @@
 
 {% block content %}
     <h1>Reserving {{name}} </h1> 
+    {% with messages = get_flashed_messages(category_filter=['booking']) %}
+    {% if messages %}
+        {% for message in messages %}
+            <p class=flashes><h3>{{ message }}</h3></p>
+        {% endfor %}
+        </ul>
+    {% endif %}
+{% endwith %}
     {% if current_user.is_authenticated %}
       <form action="" method="POST">
         {{ form.hidden_tag() }}
