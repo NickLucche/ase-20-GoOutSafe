@@ -3,8 +3,8 @@ import unittest
 from monolith.database import Notification, Reservation, Restaurant, db, User
 import random
 from datetime import datetime, timedelta
-from monolith.classes.notifications import check_visited_places, create_notifications, contact_tracing
-from monolith.classes.notification_retrieval import fetch_notifications, fetch_operator_notifications, fetch_user_notifications, getAndSetNotification
+from monolith.classes.notifications import check_visited_places, create_notifications, contact_tracing, contact_tracing_users
+from monolith.classes.notification_retrieval import fetch_operator_notifications, fetch_user_notifications, getAndSetNotification, fetch_notifications
 from monolith.classes.tests.utils import add_random_users, add_random_visits_to_place, delete_random_users, mark_random_guy_as_positive, random_datetime_in_range, visit_random_places, add_random_restaurants, setup_for_test
 
 app = create_app()
@@ -50,25 +50,7 @@ class Notifications(unittest.TestCase):
         # check every positive user visit was correctly retrieved
         self.assertEqual(len(reservations), nrisky_places)
         self.assertDictEqual({v['id']:v for v in visits}, {r['id']: r for r in reservations})
-        
-    # here we need to have celery workers processes up and running
-    def test_user_visited_places_async(self):
-        with app.app_context():
-            positive_guy = User.query.filter_by(is_positive=True).first().to_dict()
-            
-            # make it so that user visited a random number of places
-            n_places = random.randrange(0, 10)
-            nrisky_places, visits = visit_random_places(app, positive_guy['id'], self.now, INCUBATION_PERIOD_COVID, n_places, RESTAURANT_TEST_IDS)
-            # get restaurants visited by positive user in the last `INCUBATION_PERIOD_COVID` days
-            # this forces a wait
-            reservations = check_visited_places.delay(positive_guy['id'], INCUBATION_PERIOD_COVID).get()
-            # print(reservations)
-
-         # check every positive user visit was correctly retrieved
-        self.assertEqual(len(reservations), nrisky_places)
-        # json conversion happened
-        # self.assertDictEqual({v['id']:v for v in visits}, {r['id']: r for r in reservations})
-
+    
     def test_contact_tracing(self):
         with app.app_context():
             positive_guy = User.query.filter_by(is_positive=True).first().to_dict()
@@ -91,6 +73,49 @@ class Notifications(unittest.TestCase):
             print("Notified users", notified_users)
 
         self.assertEqual(len(notified_users), nrisky_visits)
+
+    def test_contact_tracing_users(self):
+        with app.app_context():
+            positive_guy = User.query.filter_by(is_positive=True).first().to_dict()
+
+            # make positive guy visit some random places
+            n_places = random.randrange(0, 10)
+            nrisky_places, visits = visit_random_places(app, positive_guy['id'], self.now, INCUBATION_PERIOD_COVID, n_places, RESTAURANT_TEST_IDS)
+            # have a random num of users visit the same place as the positive guy
+            print("PLACES VISITED BY POSITIVE:", visits)
+            nrisky_visits = 0
+            n_visits = random.randint(0, 4)
+            existing_users = User.query.filter_by(is_positive=False, is_admin=False).filter(User.restaurant_id == None).all()
+            ids = [e.id for e in existing_users]
+            for v in visits:
+                nrisky_visits += add_random_visits_to_place(app, v['restaurant_id'],
+                 self.now-timedelta(days=INCUBATION_PERIOD_COVID), self.now, v['entrance_time'], 1, ids)
+                    
+            # check if positive guy visited any restaurant in the last `INCUBATION_PERIOD_COVID` days
+            reservations = check_visited_places(positive_guy['id'], INCUBATION_PERIOD_COVID)
+            # notify customers that have been to the same restaurants at the same time as the pos guy
+            notified_users = contact_tracing_users(reservations, positive_guy['id'])
+            print("Notified users", notified_users)
+
+        self.assertEqual(len(notified_users), nrisky_visits)
+
+    # here we need to have celery workers processes up and running
+    def test_user_visited_places_async(self):
+        with app.app_context():
+            positive_guy = User.query.filter_by(is_positive=True).first().to_dict()
+            
+            # make it so that user visited a random number of places
+            n_places = random.randrange(0, 10)
+            nrisky_places, visits = visit_random_places(app, positive_guy['id'], self.now, INCUBATION_PERIOD_COVID, n_places, RESTAURANT_TEST_IDS)
+            # get restaurants visited by positive user in the last `INCUBATION_PERIOD_COVID` days
+            # this forces a wait
+            reservations = check_visited_places.delay(positive_guy['id'], INCUBATION_PERIOD_COVID).get()
+            # print(reservations)
+
+         # check every positive user visit was correctly retrieved
+        self.assertEqual(len(reservations), nrisky_places)
+        # json conversion happened
+        # self.assertDictEqual({v['id']:v for v in visits}, {r['id']: r for r in reservations})
 
     def test_contact_tracing_async(self):
         with app.app_context():
