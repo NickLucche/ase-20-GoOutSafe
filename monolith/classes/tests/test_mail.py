@@ -3,7 +3,7 @@ import unittest, datetime
 from flask import Flask
 from monolith.database import db, User, Notification, Restaurant, User, Reservation
 from monolith.classes.mail import send_contact_notification
-
+ 
 class TestMail(unittest.TestCase):
     def setUp(self):
         
