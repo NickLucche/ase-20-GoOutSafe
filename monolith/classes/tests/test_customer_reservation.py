@@ -3,7 +3,7 @@ from monolith.database import Reservation, db, User, RestaurantTable, Restaurant
 import random
 from flask import Flask
 from datetime import datetime, time, date
-from monolith.database import db, User, Restaurant, Reservation, RestaurantTable
+from monolith.database import db, User, Restaurant, Reservation, RestaurantTable, ReservationState
 from monolith.classes import customer_reservations as cr
 
 
@@ -118,7 +118,7 @@ class CustomerReservationsTest(unittest.TestCase):
                             reservation_time=datetime.combine(
                                 datetime.now().date(), time(hour=12,
                                                             minute=30)),
-                            status='DECLINED',
+                            status=ReservationState.DECLINED,
                             seats=self.data['tables'][4].seats),
                 Reservation(user_id=self.data['users'][1].id,
                             restaurant_id=self.data['restaurants'][1].id,
@@ -126,7 +126,7 @@ class CustomerReservationsTest(unittest.TestCase):
                             reservation_time=datetime.combine(
                                 datetime.now().date(), time(hour=11,
                                                             minute=00)),
-                            status='DONE',
+                            status=ReservationState.DONE,
                             seats=self.data['tables'][1].seats),
                 Reservation(user_id=self.data['users'][2].id,
                             restaurant_id=self.data['restaurants'][2].id,
@@ -135,7 +135,7 @@ class CustomerReservationsTest(unittest.TestCase):
                                 datetime.now().date(),
                                 time(hour=datetime.now().time().hour + 1,
                                      minute=15)),
-                            status='ACCEPTED',
+                            status=ReservationState.ACCEPTED,
                             seats=self.data['tables'][5].seats),
                 Reservation(user_id=self.data['users'][2].id,
                             restaurant_id=self.data['restaurants'][2].id,
@@ -144,7 +144,7 @@ class CustomerReservationsTest(unittest.TestCase):
                                 datetime.now().date(),
                                 time(hour=datetime.now().time().hour + 1,
                                      minute=30)),
-                            status='PENDING',
+                            status=ReservationState.PENDING,
                             seats=self.data['tables'][6].seats),
                 Reservation(user_id=self.data['users'][2].id,
                             restaurant_id=self.data['restaurants'][2].id,
@@ -153,7 +153,7 @@ class CustomerReservationsTest(unittest.TestCase):
                                 datetime.now().date(),
                                 time(hour=datetime.now().time().hour + 1,
                                      minute=00)),
-                            status='DECLINED',
+                            status=ReservationState.DECLINED,
                             seats=self.data['tables'][7].seats),
                 Reservation(user_id=self.data['users'][1].id,
                             restaurant_id=self.data['restaurants'][0].id,
@@ -161,7 +161,7 @@ class CustomerReservationsTest(unittest.TestCase):
                             reservation_time=datetime.combine(
                                 datetime.now().date(), time(hour=12,
                                                             minute=30)),
-                            status='ACCEPTED',
+                            status=ReservationState.SEATED,
                             seats=self.data['tables'][2].seats)
             ]
 
@@ -392,6 +392,18 @@ class CustomerReservationsTest(unittest.TestCase):
             self.assertEqual(updated_res.seats, new_seats)
 
             self.assertEqual(updated_res.status.__str__(), 'Pending')
+    
+    def test_is_safely_updatable(self):
+        with self.app.app_context():
+            reservation = db.session.query(Reservation).filter_by(id=1).first()
+            new_res_time_safe = cr.diff_time(reservation.reservation_time.time(), time(hour=1))
+            new_res_time_not_safe  = time(hour=3)
+
+            res_date_safe = datetime.combine(reservation.reservation_time.date(), new_res_time_safe)
+            res_date_not_safe = datetime.combine(reservation.reservation_time.date(), new_res_time_not_safe)
+
+            self.assertTrue(cr.is_safely_updatable(reservation, res_date_safe))       
+            self.assertFalse(cr.is_safely_updatable(reservation, res_date_not_safe))
 
     def test_update_reservation_fail(self):
         with self.app.app_context():
@@ -417,6 +429,18 @@ class CustomerReservationsTest(unittest.TestCase):
             self.assertIsNone(reservation_1)
             #There should not be a reservation with id 42
             self.assertFalse(cr.delete_reservation(reservation_id=42))
+    
+    def test_sum_time(self):
+        t1 = time(hour=3, minute=00)
+        t2 = time(hour=1, minute=00)
+        self.assertEqual(time(hour=4, minute=00), cr.sum_time(t1, t2))
+        self.assertIsInstance(cr.sum_time(t1, t2), time)
+    
+    def test_diff_time(self):
+        t1 = time(hour=3, minute=00)
+        t2 = time(hour=1, minute=00)
+        self.assertEqual(time(hour=2, minute=00), cr.diff_time(t1, t2))
+        self.assertIsInstance(cr.diff_time(t1, t2), time)
 
 
 if __name__ == '__main__':

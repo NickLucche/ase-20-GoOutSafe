@@ -1,33 +1,76 @@
-<html>
-    <body>
-        <h1>Your Reservations</h1> 
-        {% if current_user.is_authenticated %}
-            {% if reservations|length == 0 %}
-                <h2>You have not reserved any table yet</h2>
-            {% endif %}
-            {% with messages = get_flashed_messages(category_filter=['reservation_mod']) %}
-                {% if messages %}
-                    {% for message in messages %}
-                        <p class=flashes><h3>{{ message }}</h3></p>
-                    {% endfor %}
-                    </ul>
-                {% endif %}
-            {% endwith %}
-            {% for reservation in reservations %}
-                <h3>Reservation for {{reservation.reservation_time|prettytime}}</h3>
-                <ul>
-                    <p><h3>Restaurant: {{reservation.restaurant.name}}</h3></p>
-                    <p><h3>Current status: {{ reservation.status }}</h3></p>
-                    <p><h3>Table: {{reservation.table_no}}</h3></p>
-                    <p><h3>Seats: {{reservation.seats}}<h3></p>
-                </ul>
-                {% if not reservation is declined_reservation %}
-                <a href='/my_reservations/{{ reservation.id }}/update'> Update Reservation</a>
-                <a href='/my_reservations/{{ reservation.id }}/delete'>Delete Reservation</a>
-                {% else %}
-                <a href='/my_reservations/{{ reservation.id }}/delete'>Delete Reservation</a>
-                {% endif %}
-            {% endfor %}
+{% extends "base.html" %}
+
+{% block content %}
+    <h1>Your Future Reservations</h1> 
+    {% if current_user.is_authenticated %}
+        {% if reservations|length == 0 %}
+            <h2>You have not reserved any table yet</h2>
         {% endif %}
-    </body>
-</html>
+        {% with messages = get_flashed_messages(category_filter=['reservation_mod']) %}
+            {% if messages %}
+                {% for message in messages %}
+                    <p class=flashes><h3>{{ message }}</h3></p>
+                {% endfor %}
+                </ul>
+            {% endif %}
+        {% endwith %}
+        {% for reservation in reservations %}
+            <section>
+                <div class="card mb-3 mr-3" style="min-width: 31vw">
+                    <h5 class="card-header text-center">Reservation for {{reservation.reservation_time|prettytime}}</h5>
+                    <div class="card-body">
+                      <ul class="list-group list-group-flush">
+                        <li class="list-group-item">Restaurant: {{reservation.restaurant.name}}</li>
+                        <li class="list-group-item">Current status: {{ reservation.status }}</li>
+                        <li class="list-group-item">Table: {{reservation.table_no}}</li>
+                        <li class="list-group-item">Seats: {{reservation.seats}}</li>
+                      </ul>
+                    </div>
+                    {% if not reservation is declined_reservation %}
+                    <div class="card-body d-flex justify-content-between pt-0">
+                        <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#updateModal{{ reservation.id }}">Update Reservation</button>
+                        <a href="/my_reservations/{{ reservation.id }}/delete" class="btn btn-primary">Delete Reservation</a>
+
+                        <!-- Modal -->
+                        <div class="modal fade" id="updateModal{{ reservation.id }}" tabindex="-1" role="dialog" aria-labelledby="updateModalTitle" aria-hidden="true">
+                            <div class="modal-dialog modal-dialog-centered" role="document">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                <h7 class="modal-title" id="updateModalTitle">Updating reservation for {{reservation.restaurant.name}}, {{reservation.reservation_time|prettytime}}</h7>
+                                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                    <span aria-hidden="true">&times;</span>
+                                </button>
+                                </div>
+                                <div class="modal-body">
+                                    <form action="/my_reservations/{{reservation.id}}/update"method="POST">
+                                        {{ form.hidden_tag() }}
+                                        <dl>
+                                        {% for field in form.display %}
+                                        <dt>{{ form[field].label }}</dt>
+                                        <dd>{{ form[field]() }}</dd>
+                                            {% if form[field].errors %}
+                                                {% for e in form[field].errors %}
+                                                <p class="help-block">{{ e }}</p>
+                                                {% endfor %}
+                                            {% endif %}
+                                        {% endfor %}
+                                        </dl>
+                                        <p>
+                                            <button type="submit" class="btn btn-primary">Update</button>
+                                            <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                                        </p>
+                                    </form>
+                                </div>
+                            </div>
+                            </div>
+                        </div>
+                    {% else %}
+                        <a href="/my_reservations/{{ reservation.id }}/delete" class="btn btn-primary">Delete Reservation</a>
+                    </div>
+                </div>
+                {% endif %}
+            </section>
+        {% endfor %}
+    {% endif %}
+    
+{% endblock %}

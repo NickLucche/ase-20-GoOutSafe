@@ -1,6 +1,6 @@
 from logging import error
 from monolith.classes.exceptions import GoOutSafeError
-from monolith.classes.restaurant import add_review, edit_tables, update_review
+from monolith.classes.restaurant import add_review, edit_restaurant, update_review
 import monolith.classes.customer_reservations as cr
 from flask import Blueprint, redirect, render_template, request, flash
 from monolith.database import Reservation, db, Restaurant, Review, RestaurantTable
@@ -30,6 +30,8 @@ def restaurant_sheet(restaurant_id):
     record = Restaurant.query.get(restaurant_id)
     if not record:
         return render_template("error.html", error_message="The page you're looking does not exists")
+    if not current_user.is_authenticated:
+        return render_template("restaurantsheet.html", record=record)
     review = Review.query.filter_by(reviewer_id=current_user.id, restaurant_id=restaurant_id).scalar()
     if review is not None:
         # show the user their updated view
@@ -47,9 +49,9 @@ def restaurant_sheet(restaurant_id):
                 # update review count immediately so user can see it
                 record = update_review(record, int(request.form.get("stars_number")))
         else:
-            return render_template("restaurantsheet.html", form=form, name=record.name, likes=record.likes, lat=record.lat, lon=record.lon, phone=record.phone, avg_stars=record.avg_stars, n_reviews=record.num_reviews)
+            return render_template("restaurantsheet.html", form=form, record=record)
 
-    return render_template("restaurantsheet.html", name=record.name, likes=record.likes, lat=record.lat, lon=record.lon, phone=record.phone, avg_stars=record.avg_stars, n_reviews=record.num_reviews)
+    return render_template("restaurantsheet.html", record=record)
 
 
 @restaurants.route('/restaurants/reserve/<restaurant_id>',
@@ -61,6 +63,8 @@ def _reserve(restaurant_id):
         id=int(restaurant_id)).all()[0]
 
     if (request.method == 'POST'):
+        if (current_user.is_positive):
+            return render_template('error.html', error_message="Error: you cannot reserve a table while marked as positive!")
         if ReservationForm(request.form).validate_on_submit():
             reservation_time = datetime.combine(
                 ReservationForm(request.form).data['reservation_date'],
@@ -102,15 +106,14 @@ def _edit(restaurant_id):
         return render_template("error.html", error_message="You haven't the permissions to access this page")
     r = Restaurant.query.get(restaurant_id)
     form = RestaurantProfileEditForm(obj=r)
+
+    tables = RestaurantTable.query.filter_by(restaurant_id = restaurant_id).order_by(RestaurantTable.table_id.asc())
     
     if request.method == 'POST':
         try:
-            edit_tables(form, request.form, restaurant_id)
-            flash("Infos saved successfully")            
+            edit_restaurant(form, request.form, restaurant_id)
             return redirect('/restaurants/edit/' + restaurant_id)
         except GoOutSafeError as e:
             return render_template("restaurantedit.html", restaurant=r, form=form, tables=tables)
 
-
-    tables = RestaurantTable.query.filter_by(restaurant_id = restaurant_id).order_by(RestaurantTable.table_id.asc())
     return render_template("restaurantedit.html", restaurant=r, form=form, tables=tables)

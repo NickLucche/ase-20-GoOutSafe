@@ -132,7 +132,8 @@ def contact_tracing_users(past_reservations, user_id: int):
         # print(user_reservation)
         # preserve positive user reservation we're referring to, as to notify operator 
         for u in user_reservation:
-            u = u.user.to_dict()
-            u['positive_user_reservation'] = reservation['id']
-            user_at_risk.append(u)
+            if u.user != None:
+                u = u.user.to_dict()
+                u['positive_user_reservation'] = reservation['id']
+                user_at_risk.append(u)
     return user_at_risk

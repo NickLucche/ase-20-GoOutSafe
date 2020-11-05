@@ -24,12 +24,12 @@ class UserForm(FlaskForm):
             render_kw={"maxlength": "16"})
     phone = f.IntegerField('(optional) Phone number', validators=[Optional()], render_kw={"minlength":"9", "maxlength": "10"})
 
-    dateofbirth = f.DateField('Date of Birth', format='%d/%m/%Y', validators=[DataRequired()])
+    dateofbirth = DateField('Date of Birth', format='%Y-%m-%d', validators=[DataRequired()])
     display = ['email', 'firstname', 'lastname', 'password', 'password_confirm', 'fiscal_code', 'phone', 'dateofbirth']
 
 
 class SearchUserForm(FlaskForm):
-    email = f.StringField('email', validators=[Email(message="Please enter a valid email")])
+    email = f.StringField('email') #No validator here
     phone = f.StringField('Phone number')
     fiscal_code = f.StringField('Fiscal code')
     display = ['email', 'phone', 'fiscal_code']
@@ -43,7 +43,7 @@ class OperatorForm(FlaskForm):
     password = f.PasswordField('Password', validators=[DataRequired(), \
         Length(min=4, max=12, message="Password must be in [4,12] characters"), EqualTo('password_confirm', message='Passwords must match')])
     password_confirm = f.PasswordField('Confirm password', validators=[DataRequired()])
-    dateofbirth = f.DateField('Date of birth', format='%d/%m/%Y', render_kw={"type":"date"})
+    dateofbirth = DateField('Date of birth', format='%Y-%m-%d', validators=[DataRequired()])
     h1 = f.HiddenField()
     l2 = f.Label('', 'Restaurant info')
     name = f.StringField('Name', validators=[DataRequired()])
@@ -52,7 +52,7 @@ class OperatorForm(FlaskForm):
     phone = f.IntegerField('Phone number', validators=[DataRequired()], render_kw={"minlength":"9", "maxlength": "10"})
     extra_info = f.TextAreaField('Extra infos [optional]')
     display = [
-        'l1', 'email', 'firstname', 'lastname', 'password', 'dateofbirth', 'l2', 'name', 'lat', 'lon', 'phone',
+        'l1', 'email', 'firstname', 'lastname', 'password', 'password_confirm', 'dateofbirth', 'l2', 'name', 'lat', 'lon', 'phone',
         'extra_info'
     ]
 
@@ -76,10 +76,10 @@ class UserProfileEditForm(FlaskForm):
 class ReservationForm(FlaskForm):
     reservation_date = f.DateField('date',
                                    validators=[DataRequired(), DateRange(min=datetime.now().date())],
-                                   format='%d/%m/%Y', render_kw={"type":"date"})
+                                   format='%Y-%m-%d', render_kw={"type":"date"})
     reservation_time = f.TimeField('time', validators=[DataRequired()])
     seats = f.IntegerField('seats', validators=[DataRequired()])
-    display = ['reservation_time', 'reservation_time', 'seats']
+    display = ['reservation_date', 'reservation_time', 'seats']
 
 class RatingForm(FlaskForm): 
     review = f.TextAreaField(validators=[Optional()], render_kw={"placeholder":"(optional) Add a written review!"})  

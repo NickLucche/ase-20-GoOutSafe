@@ -32,6 +32,7 @@ def send_contact_notification():
 
 @celery.task
 def _send(notification, bodyContent):
+
     to_email = notification.user.email
     from_email = 'GoOutSafe.ase@gmail.com'
     subject = 'GoOutSafe contact notification'
@@ -43,9 +44,10 @@ def _send(notification, bodyContent):
     message.attach(MIMEText(bodyContent, "html"))
     msgBody = message.as_string()
 
-    server = SMTP('smtp.gmail.com', 587)
-    server.starttls()
-    server.login(from_email, 'AseSquad5')
-    server.sendmail(from_email, to_email, msgBody)
-
-    server.quit()
+    print(f'Sending email to {to_email}')
+    if (to_email.find("@example.com") == -1):
+        server = SMTP('smtp.gmail.com', 587)
+        server.starttls()
+        server.login(from_email, 'AseSquad5')
+        server.sendmail(from_email, to_email, msgBody)
+        server.quit()

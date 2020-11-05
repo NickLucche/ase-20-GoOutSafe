@@ -1,3 +1,6 @@
+"""This module contains the project-defined exceptions
+"""
+
 class GoOutSafeError(Exception):
     pass
 

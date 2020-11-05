@@ -16,26 +16,26 @@ customer_reservations = Blueprint('customer_reservations',
 @customer_reservations.route('/', methods=('GET', ))
 @login_required
 def get_reservations():
+    form = ReservationForm()
     reservations = get_user_reservations(current_user.id)
     return render_template("customer_reservations.html",
-                           reservations=reservations)
+                           reservations=reservations, form=form)
 
 
 @customer_reservations.route('/<reservation_id>/update',
                              methods=(
-                                 'GET',
                                  'POST',
                              ))
 @login_required
 def update_user_reservation(reservation_id: int):
     reservation = db.session.query(Reservation).filter_by(
         id=reservation_id).first()
-    form = ReservationForm()
+    #form = ReservationForm()
     if (request.method == 'POST'):
-        if form.validate_on_submit():
-            new_date = datetime.combine(form.data['reservation_date'],
-                                        form.data['reservation_time'])
-            new_seats = form.data['seats']
+        if ReservationForm(request.form).validate_on_submit():
+            new_date = datetime.combine(ReservationForm(request.form).data['reservation_date'],
+                                        ReservationForm(request.form).data['reservation_time'])
+            new_seats = ReservationForm(request.form).data['seats']
             existing_reservation = db.session.query(Reservation).filter_by(
                 user_id=current_user.id).filter_by(
                     restaurant_id=reservation.restaurant_id).filter_by(
@@ -59,9 +59,6 @@ def update_user_reservation(reservation_id: int):
                         'Overbooking Notification: your reservation has not been updated because of overbooking in the chosen date and time. Please, try another one.',
                         'reservation_mod')
                     return redirect('/my_reservations/')
-    return render_template('update_reservation.html',
-                           reservation=reservation,
-                           form=form)
 
 
 @customer_reservations.route('/<reservation_id>/delete',
