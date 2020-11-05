@@ -15,7 +15,6 @@
       }
       var x = document.getElementById("message");
       x.innerHTML= "You have " + n + " tables";
-
     } 
     function addTablePressed(value) {
       nTables++;
@@ -60,5 +59,7 @@
   {% endfor %}
   <input type=submit value="Save and update">
 </form>
+
+<br><p>Click <a href="/unregister/{{ current_user.id }}" onclick="return confirm('Are you sure?')">here</a> to delete the restaurant.</p>
 
 {% endblock %}
