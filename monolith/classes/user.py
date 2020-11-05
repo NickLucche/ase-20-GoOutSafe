@@ -1,7 +1,9 @@
+from datetime import datetime, timedelta
 from werkzeug.utils import validate_arguments
 from monolith.classes.exceptions import DatabaseError, FormValidationError
 from monolith.forms import OperatorForm, UserForm, UserProfileEditForm
 from monolith.database import Restaurant, db, User
+from sqlalchemy import exc
 
 def _check_user_not_in_db(email):
     """Check if an user is not in db (not registered).
@@ -26,6 +28,12 @@ def _create_user_obj(form : UserForm, password) -> User:
     Returns:
         User: the user object
     """
+    d = form.dateofbirth.data
+    birth = datetime(d.year, d.month, d.day) 
+    now_minus_18 = datetime.now() - timedelta(days=365*18)
+    if birth > now_minus_18:
+        form.dateofbirth.errors.append("You are not 18")
+        raise FormValidationError()
     u = User()
     form.populate_obj(u)
     u.set_password(password) #pw should be hashed with some salt
@@ -54,8 +62,12 @@ def new_user(form : UserForm, __submit=True, __password=''):
         _check_user_not_in_db(form.email.data)
 
         new_user = _create_user_obj(form, __password)
-        db.session.add(new_user)
-        db.session.commit()
+        try:
+            db.session.add(new_user)
+            db.session.commit()
+        except exc.IntegrityError as e:
+            form.dateofbirth.errors.append(str(e))
+            raise FormValidationError(str(e))
         return new_user
     raise FormValidationError("Error validating the form: " + str(form.errors))
 
@@ -82,11 +94,15 @@ def new_operator(form: OperatorForm, __submit=True, __password=''):
         new_restaurant = Restaurant()
         form.populate_obj(new_restaurant)
         new_user.is_operator = True
-        db.session.add(new_restaurant)
-        db.session.flush()
-        new_user.restaurant_id = new_restaurant.id
-        db.session.add(new_user)
-        db.session.commit()
+        try:
+            db.session.add(new_restaurant)
+            db.session.flush()
+            new_user.restaurant_id = new_restaurant.id
+            db.session.add(new_user)
+            db.session.commit()
+        except exc.IntegrityError as e:
+            form.dateofbirth.errors.append(str(e))
+            raise FormValidationError(str(e))
         return new_user
     raise FormValidationError("Error validating the form")
 

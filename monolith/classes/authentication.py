@@ -24,3 +24,8 @@ def authenticate_user(form:LoginForm, __submit=True, __password=None):
             return
         raise UserNotInDB()
     raise FormValidationError()
+
+def delete_user(user_id):
+    u = User.query.filter_by(id=user_id).first()
+    db.session.delete(u)
+    db.session.commit()

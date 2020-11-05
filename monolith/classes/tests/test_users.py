@@ -1,3 +1,4 @@
+from monolith.classes.authentication import delete_user
 from sqlalchemy.sql.functions import random
 from monolith.classes.tests.utils import setup_for_test, user_data, clear_password, restaurant_data
 from monolith.classes.exceptions import DatabaseError, FormValidationError
@@ -56,6 +57,7 @@ class TestUsers(unittest.TestCase):
                 edit_user_data(form, u.id)
                 return False
             except FormValidationError:
+                delete_user(u.id)
                 return True
 
     def test_createoperator(self):
