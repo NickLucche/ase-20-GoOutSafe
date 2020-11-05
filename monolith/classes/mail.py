@@ -18,12 +18,13 @@ def send_contact_notification():
     notifications = Notification.query.filter_by(email_sent=False).filter_by(user_notification=True)
     count = 0
     for notification in notifications:
-        user = notification.user
-        if user != None and user.email != None:
+        user = notification.user.to_dict()
+        if user != None and user['email'] != None:
             notification.email_sent = True
+            date = notification.date.strftime('%Y-%m-%d at %H:%M')
             db.session.commit()
             template = env.get_template('./mail_notification.html')
-            output = template.render(dest=user, date=notification.date.strftime('%Y-%m-%d at %H:%M'))
+            output = template.render(dest=user, date=date)
             _send(notification, output)
             print("email field updated")
             count += 1
