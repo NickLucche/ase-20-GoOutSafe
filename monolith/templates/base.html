@@ -11,36 +11,14 @@
     <!-- Custom Js for simple stuff -->
     <script type = "text/javascript" src = "{{ url_for('static', filename = 'script.js') }}" ></script>
     <!-- Custom CSS for very hard stuff -->
-    <link rel="stylesheet" type="text/css" href="/static/styles.css">
+    <link rel="stylesheet" type="text/css" href="{{url_for('static', filename='styles.css')}}">
+    <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.1/css/all.min.css">
 
     {% block head %}
     {% endblock %}
   </head>
   <body style="margin-bottom: 100px">
-    {% if current_user.is_authenticated %}
-      {% if notifications is defined %}
-        <div class="dropdown">
-          <button type="button" class="btn btn-primary dropdown-toggle" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-            Notifications 
-            {% if notifications|length > 0 %}
-              <span class="badge badge-light">{{ notifications|length }}</span>
-            {% endif %}
-          </button>
-          <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
-            {% for notification in notifications %}
-            {% if notification.restaurant is defined %}
-              <a class="dropdown-item" href="/notifications/{{notification.id}}">{{notification.date}} at {{notification.restaurant.name}}</a>
-            {% else %}
-              <!-- operator doesn't need to see their own restaurant name -->
-              <a class="dropdown-item" href="/notifications/{{notification.id}}">{{notification.date}}</a>
-            {%endif%}
-            {% endfor %}
-            <a class="dropdown-item" href="/notifications">See All</a>
-          </div>
-        
-      </div> 
-    {% endif %}
-  {% endif %}
+    {% include "header.html" %}
 
     <!-- Optional JavaScript; choose one of the two! -->
 
