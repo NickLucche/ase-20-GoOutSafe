@@ -1,19 +1,30 @@
 {% extends "base.html" %}
 {% block content %}
-  <form action="" method="POST">
-    {{ form.hidden_tag() }}
-    <dl>
-     {% for field in form.display %}
-     <dt>{{ form[field].label }}</dt>
-     <dd>{{ form[field]() }}</dd>
-       {% if form[field].errors %}
-          {% for e in form[field].errors %}
-           <p class="help-block">{{ e }}</p>
-          {% endfor %}
-       {% endif %}
-     {% endfor %}
-    </dl>
-    <p>
-    <input type=submit value="Publish">
-  </form>
+<div class="row justify-content-center align-items-center">
+  <h1 class="text-center mb-4">GoOutSafe</h1>
+</div>
+<div class="row justify-content-center align-items-center">
+  <div class="col-lg-3 d-flex justify-content-center" style="max-width: 27rem">
+    <div class="card w-100">
+      <div class="card-body">
+        <form class="form-example" action="" method="POST">
+          <div class="form-group">
+            {{ form.hidden_tag() }}
+            {% for field in form.display %}
+              {{ form[field].label }}
+              {{ form[field](class_="form-control") }}
+              {% if form[field].errors %}
+              {% for e in form[field].errors %}
+              <p class="help-block text-danger">{{ e }}</p>
+              {% endfor %}
+              {% endif %}
+            {% endfor %}
+          </div>
+          <button type="submit" class="btn btn-primary pr-4 pl-4">Login</button>
+          <span class="pl-1" >or <a href="{{url_for('home.signup')}}">sign up</a> if you are not registered.</span>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
 {% endblock %}

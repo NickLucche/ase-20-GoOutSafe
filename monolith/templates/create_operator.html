@@ -6,14 +6,26 @@
 <form class="row justify-content-center pb-2" action="" method="POST">
   <!-- Questo è un accrocchio orribile ma le form erano fatte così quindi suca --lorenzo -->
   {{ form.hidden_tag() }}
+  {% for field in form.display %}
+  {% if field == 'l1' %}
   <div class="col-lg-3 d-flex" style="max-width: 27rem;">
     <div class="card w-100 h-100">
       <div class="card-body">
         <div class="form-group">
-          <h3>User Info</h3>
-          {% for field in form.display %}
-          {{ form[field].label }}
-          {{ form[field](class_="form-control") }}
+          <h3>User info</h3>
+  {% elif field == 'l2' %}
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="col-lg-3 d-flex" style="max-width: 27rem;">
+    <div class="card w-100 h-100">
+      <div class="card-body">
+        <div class="form-group">
+          <h3>Restaurant info</h3>
+  {% endif %}
+          {{ form[field].label if field != 'l1' and field != 'l2' else '' }}
+          {{ form[field](class_="form-control") if field != 'l1' and field != 'l2' else '' }}
             {% if form[field].errors %}
               {% for e in form[field].errors %}
               <p class="help-block text-danger">{{ e }}</p>

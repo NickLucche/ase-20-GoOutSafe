@@ -1,21 +1,29 @@
 {% extends "base.html" %}
 {% block content %}
-  <form action="" method="POST">
-    {{ form.hidden_tag() }}
-    <dl>
-     {% for field in form.display %}
-     <dt>{{ form[field].label }}</dt>
-     <dd>{{ form[field]() }}</dd>
-       {% if form[field].errors %}
-          {% for e in form[field].errors %}
-           <p class="help-block">{{ e }}</p>
+<div class="row justify-content-center align-items-center">
+  <h1 class="text-center mb-4">GoOutSafe</h1>
+</div>
+<form class="row justify-content-center pb-2" action="" method="POST">
+  {{ form.hidden_tag() }}
+  <div class="col-lg-3 d-flex" style="max-width: 27rem;">
+    <div class="card w-100 h-100">
+      <div class="card-body">
+        <div class="form-group">
+          <h3>Edit your info</h3>
+          {% for field in form.display %}
+          {{ form[field].label }}
+          {{ form[field](class_="form-control") }}
+            {% if form[field].errors %}
+              {% for e in form[field].errors %}
+              <p class="help-block text-danger">{{ e }}</p>
+              {% endfor %}
+            {% endif %}
           {% endfor %}
-       {% endif %}
-     {% endfor %}
-    </dl>
-    <p>
-    <input type=submit value="Submit">
-    <br><p>Click <a href="/unregister/{{ current_user.id }}" onclick="return confirm('Are you sure?')">here</a> to delete your data.</p>
-  </form>
+        </div>
+        <button type="submit" class="btn btn-primary pr-4 pl-4">Submit</button>
+        <a href="/unregister/{{ current_user.id }}" onclick="return confirm('Are you sure?')" class="btn btn-primary pr-4 pl-4">Unregister</a>
+      </div>
+    </div>
+  </div>
+</form>
 {% endblock %}
-

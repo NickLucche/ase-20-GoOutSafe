@@ -7,12 +7,6 @@
         n = 0;
         return;
       }
-      if(n == 0) {
-        document.getElementById("removeTableButton").style.display = "none";
-      }
-      else if(n == 1) {
-        document.getElementById("removeTableButton").style.display = "block";
-      }
       var x = document.getElementById("message");
       x.innerHTML= "You have " + n + " tables";
     } 
@@ -20,8 +14,7 @@
       nTables++;
       changeTablesText(nTables);
       var div = document.getElementById("tableList");
-      var str = "<div id = '" + nTables + "'><dt><label>Table " + nTables + ", seats: </dt><dd>" +
-        "<input required type='number' min=2 value=" + value + " name='table_" + nTables + "'></dd></div>";
+      var str = "<li class=list-group-item style='min-height: 4rem; line-height: 2rem' id = '" + nTables + "'>Table " + nTables + "<span class='float-right'><span class='mr-2'>Seats</span><input class='form-control float-right' style='width: 4rem;'required type='number' min=2 value=" + value + " name='table_" + nTables + "'></span></div>";
       div.insertAdjacentHTML('beforeend', str)
     }
     function removeTablePressed() {
@@ -31,35 +24,55 @@
     }
 </script>
   
-  <form action="" method="POST">
-    {{ form.hidden_tag() }}
-    <dl>
-     {% for field in form.display %}
-     <dt>{{ form[field].label }}</dt>
-     <dd>{{ form[field]() }}</dd>
-       {% if form[field].errors %}
+<div class="row justify-content-center align-items-center">
+  <h1 class="text-center mb-4">GoOutSafe</h1>
+</div>
+<form class="row justify-content-center pb-2" action="" method="POST">
+  <!-- Questo è un accrocchio orribile ma le form erano fatte così quindi suca --lorenzo -->
+  {{ form.hidden_tag() }}
+  <div class="col-lg-3 d-flex" style="max-width: 27rem;">
+    <div class="card w-100 h-100">
+      <div class="card-body">
+        <div class="form-group">
+          <h3>User Info</h3>
+          {% for field in form.display %}
+          {{ form[field].label }}
+          {{ form[field](class_="form-control") }}
+          {% if form[field].errors %}
           {% for e in form[field].errors %}
-           <p class="help-block">{{ e }}</p>
+          <p class="help-block text-danger">{{ e }}</p>
           {% endfor %}
-       {% endif %}
-     {% endfor %}
-    </dl>
-    <p>
-  <p id="message">
-    You don't have any tables!
-  </p>
-  <button type="button" id="addTableButton" onclick="addTablePressed(4)">Add a table</button>
-  <button type="button" id="removeTableButton" onclick="removeTablePressed()" style="display:none">Remove last table</button>
-  <div id=tablesList>
-    <dl id="tableList">
-    </dl>
+          {% endif %}
+          {% endfor %}
+        </div>
+        <button type="submit" class="btn btn-primary pr-4 pl-4 mb-4">Submit</button>
+        <p class="mb-0">Click <a href="/unregister/{{ current_user.id }}" onclick="return confirm('Are you sure?')">here</a> to delete the restaurant.</p>
+      </div>
+    </div>
   </div>
-  {% for t in tables %}
-  <script>addTablePressed('{{ t.seats }}')</script> 
-  {% endfor %}
-  <input type=submit value="Save and update">
+  <div class="col-lg-3 d-flex" style="max-width: 27rem;">
+    <div class="card w-100 h-100">
+      <div class="card-body">
+        <h3 id="message">
+          You don't have any tables!
+        </h3>
+        <div class="d-flex mb-4 w-100">
+          <button type="button" class="btn btn-primary w-50 mr-1" id="addTableButton" onclick="addTablePressed(4)">Add a
+          table</button>
+          <button type="button" class="btn btn-primary w-50 ml-1" id="removeTableButton" onclick="removeTablePressed()">Remove last table</button>
+        </div>
+          <ul class="list-group list-group-flush" style="margin-bottom: 3rem"id=tablesList>
+          <dl id="tableList">
+          </dl>
+        </ul>
+        {% for t in tables %}
+        <script>addTablePressed('{{ t.seats }}')</script> 
+        {% endfor %}
+        <div style="padding-bottom: inherit; position: absolute; bottom: 0;"><input class="btn btn-primary" type=submit value="Save and update"></div>
+      </div>
+    </div>
+  </div>
 </form>
 
-<br><p>Click <a href="/unregister/{{ current_user.id }}" onclick="return confirm('Are you sure?')">here</a> to delete the restaurant.</p>
 
 {% endblock %}

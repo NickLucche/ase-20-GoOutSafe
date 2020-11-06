@@ -41,11 +41,11 @@ def create_operator():
             login_user(u)
             return redirect('/')
         except GoOutSafeError as e:
-            return render_template('create_user.html', form=form)
+            return render_template('create_operator.html', form=form)
         except Exception as e:
             return render_template("error.html", error_message=str(e))
 
-    return render_template('create_user.html', form=form)
+    return render_template('create_operator.html', form=form)
 
 
 @users.route('/users/edit/<user_id>', methods=['GET', 'POST'])

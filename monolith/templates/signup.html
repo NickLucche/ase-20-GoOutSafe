@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="row justify-content-center">
+	<h1 class="text-center mb-4 text-dark">Are you a...</h1>
+</div>
+<div class="row justify-content-center">
+	<div class="col-lg-6 d-flex flex-column justify-content-center">
+		<a class="w-100 btn btn-outline-primary" href="{{url_for('users.create_user')}}" style="height: 18rem;">
+			<h1 style="line-height: 16rem; font-size: 4rem;">User</h1>
+		</a>
+		<span class="mb-4"></span>
+		<a class="w-100 btn btn-outline-secondary" href="{{url_for('users.create_operator')}}" style="height: 18rem;">
+			<h1 style="line-height: 16rem; font-size: 4rem;">Restaurant owner</h1>
+		</a>
+	</div>
+</div>
+{% endblock %}
