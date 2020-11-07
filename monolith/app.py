@@ -59,37 +59,37 @@ def create_app(dbfile='sqlite:///gooutsafe.db'):
             db.session.add(example)
             db.session.commit()
 
-        q = db.session.query(User).filter(User.email == 'user1@example.com')
-        user = q.first()
-        if user is None:
-            example = User()
-            example.firstname = 'User1'
-            example.lastname = 'User1'
-            example.email = 'user1@example.com'
-            example.phone = '3334567893'
-            example.fiscal_code = 'SURNAM95A32B123E'
-            example.dateofbirth = datetime.datetime(2020, 10, 5)
-            example.is_admin = False
-            example.set_password('user1')
-            example.is_positive = False
-            db.session.add(example)
-            db.session.commit()
+        # q = db.session.query(User).filter(User.email == 'user1@example.com')
+        # user = q.first()
+        # if user is None:
+        #     example = User()
+        #     example.firstname = 'User1'
+        #     example.lastname = 'User1'
+        #     example.email = 'user1@example.com'
+        #     example.phone = '3334567893'
+        #     example.fiscal_code = 'SURNAM95A32B123E'
+        #     example.dateofbirth = datetime.datetime(2020, 10, 5)
+        #     example.is_admin = False
+        #     example.set_password('user1')
+        #     example.is_positive = False
+        #     db.session.add(example)
+        #     db.session.commit()
 
-        q = db.session.query(User).filter(User.email == 'user2@example.com')
-        user = q.first()
-        if user is None:
-            example = User()
-            example.firstname = 'User2'
-            example.lastname = 'User2'
-            example.email = 'user2@example.com'
-            example.phone = '3334567894'
-            example.fiscal_code = 'SURNAM95A32B123F'
-            example.dateofbirth = datetime.datetime(2020, 10, 5)
-            example.is_admin = False
-            example.set_password('user2')
-            example.is_positive = False
-            db.session.add(example)
-            db.session.commit()
+        # q = db.session.query(User).filter(User.email == 'user2@example.com')
+        # user = q.first()
+        # if user is None:
+        #     example = User()
+        #     example.firstname = 'User2'
+        #     example.lastname = 'User2'
+        #     example.email = 'user2@example.com'
+        #     example.phone = '3334567894'
+        #     example.fiscal_code = 'SURNAM95A32B123F'
+        #     example.dateofbirth = datetime.datetime(2020, 10, 5)
+        #     example.is_admin = False
+        #     example.set_password('user2')
+        #     example.is_positive = False
+        #     db.session.add(example)
+        #     db.session.commit()
 
         q = db.session.query(Restaurant).filter(Restaurant.id == 1)
         restaurant = q.first()
@@ -121,15 +121,15 @@ def create_app(dbfile='sqlite:///gooutsafe.db'):
             db.session.add(restaurant_table)
             db.session.commit()
 
-        q = db.session.query(Reservation).filter(Reservation.restaurant == restaurant);
-        reservation = q.first()
-        if reservation is None:
-            now = datetime.datetime.now()
-            reservation1 = Reservation(entrance_time = now - datetime.timedelta(days=1), table=restaurant_table, restaurant=restaurant, user_id=3, seats=3)
-            reservation2 = Reservation(entrance_time = now - datetime.timedelta(days=1), table=restaurant_table, restaurant=restaurant, user_id=4, seats=3)
-            db.session.add(reservation1)
-            db.session.add(reservation2)
-            db.session.commit()
+        # q = db.session.query(Reservation).filter(Reservation.restaurant == restaurant);
+        # reservation = q.first()
+        # if reservation is None:
+        #     now = datetime.datetime.now()
+        #     reservation1 = Reservation(entrance_time = now - datetime.timedelta(days=1), table=restaurant_table, restaurant=restaurant, user_id=3, seats=3)
+        #     reservation2 = Reservation(entrance_time = now - datetime.timedelta(days=1), table=restaurant_table, restaurant=restaurant, user_id=4, seats=3)
+        #     db.session.add(reservation1)
+        #     db.session.add(reservation2)
+        #     db.session.commit()
 
     return app
 
