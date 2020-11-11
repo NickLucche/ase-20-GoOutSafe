@@ -8,8 +8,8 @@ from wtforms_components import DateRange
 
 
 class LoginForm(FlaskForm):
-    email = f.StringField('email', validators=[DataRequired(), Email(message="Please enter a valid email")])
-    password = f.PasswordField('password', validators=[DataRequired()])
+    email = f.StringField('Insert your e-mail', validators=[DataRequired(), Email(message="Please enter a valid email")])
+    password = f.PasswordField('Insert your password', validators=[DataRequired()])
     display = ['email', 'password']
 
 
@@ -36,7 +36,7 @@ class SearchUserForm(FlaskForm):
 
 
 class OperatorForm(FlaskForm):
-    l1 = f.Label('Owner infos', 'Owner infos')
+    l1 = f.Label('', '')
     email = f.StringField('e-mail', validators=[DataRequired(), Email(message="Please enter a valid email")])
     firstname = f.StringField('Name', validators=[DataRequired()])
     lastname = f.StringField('Last name', validators=[DataRequired()])
@@ -45,7 +45,7 @@ class OperatorForm(FlaskForm):
     password_confirm = f.PasswordField('Confirm password', validators=[DataRequired()])
     dateofbirth = DateField('Date of birth', format='%Y-%m-%d', validators=[DataRequired()])
     h1 = f.HiddenField()
-    l2 = f.Label('', 'Restaurant info')
+    l2 = f.Label('', '')
     name = f.StringField('Name', validators=[DataRequired()])
     lat = f.FloatField('Latitude', validators=[DataRequired(), NumberRange(min=-90, max=90, message="Latitude is in [-90, 90]")])
     lon = f.FloatField('Longitude', validators=[DataRequired(), NumberRange(min=-180, max=180, message="Longitude is in [-180, 180]")])

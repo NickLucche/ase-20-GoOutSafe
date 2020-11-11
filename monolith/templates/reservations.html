@@ -8,7 +8,7 @@
 
     {% for reservation in reservations: %}
     <section>
-      <div class="card mb-3 mr-3" style="min-width: 31vw">
+      <div class="card mb-3 mr-3" style="min-width: 30vw">
         <h5 class="card-header text-center">Reservation for {{reservation.reservation_time|prettytime}}</h5>
         <div class="card-body">
           <ul class="list-group list-group-flush">
@@ -71,15 +71,15 @@
     </section>
     {% endfor %}
   </div>
-  <footer>
-    <nav class="nav">
-      {% if current_page > 1 %}
-      <a class="nav-link pl-0" href="{{url_for('reservations.today', page=current_page - 1) if today else url_for('reservations.home', page=current_page - 1)}}">Previous page</a>
-      {% endif %}
-      {% if morepages %}
-      <a class="nav-link pl-0" href="{{url_for('reservations.today', page=current_page + 1) if today else url_for('reservations.home', page=current_page + 1)}}">Next page</a>
-      {% endif %}
-    </nav>
-  </footer>
 </div>
+    <footer style="height: 100px;">
+      <nav class="nav" style="margin-left: 2rem; bottom: 0px">
+        {% if current_page > 1 %}
+        <a class="nav-link pl-0" href="{{url_for('reservations.today', page=current_page - 1) if today else url_for('reservations.home', page=current_page - 1)}}">Previous page</a>
+        {% endif %}
+        {% if morepages %}
+        <a class="nav-link pl-0" href="{{url_for('reservations.today', page=current_page + 1) if today else url_for('reservations.home', page=current_page + 1)}}">Next page</a>
+        {% endif %}
+      </nav>
+    </footer>
 {% endblock %}
